@@ -1,0 +1,19 @@
+docs/build-plan.md
+  s_a273f7ff9f8cfd::t_7900d44ab9b97f 3,7,11-12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "9ab0529881267be20ee3e7c0a0fdd7e84db6cf88",
+  "prompts": {},
+  "sessions": {
+    "s_a273f7ff9f8cfd": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "23c07ae5-030b-4f18-b222-f0aef33b5d81",
+        "model": "unknown"
+      },
+      "human_author": "Marek Elmayan <melmayan.dev@gmail.com>"
+    }
+  }
+}
