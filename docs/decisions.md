@@ -20,7 +20,7 @@ Updated: 2026-10-17. "Proposed" means a working assumption without user approval
 | Not sandboxed; Developer ID, hardened runtime, no entitlements | No operation needs an entitlement outside the sandbox | Integration report |
 | Manual picker plus ordered host rules, first match wins | Tests and manual routing checks | [ADR 0002](adr/0002-explicit-routing.md), accepted |
 | Host normalization through `URLComponents.encodedHost` plus lowercasing and one trailing dot | Tests for Unicode, punycode, case, dots, IPs | Integration report |
-| Xcode 27.1, Swift 6.4, XcodeGen 2.46.0 | Pinned in CONTRIBUTING and CI | |
+| Developed with Xcode 27.1 (Swift 6.4); CI builds with the newest Xcode on each runner (Xcode 16.2 and Swift 6.0.3 on `macos-14`, Xcode 26.3 and Swift 6.2.4 on `macos-15`); XcodeGen 2.46.0 pinned | CONTRIBUTING and CI. The code must build with Swift 6.0, the oldest toolchain CI uses | |
 | Apps that don't open HTML documents start hidden | Separated browsers from ChatGPT and cmux on the test machine | [Product](product.md) |
 | Picker shortcuts use physical key codes | Required for AZERTY | Product B14 |
 | Local HTML files handed over by macOS are routed through the picker | Default browsers receive them | Product B16 |

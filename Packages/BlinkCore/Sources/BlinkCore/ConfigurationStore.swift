@@ -115,10 +115,17 @@ public final class ConfigurationStore {
         do {
             try data.write(to: temporaryURL, options: [.withoutOverwriting])
             let handle = try FileHandle(forWritingTo: temporaryURL)
-            try handle.synchronize()
+            // fsync on macOS doesn't flush the drive's cache; F_FULLFSYNC does where supported.
+            if fcntl(handle.fileDescriptor, F_FULLFSYNC) != 0 { try handle.synchronize() }
             try handle.close()
             guard rename(temporaryURL.path, fileURL.path) == 0 else {
                 throw CocoaError(.fileWriteUnknown)
+            }
+            // Flush the directory so the renamed entry survives a crash.
+            let directoryDescriptor = open(directory.path, O_RDONLY)
+            if directoryDescriptor >= 0 {
+                fsync(directoryDescriptor)
+                close(directoryDescriptor)
             }
         } catch {
             try? fileManager.removeItem(at: temporaryURL)

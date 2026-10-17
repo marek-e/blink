@@ -11,6 +11,8 @@ final class PickerSession {
     var selection = 0
     var alwaysForHost = false
     var showsFullLink = false
+    /// The tallest the browser list may be before it scrolls, from the screen the picker opens on.
+    var maxListHeight: CGFloat = .infinity
 
     func reset(for requestID: UUID) {
         self.requestID = requestID
@@ -66,6 +68,7 @@ final class PickerPanelController: NSObject, NSWindowDelegate {
         session.reset(for: active.request.id)
         model.refreshBrowsers()
         if isFirst {
+            session.maxListHeight = WindowPlacement.visibleHeight(nearPointer: NSEvent.mouseLocation) - PickerView.reservedHeight
             panel.layoutIfNeeded()
             panel.setFrame(WindowPlacement.frame(for: panel.frame.size, nearPointer: NSEvent.mouseLocation), display: false)
         }
@@ -205,6 +208,13 @@ enum WindowPlacement {
         let top = NSPoint(x: frame.midX, y: frame.maxY)
         guard let screen = PickerPlacement.screen(containing: top, in: screens) else { return frame }
         return PickerPlacement.clamp(frame, into: screen)
+    }
+
+    /// The usable height of the screen under the pointer, inside the placement margin.
+    @MainActor
+    static func visibleHeight(nearPointer pointer: NSPoint) -> CGFloat {
+        guard let screen = PickerPlacement.screen(containing: pointer, in: screens) else { return .infinity }
+        return screen.visibleFrame.height - 2 * PickerPlacement.margin
     }
 
     @MainActor

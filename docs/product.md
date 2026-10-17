@@ -53,7 +53,7 @@ Opening success means macOS accepted the dispatch to the selected app. Blink can
 
 The MVP has no browser profile selection, private-window launching, source-app rules, path or regex rules, tracking removal, shortened-link expansion, extensions, sync, accounts, AI service, plugin system, global shortcuts, automatic updater, or monetization flow. It does not replace in-browser navigation.
 
-Arc, Dia, Chrome, Zen, Safari, and Brave are required MVP compatibility targets, explicitly selected by the user. Each must support discovery, manual selection, domain-rule routing, and intact HTTP/HTTPS dispatch, both already running and fully quit. The current results are in [testing and release](testing-and-release.md); Brave is still untested.
+Arc, Dia, Chrome, Zen, Safari, and Brave are required MVP compatibility targets, explicitly selected by the user. Each must support discovery, manual selection, domain-rule routing, and intact HTTP/HTTPS dispatch, both already running and fully quit. All six pass on macOS 26; see [testing and release](testing-and-release.md).
 
 Test Zen as its own application; a Firefox test does not establish Zen compatibility. Likewise, no browser's passing result substitutes for another's. Other registered HTTP/HTTPS handlers, including Firefox, may appear but are not required release targets and should not be marketed as verified until tested.
 
@@ -61,7 +61,7 @@ Launching a browser uses that browser's own default session/profile behavior. Se
 
 ## Quality targets
 
-Local benchmarks on recorded reference hardware: warm request-to-interactive-picker p95 under 150 ms, cold request-to-picker p95 under 1 second, idle CPU below 1% averaged over 60 seconds with no requests, and idle memory below 75 MB. Browser startup and page loading are excluded. Spot measurements meet all four; see the [integration report](integration-report.md). The full sample counts are still to be recorded.
+Local benchmarks on recorded reference hardware: warm request-to-interactive-picker p95 under 150 ms, cold request-to-picker p95 under 1 second, idle CPU below 1% averaged over 60 seconds with no requests, and idle memory below 75 MB. Browser startup and page loading are excluded. All four are met on an M2 Pro: warm p95 43 ms (100 samples), cold p95 482 ms (20 samples), 0.0% idle CPU over 60 seconds and a 22 MB footprint. See [testing and release](testing-and-release.md#performance).
 
 Release requires all MVP acceptance criteria, no known URL-loss or duplicate-dispatch defects in the test matrix, and completed keyboard and VoiceOver checks. Product usefulness should be assessed through explicit tester feedback, without adding telemetry to the MVP.
 

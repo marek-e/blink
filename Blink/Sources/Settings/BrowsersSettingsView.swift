@@ -28,7 +28,6 @@ struct BrowsersSettingsView: View {
         }
         .padding(20)
         .frame(width: 560)
-        .disabled(model.preferences.isReadOnly)
     }
 }
 
@@ -51,6 +50,9 @@ struct BrowserPreferencesList: View {
             }
         }
         .listStyle(.bordered(alternatesRowBackgrounds: true))
+        // Edits can't be saved while the settings file is in recovery. Refresh stays available
+        // because it only updates the temporary in-memory list.
+        .disabled(model.preferences.isReadOnly)
         .onAppear { selection = selection ?? preferences.first?.bundleID }
     }
 

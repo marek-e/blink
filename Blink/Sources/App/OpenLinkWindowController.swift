@@ -29,9 +29,12 @@ final class OpenLinkWindowController: NSWindowController {
         NSApp.activate()
         if window?.isVisible != true {
             window?.center()
-            // A fresh view resets the text and error each time the window opens.
-            if let host = window?.contentViewController as? NSHostingController<OpenLinkView> {
-                host.rootView = OpenLinkView(model: host.rootView.model, close: host.rootView.close)
+            // A new hosting controller gives the view new state, so the text and error reset
+            // and the field takes focus again. Reassigning rootView would keep the old @State.
+            if let old = window?.contentViewController as? NSHostingController<OpenLinkView> {
+                let host = NSHostingController(rootView: OpenLinkView(model: old.rootView.model, close: old.rootView.close))
+                host.sizingOptions = [.preferredContentSize]
+                window?.contentViewController = host
             }
         }
         showWindow(nil)

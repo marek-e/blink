@@ -101,7 +101,8 @@ Blink logs "Picker interactive N ms after arrival" in the intake category, so th
 - [x] Minimum OS and architectures checked: macOS 14 in a VM and on GitHub's runner, macOS 15 on GitHub's runner, macOS 26 natively, x86_64 under Rosetta.
 - [x] All six required browsers pass discovery, manual selection, domain routing and HTTP/HTTPS dispatch, running and quit.
 - [x] No known link-loss, duplicate-dispatch, recursion or silent misrouting bugs.
-- [x] Accessibility: labels, roles, announcements and keyboard paths verified; light and dark appearance, Increase Contrast, Reduce Motion and VoiceOver running checked. A person listening to VoiceOver is still worth doing before a public launch.
+- [x] Accessibility: labels, roles, announcements and keyboard paths verified; light and dark appearance, Increase Contrast, Reduce Motion and VoiceOver running checked.
+- [ ] A person uses the picker and Settings with VoiceOver and confirms what it says.
 - [x] Privacy checks: no URLs in logs or on disk.
 - [x] Bundle ID, icon, version 1.0.0 (1) and ownership settled.
 - [x] License (proprietary) and name review recorded in [decisions](decisions.md).

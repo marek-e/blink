@@ -8,7 +8,8 @@ import Observation
 final class Preferences {
     struct SaveFailure: Identifiable {
         enum Kind {
-            case edit(Configuration)
+            /// `base` is the configuration the edit was made against.
+            case edit(base: Configuration, next: Configuration)
             case reset(discovered: [DiscoveredBrowser])
         }
 
@@ -60,15 +61,22 @@ final class Preferences {
             return true
         } catch {
             Log.configuration.error("Saving settings failed")
-            saveFailure = SaveFailure(kind: .edit(next))
+            saveFailure = SaveFailure(kind: .edit(base: configuration, next: next))
             return false
         }
     }
 
     /// Repeats the operation that failed. A failed reset is retried as a reset, so the backup still happens.
+    /// An edit is dropped if the settings changed since it failed, so it can't overwrite newer changes.
     func retry(_ failure: SaveFailure) {
         switch failure.kind {
-        case let .edit(configuration): commit(configuration)
+        case let .edit(base, next):
+            guard base == configuration else {
+                Log.configuration.notice("Discarded a failed edit made against older settings")
+                saveFailure = nil
+                return
+            }
+            commit(next)
         case let .reset(discovered): reset(discovered: discovered)
         }
     }

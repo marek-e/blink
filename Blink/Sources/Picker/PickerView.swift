@@ -20,6 +20,8 @@ struct PickerContainer: View {
 /// The picker's content. Keyboard input (arrows, Return, 1–9) is handled by `PickerPanel`.
 struct PickerView: View {
     static let width: CGFloat = 340
+    /// Room kept for the header, a banner and the footer when limiting the browser list's height.
+    static let reservedHeight: CGFloat = 320
 
     let model: AppModel
     @Bindable var session: PickerSession
@@ -198,7 +200,28 @@ struct PickerView: View {
 
     // MARK: Browsers
 
+    /// Scrolls only when every row wouldn't fit on the screen.
+    @ViewBuilder
     private var browserList: some View {
+        let rowsHeight = CGFloat(choices.count) * (BrowserRow.height + 2) - 2 + 12
+        let maxHeight = max(session.maxListHeight, 3 * BrowserRow.height)
+        if rowsHeight > maxHeight {
+            ScrollViewReader { proxy in
+                ScrollView {
+                    browserRows
+                }
+                .frame(height: maxHeight)
+                .onChange(of: selection) {
+                    guard choices.indices.contains(selection) else { return }
+                    proxy.scrollTo(choices[selection].bundleID)
+                }
+            }
+        } else {
+            browserRows
+        }
+    }
+
+    private var browserRows: some View {
         VStack(spacing: 2) {
             ForEach(Array(choices.enumerated()), id: \.element.bundleID) { index, browser in
                 BrowserRow(
@@ -224,6 +247,7 @@ struct PickerView: View {
                 .accessibilityHint(index < 9 ? "Press \(index + 1) to open" : "")
                 .accessibilityAddTraits(index == selection ? [.isButton, .isSelected] : .isButton)
                 .accessibilityAction { choose(index) }
+                .id(browser.bundleID)
             }
         }
         .padding(6)
@@ -298,6 +322,8 @@ struct PickerView: View {
 }
 
 private struct BrowserRow: View {
+    static let height: CGFloat = 40
+
     let model: AppModel
     let browser: DiscoveredBrowser
     let shortcut: Int?
@@ -328,7 +354,7 @@ private struct BrowserRow: View {
             }
         }
         .padding(.horizontal, 10)
-        .padding(.vertical, 6)
+        .frame(height: Self.height)
         .foregroundStyle(isHighlighted ? .white : .primary)
         .background {
             RoundedRectangle(cornerRadius: 6, style: .continuous)

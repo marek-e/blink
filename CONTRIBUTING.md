@@ -12,7 +12,7 @@
 
 ## Toolchain
 
-Developed with Xcode 27.1 (Swift 6.4) on macOS 26.6. The code uses the Swift 6 language mode and targets macOS 14. CI builds with the newest Xcode on GitHub's `macos-15` runner. XcodeGen 2.46.0 regenerates the project (`brew install xcodegen`).
+Developed with Xcode 27.1 (Swift 6.4) on macOS 26.6. The code uses the Swift 6 language mode and targets macOS 14. CI selects the newest Xcode on GitHub's `macos-14` and `macos-15` runners (currently Swift 6.0.3 and 6.2.4), so code must also compile with Swift 6.0. Release builds use `macos-15`. XcodeGen 2.46.0 regenerates the project (`brew install xcodegen`).
 
 ## Build and test
 

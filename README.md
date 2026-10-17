@@ -17,7 +17,7 @@ Blink is a small native macOS app that sits between your apps and your browsers.
 - Tells you when a browser is slow to take a link (for example while it starts up or shows a first-launch prompt), and lets you cancel instead of waiting forever.
 - Keeps everything on your Mac. Settings live in one JSON file. Blink keeps no history, sends nothing over the network and never logs URLs.
 
-Tested with Arc, Dia, Google Chrome, Zen, Safari and Brave, each both running and quit, on macOS 26 and macOS 14. Details are in [testing and release](docs/testing-and-release.md).
+Tested with Arc, Dia, Google Chrome, Zen, Safari and Brave, each both running and quit, on macOS 26. On macOS 14, Arc, Dia and Safari were tested from quit. Details are in [testing and release](docs/testing-and-release.md).
 
 ## Requirements
 
@@ -84,4 +84,4 @@ Blink stores browser order, visibility, your rules and whether you finished the 
 
 [Project context](CONTEXT.md) summarizes decisions. The [product requirements](docs/product.md), [interaction design](docs/interaction-design.md) and [architecture](docs/architecture.md) describe the behavior in detail. [Testing and release](docs/testing-and-release.md) records what has been verified. [Decisions](docs/decisions.md) lists what is settled and what is still open. [CONTRIBUTING](CONTRIBUTING.md) covers building and testing.
 
-No software license has been selected. Do not infer redistribution rights from this repository.
+Blink is proprietary. Copyright © 2026 Marek Elmayan, all rights reserved. The repository has no license file, so it grants no rights to use, copy or redistribute the code.
