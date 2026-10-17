@@ -1,15 +1,15 @@
 # Build plan
 
-Status: milestones 0 to 4 are done; milestone 5 is blocked on a signing identity and on tests that need other machines or accounts. Requirements are defined in [product.md](product.md).
+Status: milestones 0 to 4 are done. Milestone 5 needs only the owner's Developer ID and notarization credentials. Requirements are defined in [product.md](product.md).
 
 | Milestone | State |
 | --- | --- |
-| 0. Prove macOS integration | Done on macOS 26 / Apple silicon. See the [integration report](integration-report.md). macOS 14, Intel and Brave remain untested. |
+| 0. Prove macOS integration | Done on macOS 26 and macOS 14 (VM), Apple silicon, with the Intel slice under Rosetta. See the [integration report](integration-report.md). |
 | 1. Application foundation | Done. XcodeGen project, shared `Blink` scheme, menu bar app, settings, versioned store, CI workflow. |
 | 2. Manual picker | Done. |
 | 3. Deterministic routing | Done. ADR 0002 accepted. |
-| 4. Onboarding and reliability | Done, except an end-to-end run of the default-browser change in a separate account. |
-| 5. Distributable beta | `scripts/release.sh` is ready. Needs a Developer ID, notarization credentials, a permanent bundle ID, a license decision and the remaining matrix checks. |
+| 4. Onboarding and reliability | Done. |
+| 5. Distributable beta | Pipeline dry-run passed. Needs the owner's Developer ID certificate and notarization credentials, then a tag push. |
 
 ## 0. Prove macOS integration
 
