@@ -1,0 +1,45 @@
+README.md
+  s_1aa32ed129fe72::t_5d1989b14dd454 1-33
+CONTRIBUTING.md
+  s_1aa32ed129fe72::t_5d1989b14dd454 1-27
+CONTEXT.md
+  s_1aa32ed129fe72::t_5d1989b14dd454 1-10,12-41
+  s_1aa32ed129fe72::t_be8f7be9824716 11
+docs/product.md
+  s_1aa32ed129fe72::t_ac19f3f1ed0f8a 54-63
+  s_1aa32ed129fe72::t_be8f7be9824716 3,14,43-47
+  s_1aa32ed129fe72::t_5d1989b14dd454 1-2,4-13,15-42,48-53
+docs/interaction-design.md
+  s_1aa32ed129fe72::t_5d1989b14dd454 1-62
+docs/build-plan.md
+  s_1aa32ed129fe72::t_de58922e535d7a 1-6,8-45
+  s_1aa32ed129fe72::t_be8f7be9824716 7
+docs/testing-and-release.md
+  s_1aa32ed129fe72::t_de58922e535d7a 1-20,22,36-57,59-71
+  s_1aa32ed129fe72::t_be8f7be9824716 21,23-35,58
+docs/architecture.md
+  s_1aa32ed129fe72::t_5d1989b14dd454 1-110
+docs/decisions.md
+  s_1aa32ed129fe72::t_de58922e535d7a 1-11,13-43
+  s_1aa32ed129fe72::t_be8f7be9824716 12
+docs/adr/0001-native-local-app.md
+  s_1aa32ed129fe72::t_de58922e535d7a 1-23
+docs/adr/0002-explicit-routing.md
+  s_1aa32ed129fe72::t_de58922e535d7a 1-23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "da8040626abfbec52b65aa8f40c57d589556cbfc",
+  "prompts": {},
+  "sessions": {
+    "s_1aa32ed129fe72": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a14b90-930f-7b23-99d0-309e3493236c",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Marek Elmayan <melmayan.dev@gmail.com>"
+    }
+  }
+}
