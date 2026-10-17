@@ -1,0 +1,47 @@
+Blink/Sources/Settings/BrowsersSettingsView.swift
+  s_a273f7ff9f8cfd::t_6e05391a35b17b 53-55
+README.md
+  s_a273f7ff9f8cfd::t_6ed0a6edd123ee 20,87
+docs/testing-and-release.md
+  s_a273f7ff9f8cfd::t_6ed0a6edd123ee 104-105
+CONTRIBUTING.md
+  s_a273f7ff9f8cfd::t_6ed0a6edd123ee 15
+Blink/Sources/Picker/PickerPanelController.swift
+  s_a273f7ff9f8cfd::t_2eaadf8114833d 14-15,71,213-217
+  s_a273f7ff9f8cfd::t_e518d9293a4dfd 218-219
+.github/workflows/ci.yml
+  s_a273f7ff9f8cfd::t_c594a0df2afd99 9-11,22-23,48-52
+docs/decisions.md
+  s_a273f7ff9f8cfd::t_6ed0a6edd123ee 23
+Blink/Sources/Picker/PickerView.swift
+  s_a273f7ff9f8cfd::t_2eaadf8114833d 23-24,203-204,206-224,250,325-326,357
+Blink/Sources/App/Preferences.swift
+  s_a273f7ff9f8cfd::t_6e05391a35b17b 11-12,64,70,73-79
+.github/workflows/release.yml
+  s_a273f7ff9f8cfd::t_c594a0df2afd99 26-27
+Packages/BlinkCore/Sources/BlinkCore/ConfigurationStore.swift
+  s_a273f7ff9f8cfd::t_6e05391a35b17b 118-119,124-128
+  s_a273f7ff9f8cfd::t_ec14e3946c2f93 129
+docs/product.md
+  s_a273f7ff9f8cfd::t_6ed0a6edd123ee 56,64
+Blink/Sources/App/OpenLinkWindowController.swift
+  s_a273f7ff9f8cfd::t_6e05391a35b17b 32-37
+docs/releases/1.0.0.md
+  s_a273f7ff9f8cfd::t_6ed0a6edd123ee 10
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "294a42e068aceb768597232d92c9d018b44da430",
+  "prompts": {},
+  "sessions": {
+    "s_a273f7ff9f8cfd": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "23c07ae5-030b-4f18-b222-f0aef33b5d81",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Marek Elmayan <melmayan.dev@gmail.com>"
+    }
+  }
+}
