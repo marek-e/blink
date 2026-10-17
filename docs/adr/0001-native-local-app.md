@@ -1,6 +1,6 @@
 # ADR 0001: One native, local macOS application
 
-Status: proposed. Date: 2026-10-17.
+Status: accepted, 2026-10-17.
 
 ## Context
 
@@ -20,4 +20,4 @@ Native implementation requires macOS build infrastructure and real-machine integ
 
 ## Verification
 
-Milestone 0 must prove cold/warm URL delivery, browser discovery/dispatch, default-handler setup, login launch, normalization, and focus behavior. Record sandbox results and SDK/API availability. Accept or revise this ADR after that evidence exists.
+Accepted on the evidence in the [integration report](../integration-report.md): cold and warm delivery, discovery, explicit dispatch to five browsers, host normalization and focus all work as designed. Two revisions came out of it. The app is not sandboxed and ships with no entitlements. Pure logic sits in a local Swift package, `BlinkCore`, so it can be tested without launching the app; there is still one app target. Default-handler setup and login launch are implemented with Apple's public APIs but still need an end-to-end run in a separate account.

@@ -1,6 +1,6 @@
 # Product requirements
 
-Status: proposed MVP baseline, 2026-10-17. The identity, broad product direction, and required browser targets are confirmed; see [context](../CONTEXT.md).
+Status: implemented, 2026-10-17. The identity, broad product direction, and required browser targets are confirmed; see [context](../CONTEXT.md). Evidence for each requirement is tracked in [testing and release](testing-and-release.md).
 
 ## Problem and audience
 
@@ -34,13 +34,26 @@ Blink only handles requests delivered to it. Links navigated inside a browser, a
 | B12 | Persist safely | Store versioned local configuration atomically. Invalid or newer unsupported data is preserved and reported, never silently overwritten. |
 | B13 | Preserve link meaning | Send the original accepted URL without intentional query, fragment, path, or redirect changes. Reject unsupported schemes and malformed web URLs. |
 
+## Additions after the MVP baseline
+
+Added during implementation, each because the MVP was worse without it.
+
+| ID | Requirement | Acceptance criteria |
+| --- | --- | --- |
+| B14 | Number shortcuts | Keys 1 to 9 open the matching picker row on any keyboard layout and on the keypad. Command, Option and Control combinations are ignored. |
+| B15 | Rule from the picker | An unchecked "Always open <host> in the chosen browser" checkbox appears for web links that matched no rule. When checked, choosing a browser opens the link and, once macOS accepts it, saves an exact rule for the host (updating an existing exact rule rather than adding a duplicate). It never appears in recovery or read-only states. |
+| B16 | Local HTML files | A local file delivered by macOS (because Blink is the default browser) shows the picker with the file name and opens in the chosen browser. Rules never apply to files. Typed links can't be files. |
+| B17 | Explain rules | The Rules tab warns about rules made unreachable by earlier ones and about rules whose browser isn't installed. A test field shows which rule, if any, a URL would use, without opening it. |
+
+Discovery also differs from the baseline: an app that registers for web links but not for HTML documents starts hidden in the picker instead of visible, unless that would leave no browser visible. Chat clients and terminals register for links without being browsers.
+
 Opening success means macOS accepted the dispatch to the selected app. Blink cannot guarantee network success or page rendering inside that browser.
 
 ## Scope boundaries
 
 The MVP has no browser profile selection, private-window launching, source-app rules, path or regex rules, tracking removal, shortened-link expansion, extensions, sync, accounts, AI service, plugin system, global shortcuts, automatic updater, or monetization flow. It does not replace in-browser navigation.
 
-Arc, Dia, Chrome, Zen, Safari, and Brave are required MVP compatibility targets, explicitly selected by the user. Each must support discovery, manual selection, domain-rule routing, and intact HTTP/HTTPS dispatch, both already running and fully quit. Compatibility is a release requirement, not yet a verified implementation claim.
+Arc, Dia, Chrome, Zen, Safari, and Brave are required MVP compatibility targets, explicitly selected by the user. Each must support discovery, manual selection, domain-rule routing, and intact HTTP/HTTPS dispatch, both already running and fully quit. The current results are in [testing and release](testing-and-release.md); Brave is still untested.
 
 Test Zen as its own application; a Firefox test does not establish Zen compatibility. Likewise, no browser's passing result substitutes for another's. Other registered HTTP/HTTPS handlers, including Firefox, may appear but are not required release targets and should not be marketed as verified until tested.
 
@@ -48,7 +61,7 @@ Launching a browser uses that browser's own default session/profile behavior. Se
 
 ## Quality targets
 
-Proposed local benchmarks on recorded reference hardware: warm request-to-interactive-picker p95 under 150 ms, cold request-to-picker p95 under 1 second, idle CPU below 1% averaged over 60 seconds with no requests, and idle memory below 75 MB. These are targets, not measured claims. Browser startup and page loading are excluded.
+Local benchmarks on recorded reference hardware: warm request-to-interactive-picker p95 under 150 ms, cold request-to-picker p95 under 1 second, idle CPU below 1% averaged over 60 seconds with no requests, and idle memory below 75 MB. Browser startup and page loading are excluded. Spot measurements meet all four; see the [integration report](integration-report.md). The full sample counts are still to be recorded.
 
 Release requires all MVP acceptance criteria, no known URL-loss or duplicate-dispatch defects in the test matrix, and completed keyboard and VoiceOver checks. Product usefulness should be assessed through explicit tester feedback, without adding telemetry to the MVP.
 
@@ -60,4 +73,4 @@ User-provided references to consult when exploring features or revisiting scope:
 - [Choosy](https://choosy.app/)
 - [Velja](https://sindresorhus.com/velja)
 
-These links are saved for future research; their features have not been evaluated here. Check the current product pages when needed, and document any proposed additions to Blink with acceptance criteria before changing the MVP scope.
+Their feature lists were not reviewed in detail. Document any further addition with acceptance criteria before changing scope.

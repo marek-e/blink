@@ -1,0 +1,506 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		044D90B6A8FFF010DDC3FCF4 /* SettingsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 426CE4749C32090D64BC96D3 /* SettingsWindowController.swift */; };
+		0F15B6AF6A6ABBCFABB298AC /* Accessibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B252BB705DBC848B29DEBB0 /* Accessibility.swift */; };
+		2059CCA6C4E1FE3523B73E15 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C09DDA766786A0C57470886 /* Log.swift */; };
+		217158FA86592D2E5B8034B4 /* BrowserCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98F142FBA8DCBBAC0675A6E /* BrowserCatalog.swift */; };
+		23563BA351FEB74B366B537F /* Preferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88753793C34693F74F3EF1BB /* Preferences.swift */; };
+		283B1017FBA66643519DB9EB /* PickerPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6505DAA6BF7A285C30F63F09 /* PickerPanelController.swift */; };
+		2E956C0B2EACE08C306C7749 /* RulesSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD31C7BA141FB975318896BF /* RulesSettingsView.swift */; };
+		334ECB4E079E87F7F5959231 /* BrowsersSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1758EE165ED63F9EB11C033B /* BrowsersSettingsView.swift */; };
+		389C3B75F11353A77D36A6B1 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D67BEA715D77DBDA7509CF6C /* OnboardingView.swift */; };
+		3B2BE3BBF11C376863D0E232 /* WorkspaceOpener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03AE917FE8ED7F0AC7E61C1B /* WorkspaceOpener.swift */; };
+		4436C6FC90721A56633A06D4 /* OpenLinkWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11F42BBB04F3492EF85C9BB5 /* OpenLinkWindowController.swift */; };
+		44A45038B0F961D173826104 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3611BA1F7A16AA6199641486 /* Assets.xcassets */; };
+		4A1B847D87DB50655625A636 /* Observing.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CC3262F368DBC4D76E520A /* Observing.swift */; };
+		4E66FF4D6E674A7A060B178E /* PickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 296220E38885154D8B25A37A /* PickerView.swift */; };
+		4F3F7FBAA72D9B0B3079C329 /* DebugSnapshots.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DCBA84416E62E04D85694C7 /* DebugSnapshots.swift */; };
+		527B999F55D972F6C2542288 /* MainMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = D556B6EA5246EE2C764C4B39 /* MainMenu.swift */; };
+		58C49E14A6535FEF2693A58C /* StatusItemController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09E2A5B2641A3A5B82FB0093 /* StatusItemController.swift */; };
+		6236E723BC574777D616DE37 /* BlinkCore in Frameworks */ = {isa = PBXBuildFile; productRef = B3D1D1183FB72FCF22C0F8F6 /* BlinkCore */; };
+		695EDD35E2ED912E4A22A5CF /* SystemIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = C744FBE3B33E6862109151AA /* SystemIntegration.swift */; };
+		699781A81630D7E666F7A485 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 085C9A91F1369219A36B85C8 /* AppModel.swift */; };
+		D11808F06FFEAF5CC2119422 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ACB0E3C26E42150018B04B3 /* AppDelegate.swift */; };
+		D3E0A1B7D1D8A3696C618B5E /* BlinkGlyph.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4508F88A84F4BC3FAA2F083D /* BlinkGlyph.swift */; };
+		F2A7068B02D7738D4DB09714 /* RuleEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B33F9C5B6AACEFB791F6EF88 /* RuleEditorView.swift */; };
+		FD994ED70F44EB69B2C72283 /* GeneralSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50B8F18782D95654E8F39C48 /* GeneralSettingsView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		03AE917FE8ED7F0AC7E61C1B /* WorkspaceOpener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceOpener.swift; sourceTree = "<group>"; };
+		085C9A91F1369219A36B85C8 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
+		09E2A5B2641A3A5B82FB0093 /* StatusItemController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusItemController.swift; sourceTree = "<group>"; };
+		11F42BBB04F3492EF85C9BB5 /* OpenLinkWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenLinkWindowController.swift; sourceTree = "<group>"; };
+		1758EE165ED63F9EB11C033B /* BrowsersSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowsersSettingsView.swift; sourceTree = "<group>"; };
+		1DCBA84416E62E04D85694C7 /* DebugSnapshots.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugSnapshots.swift; sourceTree = "<group>"; };
+		296220E38885154D8B25A37A /* PickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerView.swift; sourceTree = "<group>"; };
+		2DD5C90F0E5B886308E8DFF0 /* Blink.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Blink.entitlements; sourceTree = "<group>"; };
+		3611BA1F7A16AA6199641486 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		426CE4749C32090D64BC96D3 /* SettingsWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowController.swift; sourceTree = "<group>"; };
+		4508F88A84F4BC3FAA2F083D /* BlinkGlyph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlinkGlyph.swift; sourceTree = "<group>"; };
+		48431B2C296BDB92BF0BB93C /* Blink.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Blink.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		50B8F18782D95654E8F39C48 /* GeneralSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralSettingsView.swift; sourceTree = "<group>"; };
+		5B252BB705DBC848B29DEBB0 /* Accessibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Accessibility.swift; sourceTree = "<group>"; };
+		5C09DDA766786A0C57470886 /* Log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
+		5E0407B1C17D7A7BCEE6E63B /* BlinkCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = BlinkCore; path = Packages/BlinkCore; sourceTree = SOURCE_ROOT; };
+		6505DAA6BF7A285C30F63F09 /* PickerPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerPanelController.swift; sourceTree = "<group>"; };
+		6ACB0E3C26E42150018B04B3 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		88753793C34693F74F3EF1BB /* Preferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preferences.swift; sourceTree = "<group>"; };
+		A8CC3262F368DBC4D76E520A /* Observing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Observing.swift; sourceTree = "<group>"; };
+		B33F9C5B6AACEFB791F6EF88 /* RuleEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuleEditorView.swift; sourceTree = "<group>"; };
+		BD31C7BA141FB975318896BF /* RulesSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RulesSettingsView.swift; sourceTree = "<group>"; };
+		C744FBE3B33E6862109151AA /* SystemIntegration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemIntegration.swift; sourceTree = "<group>"; };
+		C98F142FBA8DCBBAC0675A6E /* BrowserCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserCatalog.swift; sourceTree = "<group>"; };
+		D556B6EA5246EE2C764C4B39 /* MainMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainMenu.swift; sourceTree = "<group>"; };
+		D67BEA715D77DBDA7509CF6C /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		902983FE17424CC10818E8EA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6236E723BC574777D616DE37 /* BlinkCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		312B6FAA8805FF783F2E36F0 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				5E0407B1C17D7A7BCEE6E63B /* BlinkCore */,
+			);
+			path = Packages;
+			sourceTree = "<group>";
+		};
+		33FFEACA1212D1B6CB877CD0 /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				5B252BB705DBC848B29DEBB0 /* Accessibility.swift */,
+				4508F88A84F4BC3FAA2F083D /* BlinkGlyph.swift */,
+				1DCBA84416E62E04D85694C7 /* DebugSnapshots.swift */,
+				5C09DDA766786A0C57470886 /* Log.swift */,
+				A8CC3262F368DBC4D76E520A /* Observing.swift */,
+			);
+			path = Support;
+			sourceTree = "<group>";
+		};
+		6B4DFF2978746EEAAA0E3700 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				3611BA1F7A16AA6199641486 /* Assets.xcassets */,
+				2DD5C90F0E5B886308E8DFF0 /* Blink.entitlements */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		87D250838D25A06CA26B1DDA /* Picker */ = {
+			isa = PBXGroup;
+			children = (
+				6505DAA6BF7A285C30F63F09 /* PickerPanelController.swift */,
+				296220E38885154D8B25A37A /* PickerView.swift */,
+			);
+			path = Picker;
+			sourceTree = "<group>";
+		};
+		910742F303EE42045B3CF616 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				D67BEA715D77DBDA7509CF6C /* OnboardingView.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		9AB3E67AF4B5E2F45C62578B /* App */ = {
+			isa = PBXGroup;
+			children = (
+				6ACB0E3C26E42150018B04B3 /* AppDelegate.swift */,
+				085C9A91F1369219A36B85C8 /* AppModel.swift */,
+				C98F142FBA8DCBBAC0675A6E /* BrowserCatalog.swift */,
+				D556B6EA5246EE2C764C4B39 /* MainMenu.swift */,
+				11F42BBB04F3492EF85C9BB5 /* OpenLinkWindowController.swift */,
+				88753793C34693F74F3EF1BB /* Preferences.swift */,
+				09E2A5B2641A3A5B82FB0093 /* StatusItemController.swift */,
+				C744FBE3B33E6862109151AA /* SystemIntegration.swift */,
+				03AE917FE8ED7F0AC7E61C1B /* WorkspaceOpener.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		A668A2BE284733E6CF606FC7 /* Blink */ = {
+			isa = PBXGroup;
+			children = (
+				6B4DFF2978746EEAAA0E3700 /* Resources */,
+				AB4ED412EA057C277D760D04 /* Sources */,
+			);
+			path = Blink;
+			sourceTree = "<group>";
+		};
+		AB4ED412EA057C277D760D04 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				9AB3E67AF4B5E2F45C62578B /* App */,
+				910742F303EE42045B3CF616 /* Onboarding */,
+				87D250838D25A06CA26B1DDA /* Picker */,
+				F03886EC9DA9A54B42861BB1 /* Settings */,
+				33FFEACA1212D1B6CB877CD0 /* Support */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		B23DD3B5EFB562B7C2FAEE85 = {
+			isa = PBXGroup;
+			children = (
+				A668A2BE284733E6CF606FC7 /* Blink */,
+				312B6FAA8805FF783F2E36F0 /* Packages */,
+				E370FA75E2B9CA960A6CB41D /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E370FA75E2B9CA960A6CB41D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				48431B2C296BDB92BF0BB93C /* Blink.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F03886EC9DA9A54B42861BB1 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				1758EE165ED63F9EB11C033B /* BrowsersSettingsView.swift */,
+				50B8F18782D95654E8F39C48 /* GeneralSettingsView.swift */,
+				B33F9C5B6AACEFB791F6EF88 /* RuleEditorView.swift */,
+				BD31C7BA141FB975318896BF /* RulesSettingsView.swift */,
+				426CE4749C32090D64BC96D3 /* SettingsWindowController.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4F7B28CBF14815045A9B7C0C /* Blink */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9CDF5C024DE739BC28A35BFC /* Build configuration list for PBXNativeTarget "Blink" */;
+			buildPhases = (
+				220E4869925F21CE047FE660 /* Sources */,
+				07E93D54A8EE5A9D8BE83B8D /* Resources */,
+				902983FE17424CC10818E8EA /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Blink;
+			packageProductDependencies = (
+				B3D1D1183FB72FCF22C0F8F6 /* BlinkCore */,
+			);
+			productName = Blink;
+			productReference = 48431B2C296BDB92BF0BB93C /* Blink.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		5F716E18902DA7ABF2287DDD /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					4F7B28CBF14815045A9B7C0C = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Manual;
+					};
+				};
+			};
+			buildConfigurationList = 114EF5ED8BC9EE1BB0FAB30B /* Build configuration list for PBXProject "Blink" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = B23DD3B5EFB562B7C2FAEE85;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				71FAC5F15B36BDE031D1759A /* XCLocalSwiftPackageReference "Packages/BlinkCore" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = E370FA75E2B9CA960A6CB41D /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4F7B28CBF14815045A9B7C0C /* Blink */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		07E93D54A8EE5A9D8BE83B8D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				44A45038B0F961D173826104 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		220E4869925F21CE047FE660 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0F15B6AF6A6ABBCFABB298AC /* Accessibility.swift in Sources */,
+				D11808F06FFEAF5CC2119422 /* AppDelegate.swift in Sources */,
+				699781A81630D7E666F7A485 /* AppModel.swift in Sources */,
+				D3E0A1B7D1D8A3696C618B5E /* BlinkGlyph.swift in Sources */,
+				217158FA86592D2E5B8034B4 /* BrowserCatalog.swift in Sources */,
+				334ECB4E079E87F7F5959231 /* BrowsersSettingsView.swift in Sources */,
+				4F3F7FBAA72D9B0B3079C329 /* DebugSnapshots.swift in Sources */,
+				FD994ED70F44EB69B2C72283 /* GeneralSettingsView.swift in Sources */,
+				2059CCA6C4E1FE3523B73E15 /* Log.swift in Sources */,
+				527B999F55D972F6C2542288 /* MainMenu.swift in Sources */,
+				4A1B847D87DB50655625A636 /* Observing.swift in Sources */,
+				389C3B75F11353A77D36A6B1 /* OnboardingView.swift in Sources */,
+				4436C6FC90721A56633A06D4 /* OpenLinkWindowController.swift in Sources */,
+				283B1017FBA66643519DB9EB /* PickerPanelController.swift in Sources */,
+				4E66FF4D6E674A7A060B178E /* PickerView.swift in Sources */,
+				23563BA351FEB74B366B537F /* Preferences.swift in Sources */,
+				F2A7068B02D7738D4DB09714 /* RuleEditorView.swift in Sources */,
+				2E956C0B2EACE08C306C7749 /* RulesSettingsView.swift in Sources */,
+				044D90B6A8FFF010DDC3FCF4 /* SettingsWindowController.swift in Sources */,
+				58C49E14A6535FEF2693A58C /* StatusItemController.swift in Sources */,
+				695EDD35E2ED912E4A22A5CF /* SystemIntegration.swift in Sources */,
+				3B2BE3BBF11C376863D0E232 /* WorkspaceOpener.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		01A119BFF1E989B0A233C246 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		ACFF4EBC46D010A5CFBCEBF5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		AEA610DE59472AAECC971BAC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Blink/Resources/Blink.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Blink/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = dev.melmayan.blink;
+				PRODUCT_NAME = Blink;
+				SDKROOT = macosx;
+				SWIFT_STRICT_CONCURRENCY = complete;
+			};
+			name = Debug;
+		};
+		F31BE749247DCA686B22646D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Blink/Resources/Blink.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Blink/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = dev.melmayan.blink;
+				PRODUCT_NAME = Blink;
+				SDKROOT = macosx;
+				SWIFT_STRICT_CONCURRENCY = complete;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		114EF5ED8BC9EE1BB0FAB30B /* Build configuration list for PBXProject "Blink" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				ACFF4EBC46D010A5CFBCEBF5 /* Debug */,
+				01A119BFF1E989B0A233C246 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		9CDF5C024DE739BC28A35BFC /* Build configuration list for PBXNativeTarget "Blink" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AEA610DE59472AAECC971BAC /* Debug */,
+				F31BE749247DCA686B22646D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		71FAC5F15B36BDE031D1759A /* XCLocalSwiftPackageReference "Packages/BlinkCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/BlinkCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B3D1D1183FB72FCF22C0F8F6 /* BlinkCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BlinkCore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 5F716E18902DA7ABF2287DDD /* Project object */;
+}

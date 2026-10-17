@@ -1,0 +1,55 @@
+name: Blink
+options:
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+  developmentLanguage: en
+settings:
+  base:
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "6.0"
+    MACOSX_DEPLOYMENT_TARGET: "14.0"
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    DEAD_CODE_STRIPPING: YES
+packages:
+  BlinkCore:
+    path: Packages/BlinkCore
+targets:
+  Blink:
+    type: application
+    platform: macOS
+    sources:
+      - path: Blink
+        excludes:
+          - "Resources/Info.plist"
+    dependencies:
+      - package: BlinkCore
+    settings:
+      base:
+        PRODUCT_NAME: Blink
+        PRODUCT_BUNDLE_IDENTIFIER: dev.melmayan.blink
+        INFOPLIST_FILE: Blink/Resources/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        CODE_SIGN_ENTITLEMENTS: Blink/Resources/Blink.entitlements
+        ENABLE_HARDENED_RUNTIME: YES
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGN_IDENTITY: "-"
+        DEVELOPMENT_TEAM: ""
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        COMBINE_HIDPI_IMAGES: YES
+        SWIFT_STRICT_CONCURRENCY: complete
+        ENABLE_APP_SANDBOX: NO
+schemes:
+  Blink:
+    build:
+      targets:
+        Blink: all
+    test:
+      config: Debug
+      targets:
+        - package: BlinkCore/BlinkCoreTests
+    run:
+      config: Debug
+    archive:
+      config: Release

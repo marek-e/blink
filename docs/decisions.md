@@ -1,43 +1,52 @@
 # Decisions and open questions
 
-Updated: 2026-10-17. “Proposed” means a documented working assumption, not user approval. Implementation evidence and product decisions should change statuses explicitly.
+Updated: 2026-10-17. "Proposed" means a working assumption without user approval. "Verified" means the [integration report](integration-report.md) or tests back it.
 
 ## Confirmed
 
 | Decision | Basis |
 | --- | --- |
-| Blink; “From link to browser, instantly.” | User selection in the shared conversation |
+| Blink; "From link to browser, instantly." | User selection in the shared conversation |
 | Native macOS browser picker and intelligent link router | Product direction in that conversation |
 | Minimal, premium, fast visual direction | Product identity described there |
 | Arc, Dia, Chrome, Zen, Safari, and Brave compatibility | Explicit user requirement after the naming conversation |
 
-## Proposed defaults
+## Settled by implementation
 
-| Decision | Rationale | Record |
+| Decision | Evidence | Record |
 | --- | --- | --- |
-| SwiftUI + AppKit, one local app | Native integration without a backend | [ADR 0001](adr/0001-native-local-app.md) |
-| macOS 14+, Apple silicon and Intel | Initial compatibility baseline to validate | Milestone 0 |
-| Direct signed/notarized distribution | Avoid committing to store constraints before integration proof | ADR 0001 |
-| Manual picker plus ordered host rules | Useful first release with testable behavior | [ADR 0002](adr/0002-explicit-routing.md) |
-| Profiles deferred | Browser-specific integration is unproven | Product scope |
-| No URL history or telemetry | Link routing does not require either | Architecture |
-| Manual updates for MVP | Avoid adding an update subsystem before the core works | Release plan |
+| Swift, SwiftUI and AppKit in one app, logic in a local package | Built and tested | [ADR 0001](adr/0001-native-local-app.md), accepted |
+| macOS 14 deployment target, universal binary | Ran on macOS 14.8.7 in a VM and as x86_64 under Rosetta | Integration report |
+| Not sandboxed; Developer ID, hardened runtime, no entitlements | No operation needs an entitlement outside the sandbox | Integration report |
+| Manual picker plus ordered host rules, first match wins | Tests and manual routing checks | [ADR 0002](adr/0002-explicit-routing.md), accepted |
+| Host normalization through `URLComponents.encodedHost` plus lowercasing and one trailing dot | Tests for Unicode, punycode, case, dots, IPs | Integration report |
+| Xcode 27.1, Swift 6.4, XcodeGen 2.46.0 | Pinned in CONTRIBUTING and CI | |
+| Apps that don't open HTML documents start hidden | Separated browsers from ChatGPT and cmux on the test machine | [Product](product.md) |
+| Picker shortcuts use physical key codes | Required for AZERTY | Product B14 |
+| Local HTML files handed over by macOS are routed through the picker | Default browsers receive them | Product B16 |
+| Yield activation to the browser on dispatch | Without it Blink stayed frontmost | Integration report |
+| Profiles deferred | Unchanged | Product scope |
+| No URL history or telemetry | Logs audited | Architecture |
+| Manual updates | No updater shipped | Release plan |
+| Original icon (forked-path mark) | `scripts/IconGenerator` | |
 
-## Questions and validation gates
+## Settled for release
 
-| Question | Default / required evidence | Resolve by |
+| Decision | Basis |
+| --- | --- |
+| Bundle ID `dev.melmayan.blink` | The owner's handle, matching the Git identity. Settings live under this name, so changing it later would orphan users' settings |
+| Proprietary, all rights reserved | No license file means no rights are granted. Choosing an open-source license later only adds rights |
+| Name "Blink" kept | A 2026-10-18 search found no browser picker or link router called Blink. The name is crowded elsewhere (Chromium's engine, Amazon's cameras, several unrelated Mac apps), so App Store search would be noisy. This is not legal clearance |
+| Releases on GitHub Releases for `marek-e/blink`, support through GitHub issues | The repository is already there; `.github/workflows/release.yml` publishes tagged builds |
+| English only for 1.0 | Small UI; localization can follow demand |
+
+## Still open
+
+| Question | Current state | Resolve by |
 | --- | --- | --- |
-| Is macOS 14 the right minimum? | Verify all APIs and test target machines; revise if justified | Milestone 0 |
-| Can required integration run sandboxed? | Test discovery, URL intake, dispatch, defaults, and login; record entitlements | Milestone 0 |
-| Does host normalization behave consistently? | Prove Unicode/punycode and IP fixtures with selected SDK | Milestone 0 |
-| Which Xcode/Swift version? | Select installed stable toolchain that supports tested deployment target; pin in contribution guide/CI | Milestone 1 |
-| What permanent bundle ID and signing team? | Owner supplies controlled reverse-DNS identity and signing account | Before distributable build |
-| Are browser profiles essential for first release? | Current proposal defers them; if required, revise scope and prove per-browser support first | Before expanding MVP |
-| Is Blink clear for public branding? | Name overlaps with Chromium terminology; branding review is pending, no legal conclusion is recorded | Before public launch |
-| What license and commercial model? | Undecided; do not add a license, pricing, payment, or account flow by assumption | Before public distribution |
-| Where are releases and support hosted? | Choose owner-controlled download location and support channel | Before public beta |
-| What icon and localization scope? | Design original icon; initial UI copy in English is proposed, additional languages uncommitted | Before public beta |
+| Developer ID certificate and notarization credentials | Only the owner can enroll in the Apple Developer Program. Until then, builds run on the Mac that built them. Everything else in the release pipeline was dry-run | Before giving Blink to anyone else |
+| Are browser profiles essential? | Deferred | Before expanding scope |
 
 ## Decision process
 
-Use an ADR for choices expensive to reverse, not every implementation detail. Include status, context, decision, consequences, and verification. Mark superseded decisions and link replacements. When a user changes scope, update the PRD, affected architecture, test plan, and milestone together.
+Use an ADR for choices that are expensive to reverse. Include status, context, decision, consequences and verification. Mark superseded decisions and link replacements. When scope changes, update the requirements, architecture, test plan and build plan together.

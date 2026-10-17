@@ -1,6 +1,6 @@
 # ADR 0002: Explicit first-match routing
 
-Status: proposed. Date: 2026-10-17.
+Status: accepted, 2026-10-17.
 
 ## Context
 
@@ -20,4 +20,4 @@ First-match ordering means a broad rule can shadow a later narrow rule. The rule
 
 ## Verification
 
-Use table-driven tests for normalization and matching, plus integration checks for recovery and explicit application opening. Accept or revise this ADR during milestone 3.
+Accepted. Table-driven tests cover normalization, matching, overlaps, disabled rules and unavailable first matches. Manual checks confirmed that a rule to a missing browser opens the recovery picker without trying later rules, and that rules dispatch to Arc, Dia, Chrome, Zen and Safari. One extension: the picker can create an exact rule when the user ticks a checkbox (product B15). It still never learns from choices on its own.

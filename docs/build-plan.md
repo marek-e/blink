@@ -1,6 +1,15 @@
 # Build plan
 
-Status: proposed sequence. Milestones are dependency gates, not delivery-date promises. Requirements are defined in [product.md](product.md).
+Status: milestones 0 to 4 are done; milestone 5 is blocked on a signing identity and on tests that need other machines or accounts. Requirements are defined in [product.md](product.md).
+
+| Milestone | State |
+| --- | --- |
+| 0. Prove macOS integration | Done on macOS 26 / Apple silicon. See the [integration report](integration-report.md). macOS 14, Intel and Brave remain untested. |
+| 1. Application foundation | Done. XcodeGen project, shared `Blink` scheme, menu bar app, settings, versioned store, CI workflow. |
+| 2. Manual picker | Done. |
+| 3. Deterministic routing | Done. ADR 0002 accepted. |
+| 4. Onboarding and reliability | Done, except an end-to-end run of the default-browser change in a separate account. |
+| 5. Distributable beta | `scripts/release.sh` is ready. Needs a Developer ID, notarization credentials, a permanent bundle ID, a license decision and the remaining matrix checks. |
 
 ## 0. Prove macOS integration
 
@@ -20,7 +29,7 @@ Create the permanent Xcode app project, shared `Blink` scheme, app identity, and
 
 Implement URL validation, browser discovery, memory queue, picker, explicit dispatch, and failure recovery. Add Open Link for testing before setting Blink as default. Add browser ordering and visibility. Implement the documented keyboard behavior and accessibility labels from the beginning.
 
-**Verify:** no-match links open in the selected browser on cold and warm launches; multiple requests retain order; cancellation and double activation behave correctly; missing browsers and dispatch failures retain the active request. Covers B01–B04, B06, B10, B11, and B13.
+**Verify:** no-match links open in the selected browser on cold and warm launches; multiple requests retain order; cancellation and double activation behave correctly; missing browsers and dispatch failures retain the active request. Covers B01-B04, B06, B10, B11, and B13.
 
 ## 3. Add deterministic routing
 
@@ -32,13 +41,13 @@ Implement the pure rule evaluator and rule editor. Use one normalization impleme
 
 Add explicit default-browser setup with verified status, opt-in login launch, onboarding with pending requests, configuration recovery/reset, and quit confirmation for queued links. Complete dark mode, contrast, reduced motion, VoiceOver, and multi-display behavior. Audit logs and filesystem writes for privacy.
 
-**Verify:** declined/partial default setup works, login status tracks OS changes, failed writes roll back UI, and queued links are neither persisted nor exposed in logs. Covers B07–B10 and B12.
+**Verify:** declined/partial default setup works, login status tracks OS changes, failed writes roll back UI, and queued links are neither persisted nor exposed in logs. Covers B07-B10 and B12.
 
 ## 5. Prepare a distributable beta
 
 Run the complete [test and release checklist](testing-and-release.md). Record performance on named reference hardware. Produce a signed, notarized build and test a downloaded copy on a clean user account. Document installation, default-browser reversal, quitting, and uninstalling. Resolve ownership/license and release identity before public distribution.
 
-**Exit:** all B01–B13 criteria have recorded evidence, remaining limitations are stated, and release gates pass. Do not claim support for browser profiles or untested browsers.
+**Exit:** all B01-B13 criteria have recorded evidence, remaining limitations are stated, and release gates pass. Do not claim support for browser profiles or untested browsers.
 
 ## After the MVP
 

@@ -1,6 +1,6 @@
 # Project context
 
-Updated: 2026-10-17.
+Updated: 2026-10-17, after the first implementation.
 
 ## Confirmed direction
 
@@ -13,13 +13,13 @@ Updated: 2026-10-17.
 
 The shared excerpt begins during naming exploration. No earlier feature requirements, architecture, or commercial decisions were available.
 
-## Proposed implementation baseline
+## Implementation
 
-Use Swift, SwiftUI, and AppKit in one macOS app. Start with macOS 14 or later, Apple silicon and Intel, subject to the compatibility checks in milestone 0. Distribute directly as a signed and notarized app. These are engineering proposals, not user-approved platform commitments.
+Blink is built: one Swift macOS app using SwiftUI and AppKit, with routing logic in the local `BlinkCore` package. It targets macOS 14 and builds as a universal binary. Direct distribution as a Developer ID-signed, notarized app is scripted but has not run, because no signing identity is available yet. The [integration report](docs/integration-report.md) records what was verified and on what.
 
-The MVP offers manual browser selection and ordered domain routing. “Intelligent” means deterministic user-defined rules; it does not imply an AI model, remote service, or automatic inference from browsing activity.
+"Intelligent" means deterministic user-defined rules. There is no AI model, remote service or inference from browsing activity.
 
-Keep URLs in memory only. Store browser preferences and rules locally. Do not fetch URLs, strip query parameters, follow redirects, or inspect browser profiles in the MVP.
+URLs stay in memory. Browser preferences and rules are stored locally. Blink doesn't fetch URLs, strip query parameters, follow redirects or inspect browser profiles.
 
 ## Domain language
 
@@ -28,7 +28,8 @@ Keep URLs in memory only. Store browser preferences and rules locally. Do not fe
 | Open request | One URL delivered to Blink, with an internal request ID |
 | Browser | An installed application eligible to handle web URLs |
 | Destination | A browser identified by bundle ID; profiles are a future extension |
-| Rule | An enabled domain match and destination, evaluated in list order |
+| Rule | A domain match and destination, evaluated in list order when enabled |
+| Shadowed rule | A rule that an earlier enabled rule always matches first, so it never applies |
 | Picker | The temporary window used to choose a destination |
 | Default browser | The macOS handler for a URL scheme, distinct from a Blink preference |
 | Available | Installed and currently eligible to handle the request's scheme |
@@ -36,6 +37,6 @@ Keep URLs in memory only. Store browser preferences and rules locally. Do not fe
 
 ## Reading order and authority
 
-Read this file, [product requirements](docs/product.md), and [architecture](docs/architecture.md) before implementing. Requirement IDs in the product document identify expected behavior. The [decision register](docs/decisions.md) identifies uncertainty; proposed ADRs are not accepted decisions.
+Read this file, [product requirements](docs/product.md), and [architecture](docs/architecture.md) before changing behavior. Requirement IDs in the product document identify expected behavior. The [decision register](docs/decisions.md) lists what is settled and what is still open.
 
 Update related documents together when scope changes. Preserve the distinction between confirmed product direction, proposed behavior, and experimentally verified platform support.

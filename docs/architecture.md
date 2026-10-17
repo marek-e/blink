@@ -1,74 +1,78 @@
 # Architecture
 
-Status: proposed; platform assumptions must pass [milestone 0](build-plan.md). See [ADR 0001](adr/0001-native-local-app.md).
+Status: implemented. Platform evidence is in the [integration report](integration-report.md). See [ADR 0001](adr/0001-native-local-app.md) and [ADR 0002](adr/0002-explicit-routing.md).
 
 ## App structure
 
-Use one Swift macOS application with SwiftUI for views and AppKit for lifecycle, menu bar, window focus, and URL dispatch. Start with a macOS 14 deployment target and universal architecture support. Pin the actual Xcode/Swift versions once the project exists.
+One Swift macOS application, an agent app (`LSUIElement`) with a menu bar item. The picker is a borderless, non-activating `NSPanel`, so it can take keyboard input even when cooperative activation keeps another app in front. AppKit owns the lifecycle, windows, focus and URL dispatch. SwiftUI draws the picker, settings and welcome content. Logic that doesn't need AppKit lives in the local `BlinkCore` package so it can be tested without launching the app.
 
-Keep a small set of concrete responsibilities, not a service framework:
+| Component | Where | Responsibility |
+| --- | --- | --- |
+| URL intake | `AppDelegate`, `AppModel.handleDelivered` | Receive open events, validate, enqueue or explain the rejection |
+| Link validation | `BlinkCore/ValidatedLink.swift` | Accept HTTP/HTTPS (and delivered local files), derive the comparison host |
+| Host normalization | `BlinkCore/HostNormalizer.swift` | One function for incoming hosts and rule domains |
+| Rule evaluator | `BlinkCore/Rules.swift` | Pure first-match evaluation and shadowing detection |
+| Request coordinator | `BlinkCore/RequestCoordinator.swift` | Queue, routing outcome, picker need, dispatch lifecycle |
+| Configuration store | `BlinkCore/ConfigurationStore.swift`, `Preferences` | Validate, read and atomically write; commit UI changes after saving |
+| Browser catalog | `BrowserCatalog` | Discover web handlers, exclude Blink, resolve bundle IDs, icons |
+| Browser opener | `WorkspaceOpener`, `ActivationHandoff` | Explicit application dispatch and activation handoff |
+| System integration | `SystemIntegration` | Default handler status and change, login item |
+| Views | `Picker/`, `Settings/`, `Onboarding/`, `OpenLinkWindowController` | Picker, settings, welcome, Open Link, recovery |
 
-| Component | Responsibility |
-| --- | --- |
-| App delegate / URL intake | Receive OS open events and enqueue validated requests |
-| Request coordinator | Own queue, routing outcomes, picker state, and dispatch lifecycle |
-| Browser catalog | Discover eligible apps and resolve bundle IDs to current application URLs |
-| Rule evaluator | Pure first-match domain evaluation |
-| Browser opener | Explicit application dispatch and completion/error mapping |
-| Configuration store | Validate, migrate, read, and atomically write preferences |
-| Views | Onboarding, picker, settings, and recovery controls |
-
-Use dependency injection only at OS and persistence boundaries needed by tests. No backend, local HTTP server, database, agent, or helper process is planned.
+Dependency injection exists only where tests need it: the coordinator takes a `BrowserLocating`, a `LinkOpening` and a rules closure. There is no backend, local server, database, helper process or third-party dependency.
 
 ## macOS integration
 
-Register HTTP/HTTPS handling through app bundle metadata and verify eligibility as a default browser in a built app. Use `NSApplicationDelegate.application(_:open:)` as the primary intake path. Verify cold-launch delivery and avoid registering a second event path that duplicates intake.
+`Info.plist` declares the `http` and `https` URL schemes (role Viewer) and `public.html`/`public.xhtml` documents at rank Alternate, which makes Blink eligible as the default web browser. `NSApplicationDelegate.application(_:open:)` is the only intake path. The model exists from `applicationWillFinishLaunching` because cold-launch links arrive before `applicationDidFinishLaunching`.
 
-Use `NSWorkspace` discovery APIs for web handlers and explicit-application opening. Exclude Blink by bundle identity and resolved app location. A missing or ineligible destination produces recovery UI; never call generic default-handler opening to recover because Blink may be that default.
+Discovery uses `NSWorkspace.urlsForApplications(toOpen:)` for both schemes and for the HTML content type. Blink excludes itself by bundle ID and by resolved location. Duplicate installs resolve through `urlForApplication(withBundleIdentifier:)`. An app that handles web links but not HTML starts hidden in the picker; see [interaction design](interaction-design.md).
 
-Default-browser changes are explicit user actions. Use the supported `NSWorkspace` scheme-handler API when available, with availability checks; observe both HTTP and HTTPS afterward. Use `SMAppService.mainApp` for opt-in login launch and read the system's status rather than trusting a saved Boolean. Do not overwrite user changes to defaults on later launches.
+Dispatch uses `NSWorkspace.open(_:withApplicationAt:configuration:)`. `activates` is true only when no other link is waiting, so Blink keeps focus for the next picker. Before dispatching, Blink calls `NSApp.yieldActivation(toApplicationWithBundleIdentifier:)`; afterwards it activates the returned application. If Blink itself becomes active with no window within two seconds of a dispatch, it hands activation back. Without this, macOS 14's cooperative activation left Blink in front of the browser. Blink never calls a generic default-handler open to recover from a failure.
 
-The initial distribution proposal is Developer ID signing plus notarization, with Hardened Runtime. App Sandbox policy remains a milestone-0 decision; do not invent entitlements before proving which operations require them. No Accessibility, screen-recording, or browser automation permissions should be needed for the MVP.
+Default-browser changes happen only on a click. `NSWorkspace.setDefaultApplication(at:toOpenURLsWithScheme:)` runs for HTTP, then for HTTPS if it isn't already Blink, and Blink reads both handlers back afterwards. Status is refreshed whenever Blink becomes active or Settings becomes key, so changes made in System Settings show up. Launch at login uses `SMAppService.mainApp`, and Blink displays the service's status, including "requires approval".
+
+Distribution is Developer ID with the hardened runtime and no entitlements; the app is not sandboxed. See the integration report for why.
 
 ## Request lifecycle
 
 ```mermaid
 flowchart TD
-    A[Delivered URL] --> B{Valid HTTP or HTTPS?}
-    B -- No --> C[Report rejection]
+    A[Delivered URL] --> B{Valid HTTP, HTTPS or local file?}
+    B -- No --> C[Explain rejection]
     B -- Yes --> D[Append request to memory queue]
-    D --> E[Evaluate next request]
-    E --> F{First matching rule?}
+    D --> E{Paused for welcome window?}
+    E -- Yes --> E
+    E -- No --> F{First enabled matching rule?}
     F -- No --> G[Show picker]
-    F -- Yes --> H{Destination available?}
+    F -- Yes --> H{Destination available for this scheme?}
     H -- No --> I[Recovery picker]
     H -- Yes --> J[Dispatch to explicit app]
     G --> J
     I --> J
-    J --> K{Dispatch accepted?}
+    J --> K{macOS accepted?}
     K -- No --> I
-    K -- Yes --> L[Complete request; advance queue]
+    K -- Yes --> L[Complete; advance queue]
 ```
 
-Each request has `id`, `originalURL`, `normalizedHost`, and state: queued, choosing, dispatching, failed, completed, or cancelled. Cancellation also advances the queue. Serialize transitions on the main actor. Snapshot routing configuration when a request becomes active; later settings edits apply to subsequent requests. Recheck destination availability at dispatch.
+The active request has a phase: choosing, dispatching or failed. Queued, completed and cancelled requests are represented by their place in or absence from the queue. All transitions run on the main actor. Rules are read when a request becomes active, so later edits apply to later requests. Availability is checked again at every dispatch.
 
-Only choosing or failed requests can start a dispatch. Ignore stale completion callbacks by request ID and dispatch-attempt ID. Do not deduplicate URLs: two intentional clicks may have identical values. Automatic recursive recovery is prohibited; an error needs a user action before retry.
+Only choosing or failed requests can start a dispatch, which prevents double submission. If macOS hasn't answered a dispatch after 10 seconds, the request is marked slow: the picker appears and Cancel becomes available. Cancelling then ends the request, and the late answer is ignored like any stale callback. Each dispatch has an attempt ID, and completions for an older attempt or another request are ignored. Cancel is ignored while a dispatch is in flight, until it becomes slow. Identical URLs stay separate requests. Failures never retry or fall back automatically. UI actions carry the request ID they were shown for, so a late click can't act on the next request.
 
 ## URL and rule semantics
 
-Accept absolute `http` and `https` URLs with a nonempty valid host, no control characters, and no embedded username/password. Ports are allowed in incoming URLs; rules are host-only and ignore ports. Unsupported schemes, relative paths, and malformed values are rejected. Never run incoming values through a shell, fetch their content, or resolve redirects.
+Blink accepts absolute `http` and `https` URLs with a nonempty, valid host, no raw control characters and no user name or password. Ports are allowed in links; rules ignore them. Local `file` URLs are accepted only when macOS delivers them, which happens for HTML documents while Blink is the default browser. They show the picker and never match rules. Typed links must be web links.
 
-Preserve the accepted URL for dispatch. Derive a separate comparison host by lowercasing, removing a single trailing DNS dot, and normalizing internationalized domains to ASCII through one shared, tested normalization function. Use that same function when saving rule domains. Do not decode the entire URL before parsing. Verify Foundation's normalization behavior in milestone 0; reject unsupported representations rather than inventing inconsistent matching.
+The accepted URL is dispatched unchanged. The comparison host comes from `URLComponents.encodedHost`: Foundation converts Unicode to punycode, then Blink lowercases it and removes one trailing dot. Hosts with percent escapes, empty labels or characters outside `a-z 0-9 - _` are rejected. Rule input goes through the same function after rejecting schemes, ports, paths, wildcards, credentials and inner whitespace.
 
-For exact rule domain `d` and normalized host `h`, match only `h == d`. For an include-subdomains rule, match `h == d` or `h.hasSuffix("." + d)`. Thus `docs.example.com` matches `example.com`, while `notexample.com` and `example.com.evil.test` do not. Never use a bare string suffix. IP literals and single-label hosts can have exact rules; disable subdomain matching for them. MVP does not infer registrable domains or public suffixes; rules use precisely the host entered by the user.
+For rule domain `d` and host `h`: an exact rule matches only `h == d`. A rule that includes subdomains also matches when `h` ends with `"." + d`. `docs.example.com` matches `example.com` with subdomains; `notexample.com` and `example.com.evil.test` don't. IP literals and single-label hosts match exactly only. Any host whose last label is all digits counts as an IP address, so a rule for `0.0.1` can never match `10.0.0.1` as a subdomain.
 
-Evaluate enabled rules in stored array order. Return either `noMatch` or `matched(ruleID, destinationBundleID)`. Destination availability is a separate check: do not skip an unavailable matched destination and accidentally send a work link elsewhere. See [ADR 0002](adr/0002-explicit-routing.md).
+Enabled rules are evaluated in list order. The result is `noMatch` or `matched(ruleID, destinationBundleID)`. An unavailable destination opens the recovery picker and never falls through to a later rule. A rule is shadowed when an earlier enabled rule matches every host it would match; the Rules tab and the rule editor both say so.
 
 ## Persistent data
 
-Store one UTF-8 JSON file under `Application Support/<bundle-id>/configuration.json`. Select the permanent bundle ID before shipping. Use Foundation's appropriate application-support location for the chosen sandbox policy.
+One UTF-8 JSON file at `~/Library/Application Support/dev.melmayan.blink/configuration.json`. The folder name is the bundle ID, so it must not change between releases.
 
-Proposed schema version 1:
+Schema version 1:
 
 ```json
 {
@@ -89,22 +93,22 @@ Proposed schema version 1:
 }
 ```
 
-Browser array order is picker order; rule array order is precedence. Discover new browsers as visible entries appended in localized name order. Preserve unavailable entries so reinstalling does not erase preferences. Browser names, icons, and install paths are runtime catalog data, not durable identity. Duplicate installations with the same bundle ID resolve through the system's current application resolution; choosing among separate installs is outside MVP.
+Browser order is picker order and rule order is precedence. Newly discovered browsers are appended in localized name order. Entries for uninstalled browsers stay, so reinstalling keeps their place, until the user forgets them in Settings.
 
-Validate schema, types, unique browser IDs and rule IDs, and canonical rule domains. Missing file means first run. Invalid or unknown-newer schema means read-only recovery using temporary defaults; do not partially load rules or overwrite the original. Serialize writes, write to a temporary file in the same directory, then replace atomically. Commit UI changes only after successful persistence. Future migrations must preserve a backup and have fixtures; v1 needs no speculative migration framework.
+Loading checks the schema version first. A newer version, invalid JSON, a wrong structure, duplicate browser or rule IDs, empty identifiers, or a non-canonical rule domain puts the store in read-only recovery. Blink then runs with temporary defaults (discovered browsers, no rules), saves nothing, and Settings explains the problem. Reset moves the original to `configuration.backup-<timestamp>.json` and writes fresh defaults. A missing file means first run.
+
+Writes validate first, write a temporary file in the same directory, `fsync` it and `rename` it over the original. User edits appear only after the write succeeds; a failed save shows an alert with Try Again and leaves the previous settings in effect. Newly discovered browsers are not a user edit, so a failed save keeps them in memory and logs the failure.
 
 ## Privacy and diagnostics
 
-Only preferences and explicit user-created domain rules persist. Domain rules may themselves be sensitive; do not include configuration in diagnostic exports by default. No request history, page titles, URL analytics, clipboard monitoring, or network inspection.
+Only preferences and user-created rules persist. Links stay in memory and are dropped when they open, are cancelled or are discarded at quit. Blink makes no network requests and doesn't read the clipboard.
 
-Logs may contain operation category, sanitized error code, and timing. Exclude URL, host, query, fragment, credentials, and arbitrary OS error descriptions that may embed them. Copy Link is a user-triggered disclosure of the full URL to the clipboard. Clear completed/cancelled request references promptly.
+Logs use `os.Logger` with the categories intake, dispatch, configuration and system. They record operations, timings, rejection reasons and error domains with codes. They never contain URLs, hosts, rule domains or localized error descriptions, which can embed URLs. Copy Link is the only way a URL leaves Blink, and the user triggers it.
 
 ## Platform references
 
-Checked 2026-10-17. API availability and behavior still require SDK compilation and device verification.
-
-- [NSApplicationDelegate](https://developer.apple.com/documentation/appkit/nsapplicationdelegate): app lifecycle and URL delivery.
-- [NSWorkspace](https://developer.apple.com/documentation/appkit/nsworkspace): handler discovery and explicit application dispatch.
-- [SMAppService.mainApp](https://developer.apple.com/documentation/servicemanagement/smappservice/mainapp): login service integration.
-- [Preparing an app for distribution](https://developer.apple.com/documentation/xcode/preparing-your-app-for-distribution): distribution capabilities and signing.
-- [Notarizing macOS software](https://developer.apple.com/documentation/security/notarizing-macos-software-before-distribution): direct-distribution validation.
+- [NSApplicationDelegate](https://developer.apple.com/documentation/appkit/nsapplicationdelegate)
+- [NSWorkspace](https://developer.apple.com/documentation/appkit/nsworkspace)
+- [NSApplication.yieldActivation](https://developer.apple.com/documentation/appkit/nsapplication/yieldactivation(toapplicationwithbundleidentifier:))
+- [SMAppService.mainApp](https://developer.apple.com/documentation/servicemanagement/smappservice/mainapp)
+- [Notarizing macOS software](https://developer.apple.com/documentation/security/notarizing-macos-software-before-distribution)
