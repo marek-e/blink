@@ -23,7 +23,7 @@ Recorded 2026-10-17 and 2026-10-18. Most results come from the development Mac. 
 
 **Dispatch.** `NSWorkspace.open(_:withApplicationAt:configuration:)` was accepted for every tested browser, running or not. Cold launches of Chrome and Zen took 4.8 s and 4.1 s before macOS accepted the link. Running browsers accepted links in about 20 ms.
 
-**Activation.** macOS 14 activation is cooperative. Without `NSApp.yieldActivation(toApplicationWithBundleIdentifier:)`, the browser received the link but Blink stayed frontmost. Rule-routed links hit a second problem: macOS activates Blink to deliver the link, sometimes after Blink has already sent it on. Blink now yields before dispatching, activates the browser from the completion handler, and hands activation back if it becomes active with no window within two seconds of a dispatch. After the fix, all five browsers came to the front for manual and rule dispatch.
+**Activation.** macOS 14 activation is cooperative. Without `NSApp.yieldActivation(toApplicationWithBundleIdentifier:)`, the browser received the link but Blink stayed frontmost. Rule-routed links hit a second problem: macOS activates Blink to deliver the link, sometimes after Blink has already sent it on. Blink now yields before dispatching, activates the browser from the completion handler, and hands activation back if it becomes active with no window within two seconds of a dispatch. After the fix, all six browsers came to the front for manual and rule dispatch.
 
 **Slow and stuck dispatches.** macOS reports a dispatch only when the browser acknowledges it. A newly downloaded Brave waited 30.5 s on its Gatekeeper prompt. In the VM, cold browsers took about 30 s, and a quarantined Dia, run from App Translocation, never answered. A rule-routed link would then wait invisibly and block the queue. After 10 s without an answer, Blink now shows the picker with "Still waiting for <browser>" and lets the user cancel. A late answer for a cancelled request is ignored.
 
@@ -39,9 +39,9 @@ Recorded 2026-10-17 and 2026-10-18. Most results come from the development Mac. 
 
 **Sandbox.** Not adopted. Blink is distributed directly with the hardened runtime and no entitlements. Discovery, dispatch, default-handler changes and `SMAppService` need no extra entitlement outside the sandbox. A sandboxed build was not attempted; an App Store release would need that study.
 
-**Login item.** `SMAppService.mainApp.register()` and `unregister()` work for an ad-hoc signed build, and `status` reports `enabled` and then `notRegistered`. The "requires approval" state wasn't seen.
+**Login item.** `SMAppService.mainApp.register()` and `unregister()` work for an ad-hoc signed build, and `status` reports `enabled` and then `notRegistered`. The "requires approval" state can't be reached: macOS uses it for background items, and Blink registers as an "Open at Login" app.
 
-**Default browser.** The code uses `NSWorkspace.setDefaultApplication(at:toOpenURLsWithScheme:)` for HTTP, then HTTPS if it isn't already Blink. It wasn't exercised on the development account, to avoid changing its defaults. It still needs a run in a separate account before release.
+**Default browser.** The code uses `NSWorkspace.setDefaultApplication(at:toOpenURLsWithScheme:)` for HTTP, then HTTPS if it isn't already Blink. macOS asks once and changes HTTP and HTTPS together. Declining leaves both handlers unchanged, and Blink notices changes made outside it. A partial assignment can't be produced on macOS 26 (changing HTTPS alone fails with error 256), so that state is covered by unit tests. The development Mac's default was restored to Arc after the test.
 
 ## Measurements
 
