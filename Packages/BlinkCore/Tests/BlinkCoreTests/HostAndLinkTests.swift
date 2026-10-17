@@ -50,7 +50,8 @@ struct HostNormalizationTests {
 
     @Test func incomingHostsUseTheSameNormalizationAsRules() throws {
         let link = try LinkValidator.validate(text: "https://BÜCHER.Example./a").get()
-        #expect(link.host == (try HostNormalizer.normalizeRuleDomain("bücher.example").get()))
+        let ruleDomain = try HostNormalizer.normalizeRuleDomain("bücher.example").get()
+        #expect(link.host == ruleDomain)
     }
 
     @Test func classifiesHosts() {
