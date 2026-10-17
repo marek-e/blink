@@ -53,13 +53,18 @@ Driven through the Accessibility API with synthetic `example.com` URLs, using a 
 | Intel build under Rosetta (`X86-64 (translated)`): picker, manual and rule dispatch | Passed |
 | Release pipeline dry run (`DEVELOPER_ID_APPLICATION=- SKIP_NOTARIZATION=1`): archive, hardened-runtime signing, verification, DMG with Applications link, zip, checksums | Passed |
 | Login item on and off from Settings; the switch follows the status macOS reports (enabled, then not registered) | Passed |
-| Login item "requires approval" state | Not run |
+| Login item removed in System Settings › Login Items; Blink's switch turns off when Blink is next active | Passed |
+| Login item "requires approval" state | Not reachable: Blink registers as an "Open at Login" app, and macOS uses "requires approval" for background items. The note in Settings remains for that case |
 | VoiceOver labels, roles and announcements, checked through the accessibility tree | Passed |
-| Listening pass with VoiceOver, Increase Contrast, Reduce Motion, multiple physical displays | Not run: the accessibility preferences are protected and only one display is attached. Colors are system colors and motion is gated on Reduce Motion; placement on several displays has unit tests |
+| Increase Contrast on (toggled in System Settings, then restored): picker and Settings stay legible, controls gain borders | Passed |
+| Reduce Motion on: picker and dispatch work; animations are gated on the setting | Passed |
+| Two displays (a temporary 1920×1080 virtual display): the picker opens on the display under the pointer and stays inside it at the bottom edge, top-right corner and left edge | Passed |
+| VoiceOver running: the picker opens and takes keys | Passed |
+| What VoiceOver says, heard by a person | Not run: VoiceOver's speech can't be read back here without giving a permanent automation permission. The accessibility tree it reads from was checked |
 | macOS 14.8.7 (Sonoma, arm64 virtual machine): launch, discovery, rule dispatch, picker, Settings and welcome window | Passed. The VM had no accessibility permission, so manual picks weren't driven there |
 | A dispatch macOS never answers (Dia stuck behind a quarantine check in the VM): after 10 s the picker shows "Still waiting for Dia" with Cancel | Passed |
 | Intel hardware | Not available; the x86_64 slice was run under Rosetta instead |
-| macOS 15 | Not run; CI builds and tests on GitHub's macOS 14 and 15 runners |
+| CI on GitHub's macOS 14 (Xcode 16.2, Swift 6.0.3) and macOS 15 runners: project check, tests, universal Release build | Passed (run 39078681215) |
 
 ## Browser matrix
 
@@ -93,10 +98,10 @@ Blink logs "Picker interactive N ms after arrival" in the intake category, so th
 ## Release gates
 
 - [x] Every B01 to B17 criterion has evidence (partial default assignment by unit test only; it can't be produced on macOS 26).
-- [x] Minimum OS and architectures checked: macOS 14 in a VM, macOS 26 natively, x86_64 under Rosetta.
+- [x] Minimum OS and architectures checked: macOS 14 in a VM and on GitHub's runner, macOS 15 on GitHub's runner, macOS 26 natively, x86_64 under Rosetta.
 - [x] All six required browsers pass discovery, manual selection, domain routing and HTTP/HTTPS dispatch, running and quit.
 - [x] No known link-loss, duplicate-dispatch, recursion or silent misrouting bugs.
-- [x] Accessibility: labels, roles, announcements and keyboard paths verified; light and dark appearance checked. A listening pass with VoiceOver is still worth doing before a public launch.
+- [x] Accessibility: labels, roles, announcements and keyboard paths verified; light and dark appearance, Increase Contrast, Reduce Motion and VoiceOver running checked. A person listening to VoiceOver is still worth doing before a public launch.
 - [x] Privacy checks: no URLs in logs or on disk.
 - [x] Bundle ID, icon, version 1.0.0 (1) and ownership settled.
 - [x] License (proprietary) and name review recorded in [decisions](decisions.md).
