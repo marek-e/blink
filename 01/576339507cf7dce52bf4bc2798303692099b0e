@@ -1,0 +1,19 @@
+Packages/BlinkCore/Tests/BlinkCoreTests/HostAndLinkTests.swift
+  s_a273f7ff9f8cfd::t_57f2300ec97fc0 53-54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "01576339507cf7dce52bf4bc2798303692099b0e",
+  "prompts": {},
+  "sessions": {
+    "s_a273f7ff9f8cfd": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "23c07ae5-030b-4f18-b222-f0aef33b5d81",
+        "model": "unknown"
+      },
+      "human_author": "Marek Elmayan <melmayan.dev@gmail.com>"
+    }
+  }
+}
