@@ -1,0 +1,251 @@
+Blink/Sources/App/AppModel.swift
+  s_a273f7ff9f8cfd::t_939ca9ff4445da 13-23,38-40,42-44,79,102-103,106,108-137
+  s_a273f7ff9f8cfd::t_d1891082a8e1bf 73-74
+  s_a273f7ff9f8cfd::t_43d46a3bd0cc50 140-144
+  s_a273f7ff9f8cfd::t_f4970922ffb0c9 1-12,24,28-36,41,45-70,77-78,80-81,89-101,104-105,107,138-139,145-166,168-169
+  s_a273f7ff9f8cfd::t_a4ce7a974ef9f9 167
+  s_a273f7ff9f8cfd::t_eddd961c62ec2d 25-27,37,71-72,75-76,82-88
+Blink/Sources/Settings/SettingsWindowController.swift
+  s_a273f7ff9f8cfd::t_939ca9ff4445da 83
+  s_a273f7ff9f8cfd::t_27d664c739b737 1-25,27-82,84-89
+  s_a273f7ff9f8cfd::t_7eac8328b67702 26
+Blink.xcodeproj/project.xcworkspace/contents.xcworkspacedata
+  s_a273f7ff9f8cfd::t_e01acb1fb29b36 1-7
+Packages/BlinkCore/Sources/BlinkCore/PickerGeometry.swift
+  s_a273f7ff9f8cfd::t_a433e85cf41f15 1-71
+docs/decisions.md
+  s_a273f7ff9f8cfd::t_324c28132f1b7b 3,9,14,16,18,20-32,43,45,48,52
+  s_a273f7ff9f8cfd::t_6f454961418120 19
+  s_a273f7ff9f8cfd::t_13152dd25179fe 33,35-42,47
+docs/adr/0002-explicit-routing.md
+  s_a273f7ff9f8cfd::t_c1ce9f8c0feec3 3,23
+docs/adr/0001-native-local-app.md
+  s_a273f7ff9f8cfd::t_c1ce9f8c0feec3 3,23
+Blink/Sources/Settings/RuleEditorView.swift
+  s_a273f7ff9f8cfd::t_7646e2b91d2080 1-41,43-186,193-203,208-210
+  s_a273f7ff9f8cfd::t_551c7fbe5e0083 42,187-192,204-207
+Blink/Resources/Info.plist
+  s_a273f7ff9f8cfd::t_a13a3832f245c1 1-31,33-64
+  s_a273f7ff9f8cfd::t_8da2466a71a0d3 32
+docs/testing-and-release.md
+  s_a273f7ff9f8cfd::t_d41f6936b1032e 3,5,9-13,15-16,18-39,45,63-69,72-73,76,78-80,98,100,105,107-108
+  s_a273f7ff9f8cfd::t_396322ada6ddb9 55-56
+  s_a273f7ff9f8cfd::t_fbe819dc5c6109 17,46-54,57-58,75,81-91
+  s_a273f7ff9f8cfd::t_6f454961418120 77
+  s_a273f7ff9f8cfd::t_31afbe2fec56af 40-44
+  s_a273f7ff9f8cfd::t_4a0b9945ab67e0 7,14,59-62,70-71,74,95-97,99,101-104,106
+.github/workflows/ci.yml
+  s_a273f7ff9f8cfd::t_7fc56a7a3fe117 27-28,30-32
+  s_a273f7ff9f8cfd::t_5ab8e21a22e304 1-9,15-25,29,33-42
+  s_a273f7ff9f8cfd::t_fbaf0e7dcad791 10-14,26
+Blink.xcodeproj/project.pbxproj
+  s_a273f7ff9f8cfd::t_65a6d44ffe1d34 24,42,90,271
+  s_a273f7ff9f8cfd::t_e01acb1fb29b36 1-23,25-41,43-89,91-270,272-506
+scripts/generate-icon.sh
+  s_a273f7ff9f8cfd::t_8da2466a71a0d3 1-10
+Packages/BlinkCore/Sources/BlinkCore/Configuration.swift
+  s_a273f7ff9f8cfd::t_e44f554e717f61 19-23,28,75-79,88-96
+  s_a273f7ff9f8cfd::t_56e6c3b8cc3e97 1-18,24-27,29-74,80-87,97-154
+  s_a273f7ff9f8cfd::t_4ddc5ef6962978 155-172
+Blink/Sources/App/SystemIntegration.swift
+  s_a273f7ff9f8cfd::t_396322ada6ddb9 27-36,94
+  s_a273f7ff9f8cfd::t_887eb8e0eedaa8 1,3-22,24-26,37-93,95-121
+  s_a273f7ff9f8cfd::t_4ddc5ef6962978 2,23
+Blink/Resources/Assets.xcassets/AppIcon.appiconset/Contents.json
+  s_a273f7ff9f8cfd::t_8da2466a71a0d3 1-68
+docs/integration-report.md
+  s_a273f7ff9f8cfd::t_396322ada6ddb9 42-44
+  s_a273f7ff9f8cfd::t_44d3fff76e9569 1-2,4-13,15-27,32-35,40-41,45,47
+  s_a273f7ff9f8cfd::t_4a0b9945ab67e0 3,14,28-31,36-39,46,48
+Packages/BlinkCore/Sources/BlinkCore/HostNormalizer.swift
+  s_a273f7ff9f8cfd::t_e9e9743e9f10bc 1-41,46-47,50-131
+  s_a273f7ff9f8cfd::t_010b0577c32a30 42-45,48-49
+Blink/Sources/App/BrowserCatalog.swift
+  s_a273f7ff9f8cfd::t_7a9498e6fe447a 1-3,5-35,37-50,55-108
+  s_a273f7ff9f8cfd::t_e44f554e717f61 4,36,51-54
+project.yml
+  s_a273f7ff9f8cfd::t_a13a3832f245c1 1-55
+Blink/Sources/Settings/BrowsersSettingsView.swift
+  s_a273f7ff9f8cfd::t_94eef658ff8cd5 1-119
+Blink/Resources/Blink.entitlements
+  s_a273f7ff9f8cfd::t_a13a3832f245c1 1-5
+Packages/BlinkCore/Tests/BlinkCoreTests/ConfigurationTests.swift
+  s_a273f7ff9f8cfd::t_4ddc5ef6962978 265-275
+  s_a273f7ff9f8cfd::t_6fec0cfb78c975 23-24
+  s_a273f7ff9f8cfd::t_ca33d5bf72759b 21-22
+  s_a273f7ff9f8cfd::t_e44f554e717f61 5-9,25-46
+  s_a273f7ff9f8cfd::t_ac8e9dea850637 1-4,10-20,47-264
+Blink/Sources/Settings/GeneralSettingsView.swift
+  s_a273f7ff9f8cfd::t_6133102b3ce990 1-35,37-82,84-152,155-186,188-189
+  s_a273f7ff9f8cfd::t_4ddc5ef6962978 153-154
+  s_a273f7ff9f8cfd::t_eddd961c62ec2d 187
+  s_a273f7ff9f8cfd::t_51b6dd967dc6c8 36
+  s_a273f7ff9f8cfd::t_1b7f344b853f37 83
+Packages/BlinkCore/Tests/BlinkCoreTests/PickerGeometryTests.swift
+  s_a273f7ff9f8cfd::t_a433e85cf41f15 1-74
+Blink/Resources/Assets.xcassets/Contents.json
+  s_a273f7ff9f8cfd::t_8da2466a71a0d3 1-6
+CONTEXT.md
+  s_a273f7ff9f8cfd::t_c47b7f93105a70 3,16,20,22,31-32,40
+  s_a273f7ff9f8cfd::t_0bad5653e98305 18
+scripts/release.sh
+  s_a273f7ff9f8cfd::t_5ab8e21a22e304 1,3-4,6-8,11,15-25,37-44,47,49-51,58,60-61,67-85,88-98
+  s_a273f7ff9f8cfd::t_9211bee60c3647 5,45-46,48,52-57,59
+  s_a273f7ff9f8cfd::t_43ee468a8e88b5 12-14,27-33
+  s_a273f7ff9f8cfd::t_126a51f1994ba3 9,62-66
+  s_a273f7ff9f8cfd::t_0bad5653e98305 2
+  s_a273f7ff9f8cfd::t_18af32547bc453 10,26,34-36,86-87
+Blink/Sources/App/Preferences.swift
+  s_a273f7ff9f8cfd::t_f4c7e8223941ec 1-9,15,17-62,64,73-103,105-108
+  s_a273f7ff9f8cfd::t_939ca9ff4445da 10-14,16,63,65-72,104
+Blink/Sources/Picker/PickerView.swift
+  s_a273f7ff9f8cfd::t_21b5e729075766 38-45
+  s_a273f7ff9f8cfd::t_ea7408b3815460 57,83-85
+  s_a273f7ff9f8cfd::t_d51601b951b2da 64-67,179-198,293
+  s_a273f7ff9f8cfd::t_3ce7d5a752fb82 8,12,28,166,250
+  s_a273f7ff9f8cfd::t_7a8f078f8163ea 35
+  s_a273f7ff9f8cfd::t_66f9b7c85e816b 1-5,9-11,13-19,21-24,26,29-30,32,34,36-37,47-56,58-59,62-63,68-82,86-116,118-136,138-152,164,168,170,177-178,199-208,211-213,222-223,225,227-249,251-263,265-292,294-304,307-308,311-321,323-325,327-331,333,336,342-343
+  s_a273f7ff9f8cfd::t_c3a39fab9feceb 6-7,20,25,27,31,33,46,60-61,117,137,153-163,165,167,169,171-176,209-210,214-221,224,226,264,305-306,309-310,322,326,332,334-335,337-341
+scripts/install-local.sh
+  s_a273f7ff9f8cfd::t_19003291d6bbfb 18-19,21-23
+  s_a273f7ff9f8cfd::t_5ab8e21a22e304 1-11,14-17,24-25
+  s_a273f7ff9f8cfd::t_7fc56a7a3fe117 12-13
+  s_a273f7ff9f8cfd::t_ed7da24c25febc 20
+Blink/Sources/Onboarding/OnboardingView.swift
+  s_a273f7ff9f8cfd::t_939ca9ff4445da 101-107,181
+  s_a273f7ff9f8cfd::t_a0ffb441708c46 1-14,16-78,80-100,108-180,182-195,197-240
+  s_a273f7ff9f8cfd::t_51b6dd967dc6c8 196
+  s_a273f7ff9f8cfd::t_ea7408b3815460 15,79
+Blink/Sources/Support/DebugSnapshots.swift
+  s_a273f7ff9f8cfd::t_786f3b91709637 1
+  s_a273f7ff9f8cfd::t_8dad2f15054ef5 2-31
+Blink/Sources/App/AppDelegate.swift
+  s_a273f7ff9f8cfd::t_32d2d97b77d3b6 26,28-33,44
+  s_a273f7ff9f8cfd::t_786f3b91709637 27,36
+  s_a273f7ff9f8cfd::t_3ce7d5a752fb82 48
+  s_a273f7ff9f8cfd::t_939ca9ff4445da 59-62,79-83
+  s_a273f7ff9f8cfd::t_9bbc5dd3681cb3 66-70
+  s_a273f7ff9f8cfd::t_1643e623474707 38-43
+  s_a273f7ff9f8cfd::t_93e992a132e99b 1-25,34-35,45-47,49-58,63-65,71-78,84-144
+  s_a273f7ff9f8cfd::t_7b3652b4edc295 37
+Blink/Sources/Support/Accessibility.swift
+  s_a273f7ff9f8cfd::t_40501dd8d3c96c 1-16
+Blink/Sources/Settings/RulesSettingsView.swift
+  s_a273f7ff9f8cfd::t_25ac506f54c294 1-238
+Blink/Sources/App/MainMenu.swift
+  s_a273f7ff9f8cfd::t_7f58a7d1688e24 1-52
+CONTRIBUTING.md
+  s_a273f7ff9f8cfd::t_4c93478d0a4627 3-36,39-57,60,62,64-67,72-74,76,78,80-85,90
+  s_a273f7ff9f8cfd::t_f73642d0173fb7 37-38,58-59,61,63
+Blink/Sources/Picker/PickerPanelController.swift
+  s_a273f7ff9f8cfd::t_21bba680d29105 165
+  s_a273f7ff9f8cfd::t_3ce7d5a752fb82 30,39
+  s_a273f7ff9f8cfd::t_eddd961c62ec2d 75-76
+  s_a273f7ff9f8cfd::t_98809000a5eba1 3,6-22,28,35-38,40,46,49-55,63,66,87-117,121-122,126-128,134-138,142,170-172,175-180
+  s_a273f7ff9f8cfd::t_96c986eb4a512f 1-2,4-5,23-27,29,31-34,41-45,47-48,56-62,64-65,67-74,77-86,118-120,123-125,129-133,139-141,143-146,150-153,157-164,166-169,181-182,188-190,192-199,201-203,208-210,213-214
+  s_a273f7ff9f8cfd::t_7830e2b8d51f72 147-149
+  s_a273f7ff9f8cfd::t_ea7408b3815460 154-156,183-187
+  s_a273f7ff9f8cfd::t_a433e85cf41f15 173-174,200,204-207,211-212
+  s_a273f7ff9f8cfd::t_b508d7912c28fb 191
+Blink/Sources/App/StatusItemController.swift
+  s_a273f7ff9f8cfd::t_313848cc0fbe21 1-55
+Packages/BlinkCore/Sources/BlinkCore/ConfigurationStore.swift
+  s_a273f7ff9f8cfd::t_61cdc4073b842c 1-128
+README.md
+  s_a273f7ff9f8cfd::t_008016007ba620 5,7,9,11-16,18,22,24,26,30-32,34-87
+  s_a273f7ff9f8cfd::t_6f454961418120 17,20
+  s_a273f7ff9f8cfd::t_4ef23f74b2adef 28
+Blink/Sources/App/OpenLinkWindowController.swift
+  s_a273f7ff9f8cfd::t_ad2653aff92b26 1-91,93-95,97-103,106-108,111-113,116-118
+  s_a273f7ff9f8cfd::t_939ca9ff4445da 92,96,104-105,109-110,114-115
+.gitignore
+  s_a273f7ff9f8cfd::t_a21736a00c34fb 1-8
+Packages/BlinkCore/Sources/BlinkCore/Rules.swift
+  s_a273f7ff9f8cfd::t_0fa25136a3e399 1-26,30-35,38-64
+  s_a273f7ff9f8cfd::t_7007d24b9a30f2 36-37
+  s_a273f7ff9f8cfd::t_010b0577c32a30 27-29
+Packages/BlinkCore/Sources/BlinkCore/RequestCoordinator.swift
+  s_a273f7ff9f8cfd::t_973d499cf3307a 61-63,140
+  s_a273f7ff9f8cfd::t_ba2b405e47f82a 40-42,87-94,97,133,135-139,153-154,157,167-175
+  s_a273f7ff9f8cfd::t_7d6b885cf1f8f4 1-5,7,9-39,43-60,64-86,95-96,98-103,105-132,134,141-152,155-156,158-166,176-210
+  s_a273f7ff9f8cfd::t_7a8f078f8163ea 6,8,104
+docs/product.md
+  s_a273f7ff9f8cfd::t_31afbe2fec56af 44
+  s_a273f7ff9f8cfd::t_08b60bc1d1d55b 76
+  s_a273f7ff9f8cfd::t_3137b7a7cede48 3,37-43,45-49,56,64
+scripts/IconGenerator/main.swift
+  s_a273f7ff9f8cfd::t_8da2466a71a0d3 1-39,44-56,58-87
+  s_a273f7ff9f8cfd::t_8401d85173e3e7 40-43,57
+Packages/BlinkCore/Tests/BlinkCoreTests/RequestCoordinatorTests.swift
+  s_a273f7ff9f8cfd::t_ba2b405e47f82a 44,47,240-273
+  s_a273f7ff9f8cfd::t_7a8f078f8163ea 57
+  s_a273f7ff9f8cfd::t_405f16864321eb 1-5,7-15,17-19,21-27,30-43,45-46,48-56,58-77,89-239,274-298
+  s_a273f7ff9f8cfd::t_973d499cf3307a 20,28-29,78-88
+  s_a273f7ff9f8cfd::t_c2480710440138 6,16
+Packages/BlinkCore/Tests/BlinkCoreTests/HostAndLinkTests.swift
+  s_a273f7ff9f8cfd::t_5e7453b17ccc7c 1-58,60,62-109,115-131
+  s_a273f7ff9f8cfd::t_010b0577c32a30 59,61
+  s_a273f7ff9f8cfd::t_6054dc9fef29ea 110-114
+Blink/Sources/Support/Observing.swift
+  s_a273f7ff9f8cfd::t_40501dd8d3c96c 1-9
+scripts/build-testing.sh
+  s_a273f7ff9f8cfd::t_786f3b91709637 1-12
+Packages/BlinkCore/Package.swift
+  s_a273f7ff9f8cfd::t_a21736a00c34fb 1-14
+Blink/Sources/App/WorkspaceOpener.swift
+  s_a273f7ff9f8cfd::t_5129adb4bbfc83 1-7,9,17,19-25,30,61-62
+  s_a273f7ff9f8cfd::t_939ca9ff4445da 8,10,12-14,27
+  s_a273f7ff9f8cfd::t_9bbc5dd3681cb3 11,15-16,18,26,28-29,31-60
+Blink/Sources/Support/BlinkGlyph.swift
+  s_a273f7ff9f8cfd::t_8401d85173e3e7 4,10,18-21,25-27,30,46-48,50-52,55,57-58,60,62,68-70
+  s_a273f7ff9f8cfd::t_d3e1df9ea2d612 1-3,5-9,11-17,22-24,28-29,31-45,49,53-54,56,59,61,63-67,71-72
+Blink/Sources/Support/Log.swift
+  s_a273f7ff9f8cfd::t_40501dd8d3c96c 1-20
+Blink.xcodeproj/xcshareddata/xcschemes/Blink.xcscheme
+  s_a273f7ff9f8cfd::t_e01acb1fb29b36 1-104
+docs/architecture.md
+  s_a273f7ff9f8cfd::t_ed0f02fdab8ad0 59
+  s_a273f7ff9f8cfd::t_31afbe2fec56af 30
+  s_a273f7ff9f8cfd::t_2b15c9aca858f9 3,9-20,22,26-28,32,34,40-41,43-45,47,52,54,57,63,65,67,69,75,96,98-100,104,106,110-114
+  s_a273f7ff9f8cfd::t_f73642d0173fb7 73
+  s_a273f7ff9f8cfd::t_ea5faa4ba26a9e 7
+docs/interaction-design.md
+  s_a273f7ff9f8cfd::t_0f8db001e30ca2 3,5,7,9,13,15-19,27-34,36,40-48,54,58-64,66,68,70,74,76-79,83-86
+  s_a273f7ff9f8cfd::t_31afbe2fec56af 21,35,50,81-82
+  s_a273f7ff9f8cfd::t_6f454961418120 80
+  s_a273f7ff9f8cfd::t_ea5faa4ba26a9e 25,52
+  s_a273f7ff9f8cfd::t_e71d268b26a8d2 49
+Packages/BlinkCore/Tests/BlinkCoreTests/RuleTests.swift
+  s_a273f7ff9f8cfd::t_985edb15d485a3 1-60
+docs/build-plan.md
+  s_a273f7ff9f8cfd::t_0bad5653e98305 32,44,50
+  s_a273f7ff9f8cfd::t_c47b7f93105a70 3-10,12
+  s_a273f7ff9f8cfd::t_396322ada6ddb9 11
+.github/workflows/release.yml
+  s_a273f7ff9f8cfd::t_a35b8981cdbb85 1-65,67-80
+  s_a273f7ff9f8cfd::t_9211bee60c3647 66
+docs/releases/1.0.0.md
+  s_a273f7ff9f8cfd::t_126a51f1994ba3 1-12
+Packages/BlinkCore/Sources/BlinkCore/ValidatedLink.swift
+  s_a273f7ff9f8cfd::t_37a9d250a9188e 1-106
+scripts/run-debug.sh
+  s_a273f7ff9f8cfd::t_de8fe64d650192 1-13
+scripts/snap.sh
+  s_a273f7ff9f8cfd::t_bfef7ce172544d 1-3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f9fc9962ece1b5573f2386945ab45fedb690f332",
+  "prompts": {},
+  "sessions": {
+    "s_a273f7ff9f8cfd": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "23c07ae5-030b-4f18-b222-f0aef33b5d81",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Marek Elmayan <melmayan.dev@gmail.com>"
+    }
+  }
+}
