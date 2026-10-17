@@ -1,0 +1,19 @@
+.github/workflows/ci.yml
+  s_a273f7ff9f8cfd::t_6db71d04a18239 5,7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "640cb668381bd70980b831f7b6d91d496fc68491",
+  "prompts": {},
+  "sessions": {
+    "s_a273f7ff9f8cfd": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "23c07ae5-030b-4f18-b222-f0aef33b5d81",
+        "model": "unknown"
+      },
+      "human_author": "Marek Elmayan <melmayan.dev@gmail.com>"
+    }
+  }
+}
