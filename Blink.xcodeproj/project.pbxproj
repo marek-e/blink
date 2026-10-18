@@ -27,6 +27,7 @@
 		6236E723BC574777D616DE37 /* BlinkCore in Frameworks */ = {isa = PBXBuildFile; productRef = B3D1D1183FB72FCF22C0F8F6 /* BlinkCore */; };
 		695EDD35E2ED912E4A22A5CF /* SystemIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = C744FBE3B33E6862109151AA /* SystemIntegration.swift */; };
 		699781A81630D7E666F7A485 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 085C9A91F1369219A36B85C8 /* AppModel.swift */; };
+		709585C59279F6E3FD6BD836 /* ProfileCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25479A21C803CBABA74F8FF1 /* ProfileCatalog.swift */; };
 		D11808F06FFEAF5CC2119422 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ACB0E3C26E42150018B04B3 /* AppDelegate.swift */; };
 		D3E0A1B7D1D8A3696C618B5E /* BlinkGlyph.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4508F88A84F4BC3FAA2F083D /* BlinkGlyph.swift */; };
 		F2A7068B02D7738D4DB09714 /* RuleEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B33F9C5B6AACEFB791F6EF88 /* RuleEditorView.swift */; };
@@ -40,6 +41,7 @@
 		11F42BBB04F3492EF85C9BB5 /* OpenLinkWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenLinkWindowController.swift; sourceTree = "<group>"; };
 		1758EE165ED63F9EB11C033B /* BrowsersSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowsersSettingsView.swift; sourceTree = "<group>"; };
 		1DCBA84416E62E04D85694C7 /* DebugSnapshots.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugSnapshots.swift; sourceTree = "<group>"; };
+		25479A21C803CBABA74F8FF1 /* ProfileCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCatalog.swift; sourceTree = "<group>"; };
 		296220E38885154D8B25A37A /* PickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerView.swift; sourceTree = "<group>"; };
 		2DD5C90F0E5B886308E8DFF0 /* Blink.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Blink.entitlements; sourceTree = "<group>"; };
 		3611BA1F7A16AA6199641486 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -129,6 +131,7 @@
 				D556B6EA5246EE2C764C4B39 /* MainMenu.swift */,
 				11F42BBB04F3492EF85C9BB5 /* OpenLinkWindowController.swift */,
 				88753793C34693F74F3EF1BB /* Preferences.swift */,
+				25479A21C803CBABA74F8FF1 /* ProfileCatalog.swift */,
 				09E2A5B2641A3A5B82FB0093 /* StatusItemController.swift */,
 				C744FBE3B33E6862109151AA /* SystemIntegration.swift */,
 				03AE917FE8ED7F0AC7E61C1B /* WorkspaceOpener.swift */,
@@ -278,6 +281,7 @@
 				283B1017FBA66643519DB9EB /* PickerPanelController.swift in Sources */,
 				4E66FF4D6E674A7A060B178E /* PickerView.swift in Sources */,
 				23563BA351FEB74B366B537F /* Preferences.swift in Sources */,
+				709585C59279F6E3FD6BD836 /* ProfileCatalog.swift in Sources */,
 				F2A7068B02D7738D4DB09714 /* RuleEditorView.swift in Sources */,
 				2E956C0B2EACE08C306C7749 /* RulesSettingsView.swift in Sources */,
 				044D90B6A8FFF010DDC3FCF4 /* SettingsWindowController.swift in Sources */,

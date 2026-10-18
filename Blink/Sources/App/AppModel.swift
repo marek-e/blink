@@ -7,6 +7,7 @@ import Observation
 final class AppModel {
     let preferences: Preferences
     let catalog: BrowserCatalog
+    let profiles = ProfileCatalog()
     let system: SystemIntegration
     let coordinator: RequestCoordinator
 
@@ -59,6 +60,7 @@ final class AppModel {
     func refreshBrowsers() {
         catalog.refresh()
         preferences.mergeDiscovered(catalog.browsers)
+        profiles.refreshInBackground(catalog.browsers.map(\.bundleID))
     }
 
     // MARK: Requests
