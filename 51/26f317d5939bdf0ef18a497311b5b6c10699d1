@@ -1,0 +1,23 @@
+Packages/BlinkCore/Sources/BlinkCore/Rules.swift
+  s_d5995b33e15cb8::t_9eb64252d94e6d 39-40,155-156
+Packages/BlinkCore/Tests/BlinkCoreTests/ConfigurationTests.swift
+  s_d5995b33e15cb8::t_9eb64252d94e6d 243
+Packages/BlinkCore/Tests/BlinkCoreTests/RuleTests.swift
+  s_d5995b33e15cb8::t_9eb64252d94e6d 71,135
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5126f317d5939bdf0ef18a497311b5b6c10699d1",
+  "prompts": {},
+  "sessions": {
+    "s_d5995b33e15cb8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ace1fcde-e6d8-4856-8db8-88eff9f8d9d3",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Marek Elmayan <melmayan.dev@gmail.com>"
+    }
+  }
+}
