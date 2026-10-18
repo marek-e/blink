@@ -1,0 +1,29 @@
+Blink/Sources/Picker/PickerView.swift
+  s_6cbcacad058d72::t_ca65dd0b050a99 22,61,84-86,95,97,100,108,110-113,231,466,468-472
+  s_6cbcacad058d72::t_0fc37567ff633a 405,408-409
+  s_6cbcacad058d72::t_7412cdc682ba3d 311-313
+  s_6cbcacad058d72::t_1bb2e29cabad79 404
+  s_6cbcacad058d72::t_314e834218470e 23,25,59-60,93-94,96,98-99,101-107,109,114,212,292,294,303-305,307-310,314-328,330-344,347-349,351-360,363-403,434,450,457,459,462,465,467
+  s_6cbcacad058d72::t_7d13eee4baa0ae 406-407,410-429
+Blink/Sources/Picker/PickerPanelController.swift
+  s_6cbcacad058d72::t_ca65dd0b050a99 149
+docs/interaction-design.md
+  s_6cbcacad058d72::t_ca65dd0b050a99 25
+  s_6cbcacad058d72::t_5ffed33e36581c 36
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "1e27d66f5f7039c6329bbca7d9ab8b2ea7d86850",
+  "prompts": {},
+  "sessions": {
+    "s_6cbcacad058d72": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "924ef46a-bb80-465a-946e-d5086a5f003a",
+        "model": "unknown"
+      },
+      "human_author": "Marek Elmayan <melmayan.dev@gmail.com>"
+    }
+  }
+}
