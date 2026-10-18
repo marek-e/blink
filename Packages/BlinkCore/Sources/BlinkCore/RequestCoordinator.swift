@@ -233,7 +233,7 @@ public final class RequestCoordinator {
         guard active == nil, !isPaused, !queued.isEmpty else { return }
         let request = queued.removeFirst()
 
-        switch RuleEvaluator.evaluate(host: request.link.host, rules: rules()) {
+        switch RuleEvaluator.evaluate(host: request.link.host, path: request.link.encodedPath, rules: rules()) {
         case .noMatch:
             active = ActiveRequest(request: request, phase: .choosing, matchedRuleID: nil, needsPicker: true)
         case let .matched(ruleID, destination):

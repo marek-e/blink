@@ -145,10 +145,10 @@ private struct RuleRow: View {
             ))
             .toggleStyle(.checkbox)
             .labelsHidden()
-            .accessibilityLabel("Enable rule for \(rule.domain)")
+            .accessibilityLabel("Enable rule for \(rule.displayName)")
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(rule.domain)
+                Text(rule.displayName)
                     .lineLimit(1)
                     .truncationMode(.middle)
                     .foregroundStyle(rule.isEnabled ? .primary : .secondary)
@@ -156,7 +156,7 @@ private struct RuleRow: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 if let shadowedBy {
-                    Label("Never used: the rule for \(shadowedBy.domain) above matches first.", systemImage: "exclamationmark.triangle")
+                    Label("Never used: the rule for \(shadowedBy.displayName) above matches first.", systemImage: "exclamationmark.triangle")
                         .font(.caption)
                         .foregroundStyle(.orange)
                 }
@@ -191,13 +191,13 @@ private struct RuleRow: View {
     }
 
     private var scopeText: String {
-        rule.includeSubdomains && HostNormalizer.supportsSubdomains(rule.domain)
-            ? "This domain and its subdomains"
-            : "This domain only"
+        let subdomains = rule.includeSubdomains && HostNormalizer.supportsSubdomains(rule.domain)
+        if rule.pathPrefix.isEmpty { return subdomains ? "This domain and its subdomains" : "This domain only" }
+        return subdomains ? "This path and below, on this domain and its subdomains" : "This path and below, on this domain only"
     }
 
     private var accessibilityText: String {
-        var text = "\(rule.domain), \(scopeText), opens in \(destinationName)"
+        var text = "\(rule.displayName), \(scopeText), opens in \(destinationName)"
         if !rule.isEnabled { text += ", disabled" }
         if shadowedBy != nil { text += ", never used because an earlier rule matches first" }
         if !destinationInstalled { text += ", browser not installed" }
@@ -232,7 +232,7 @@ private struct RuleTester: View {
         case let .failure(rejection):
             return rejection.message
         case let .success(link):
-            switch RuleEvaluator.evaluate(host: link.host, rules: model.configuration.rules) {
+            switch RuleEvaluator.evaluate(host: link.host, path: link.encodedPath, rules: model.configuration.rules) {
             case .noMatch:
                 return "No rule matches \(link.host). Blink will ask which browser to use."
             case let .matched(ruleID, destination):
@@ -240,7 +240,7 @@ private struct RuleTester: View {
                 let name = model.displayName(for: destination)
                 let browser = model.catalog.name(for: destination.bundleID)
                 let installed = model.catalog.availableIDs.contains(destination.bundleID)
-                return "Opens in \(name) using the rule for \(rule?.domain ?? link.host)."
+                return "Opens in \(name) using the rule for \(rule?.displayName ?? link.host)."
                     + (installed ? "" : " \(browser) isn't installed, so Blink will ask instead.")
                     + (installed && model.isProfileMissing(destination) ? " That profile isn't in \(browser) anymore, so Blink will ask instead." : "")
             }

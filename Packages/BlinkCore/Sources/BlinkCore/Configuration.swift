@@ -41,8 +41,9 @@ public struct DiscoveredBrowser: Hashable, Sendable {
 
 /// Everything Blink persists. Array order is meaningful: browsers are picker order, rules are precedence.
 public struct Configuration: Codable, Equatable, Sendable {
-    /// Version 2 added profiles to rule destinations; version 1 files are upgraded when read.
-    public static let currentSchemaVersion = 2
+    /// Version 2 added profiles to rule destinations and version 3 added rule path prefixes.
+    /// Older files are upgraded when read.
+    public static let currentSchemaVersion = 3
 
     public var schemaVersion: Int
     public var onboardingCompleted: Bool
@@ -67,8 +68,8 @@ public struct Configuration: Codable, Equatable, Sendable {
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         schemaVersion = try container.decode(Int.self, forKey: .schemaVersion)
-        // Version 1 differs only in how rules store their destination, which `Rule` decodes.
-        if schemaVersion == 1 { schemaVersion = Self.currentSchemaVersion }
+        // Versions 1 and 2 differ only in rule fields, which `Rule` decodes.
+        if schemaVersion == 1 || schemaVersion == 2 { schemaVersion = Self.currentSchemaVersion }
         onboardingCompleted = try container.decode(Bool.self, forKey: .onboardingCompleted)
         showsMenuBarIcon = try container.decodeIfPresent(Bool.self, forKey: .showsMenuBarIcon) ?? true
         browsers = try container.decode([BrowserPreference].self, forKey: .browsers)
@@ -93,6 +94,9 @@ public struct Configuration: Codable, Equatable, Sendable {
             if let profile = rule.destination.profile, profile.id.isEmpty { throw .invalid("empty rule profile") }
             guard case .success(rule.domain) = HostNormalizer.normalizeRuleDomain(rule.domain) else {
                 throw .invalid("non-canonical rule domain")
+            }
+            guard case .success(rule.pathPrefix) = RulePath.normalize(rule.pathPrefix) else {
+                throw .invalid("non-canonical rule path")
             }
         }
     }

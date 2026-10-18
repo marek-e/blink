@@ -121,7 +121,7 @@ public enum RuleDomainError: Error, Equatable, Sendable {
         case .includesCredentials: "Domains can't include a user name or password."
         case .includesWildcard: "Wildcards aren't supported. Use “Include subdomains” instead."
         case .includesWhitespace: "Domains can't contain spaces."
-        case .includesPath: "Enter only the domain, without a path, query, or fragment."
+        case .includesPath: "Enter only the domain. Put a path in the Path field; queries and fragments aren't supported."
         case .includesPort: "Enter only the domain, without a port."
         case .emptyLabel: "Domains can't have empty parts between dots."
         case .invalidCharacters: "This domain contains characters Blink can't match."

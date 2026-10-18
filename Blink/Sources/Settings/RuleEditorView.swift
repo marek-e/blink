@@ -7,6 +7,7 @@ struct RuleDraft: Identifiable {
     let originalDestination: Destination?
     var domainText: String
     var includeSubdomains: Bool
+    var pathText: String
     var destination: Destination
     var isEnabled: Bool
 
@@ -17,6 +18,7 @@ struct RuleDraft: Identifiable {
         originalDestination = nil
         domainText = ""
         includeSubdomains = false
+        pathText = ""
         destination = Destination(bundleID: model.configuration.pickerChoices(from: model.catalog.browsers).first?.bundleID
             ?? model.catalog.browsers.first?.bundleID ?? "")
         isEnabled = true
@@ -28,6 +30,7 @@ struct RuleDraft: Identifiable {
         originalDestination = rule.destination
         domainText = rule.domain
         includeSubdomains = rule.includeSubdomains
+        pathText = rule.pathPrefix
         destination = rule.destination
         isEnabled = rule.isEnabled
     }
@@ -49,6 +52,8 @@ struct RuleEditorView: View {
 
     private var normalized: Result<String, RuleDomainError> { HostNormalizer.normalizeRuleDomain(draft.domainText) }
     private var domain: String? { try? normalized.get() }
+    private var normalizedPath: Result<String, RulePathError> { RulePath.normalize(draft.pathText) }
+    private var pathPrefix: String? { try? normalizedPath.get() }
     private var supportsSubdomains: Bool { domain.map(HostNormalizer.supportsSubdomains) ?? true }
 
     /// Installed browsers in picker order, including hidden ones, each followed by its profiles
@@ -78,11 +83,12 @@ struct RuleEditorView: View {
     }
 
     private var candidate: Rule? {
-        guard let domain, !draft.destination.bundleID.isEmpty else { return nil }
+        guard let domain, let pathPrefix, !draft.destination.bundleID.isEmpty else { return nil }
         return Rule(
             id: draft.id,
             domain: domain,
             includeSubdomains: draft.includeSubdomains && HostNormalizer.supportsSubdomains(domain),
+            pathPrefix: pathPrefix,
             destination: draft.destination,
             isEnabled: draft.isEnabled
         )
@@ -121,6 +127,14 @@ struct RuleEditorView: View {
                     .help(supportsSubdomains
                         ? "Also match addresses such as docs.\(domain ?? "example.com")"
                         : "Subdomains don't apply to IP addresses or single-word hosts.")
+                TextField("Path", text: $draft.pathText, prompt: Text("Optional, such as /team"))
+                    .onSubmit(save)
+                if case let .failure(error) = normalizedPath {
+                    Label(error.message, systemImage: "xmark.octagon")
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
                 Picker("Open in", selection: $draft.destination) {
                     ForEach(destinations, id: \.destination) { item in
                         Text(item.available ? item.name : "\(item.name) (\(item.destination.profile == nil ? "not installed" : "not found"))")
@@ -171,15 +185,19 @@ struct RuleEditorView: View {
     }
 
     private func matchDescription(_ domain: String) -> String {
-        draft.includeSubdomains && HostNormalizer.supportsSubdomains(domain)
-            ? "Matches \(domain) and addresses ending in .\(domain)"
-            : "Matches \(domain) exactly"
+        let subdomains = draft.includeSubdomains && HostNormalizer.supportsSubdomains(domain)
+        guard let pathPrefix, !pathPrefix.isEmpty else {
+            return subdomains ? "Matches \(domain) and addresses ending in .\(domain)" : "Matches \(domain) exactly"
+        }
+        return subdomains
+            ? "Matches \(pathPrefix) and the paths below it on \(domain) and addresses ending in .\(domain)"
+            : "Matches \(domain)\(pathPrefix) and the paths below it, such as \(domain)\(pathPrefix)/page"
     }
 
     @ViewBuilder
     private var warnings: some View {
         if let shadowingRule {
-            Label("The rule for \(shadowingRule.domain) is earlier in the list and matches these links first, so this rule won't be used. Move it above that rule after saving.", systemImage: "exclamationmark.triangle")
+            Label("The rule for \(shadowingRule.displayName) is earlier in the list and matches these links first, so this rule won't be used. Move it above that rule after saving.", systemImage: "exclamationmark.triangle")
                 .font(.caption)
                 .foregroundStyle(.orange)
                 .fixedSize(horizontal: false, vertical: true)

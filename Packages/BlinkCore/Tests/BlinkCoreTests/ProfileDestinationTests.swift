@@ -16,7 +16,7 @@ struct ProfileDestinationTests {
 
     @Test func rulesMatchWithTheirProfile() {
         let rule = Rule(domain: "example.com", destination: Destination(bundleID: "arc", profile: perso))
-        #expect(RuleEvaluator.evaluate(host: "example.com", rules: [rule])
+        #expect(RuleEvaluator.evaluate(host: "example.com", path: "/", rules: [rule])
             == .matched(ruleID: rule.id, destination: Destination(bundleID: "arc", profile: perso)))
     }
 
@@ -69,13 +69,13 @@ struct ConfigurationSchemaTests {
             Issue.record("expected loaded configuration")
             return
         }
-        #expect(configuration.schemaVersion == 2)
+        #expect(configuration.schemaVersion == 3)
         #expect(configuration.rules.first?.destination == Destination(bundleID: "com.apple.Safari"))
         #expect(configuration.browsers.first?.hiddenProfileIDs == [])
 
         try store.save(configuration)
         let json = try #require(try JSONSerialization.jsonObject(with: Data(contentsOf: fileURL)) as? [String: Any])
-        #expect(json["schemaVersion"] as? Int == 2)
+        #expect(json["schemaVersion"] as? Int == 3)
         let rule = try #require((json["rules"] as? [[String: Any]])?.first)
         #expect(rule["destinationBundleID"] == nil)
         #expect((rule["destination"] as? [String: Any])?["bundleID"] as? String == "com.apple.Safari")
@@ -99,10 +99,10 @@ struct ConfigurationSchemaTests {
     }
 
     @Test func newerFilesStayUntouched() throws {
-        let text = #"{"schemaVersion": 3, "onboardingCompleted": true, "browsers": [], "rules": []}"#
+        let text = #"{"schemaVersion": 4, "onboardingCompleted": true, "browsers": [], "rules": []}"#
         try write(text)
         let store = ConfigurationStore(fileURL: fileURL)
-        #expect(store.load() == .recovery(.unsupportedVersion(3)))
+        #expect(store.load() == .recovery(.unsupportedVersion(4)))
         #expect(try String(contentsOf: fileURL, encoding: .utf8) == text)
     }
 }

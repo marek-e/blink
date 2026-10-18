@@ -24,7 +24,7 @@ Blink only handles requests delivered to it. Links navigated inside a browser, a
 | B02 | Discover browsers | Discover registered web handlers, exclude Blink, show names and icons, and refresh at launch, before presenting choices, and on explicit refresh. Validate availability again before dispatch. |
 | B03 | Choose manually | With no matching rule, show the picker even if only one browser is visible. Click or keyboard selection dispatches once. Escape cancels the active request. |
 | B04 | Customize choices | Users can reorder and hide picker browsers. Persist changes. Prevent hiding the last available visible browser; externally missing browsers may still cause an empty state. |
-| B05 | Route by domain | Users can add, edit, enable, disable, reorder, and delete rules. First enabled matching rule wins. Exact host is the default; including subdomains is explicit. |
+| B05 | Route by domain | Users can add, edit, enable, disable, reorder, and delete rules. First enabled matching rule wins. Exact host is the default; including subdomains is explicit. An optional path prefix limits a rule to that path and the paths below it (B20). |
 | B06 | Explain failures | Missing destination or launch failure retains the request and offers retry, another browser, copy, or cancel. No silent fallback and no automatic retry loop. |
 | B07 | Set up system integration | Explain the default-browser role, request change only after a click, and verify HTTP and HTTPS handlers afterward. Cancellation does not block settings or test-open use. |
 | B08 | Operate from menu bar | Menu provides Settings, Open Link, and Quit. Login launch is opt-in and reflects actual service status. |
@@ -46,6 +46,7 @@ Added during implementation, each because the MVP was worse without it.
 | B17 | Explain rules | The Rules tab warns about rules made unreachable by earlier ones and about rules whose browser isn't installed. A test field shows which rule, if any, a URL would use, without opening it. |
 | B18 | Hide the menu bar icon | General settings can hide Blink's menu bar icon. Links still reach Blink; opening Blink from Applications or Spotlight shows Settings, which has Quit. |
 | B19 | Browser profiles | A browser with two or more profiles Blink can read shows a › in the picker; › or → shows its visible profiles under it, ← or › hides them. Choosing a profile opens the link in it; choosing the browser opens it as before. Number keys address browsers only. Rules and "Always open" can store a profile. Profiles can be hidden from the picker in Settings. A missing profile or refused Automation permission fails the request with an explanation and an explicit way to open without the profile, never a silent fallback. Supported: Arc (spaces), Dia, Chrome, Brave, Edge, Vivaldi, Chromium, Zen, Firefox. Not Safari. |
+| B20 | Path prefixes | A rule can have a path prefix such as `/team`. It matches that path and the paths below it, segment by segment (not `/teams`), ignoring case, after percent-decoding. Queries, fragments and wildcards are rejected with a specific message. The rules list and messages show the rule as `example.com/team`. "Always open" saves host rules only. |
 
 Discovery also differs from the baseline: an app that registers for web links but not for HTML documents starts hidden in the picker instead of visible, unless that would leave no browser visible. Chat clients and terminals register for links without being browsers.
 
@@ -53,7 +54,7 @@ Opening success means macOS accepted the dispatch to the selected app. Blink can
 
 ## Scope boundaries
 
-The MVP had no browser profile selection (added later as B19). It has no private-window launching, source-app rules, path or regex rules, tracking removal, shortened-link expansion, extensions, sync, accounts, AI service, plugin system, global shortcuts, automatic updater, or monetization flow. It does not replace in-browser navigation.
+The MVP had no browser profile selection (added later as B19). It has no private-window launching, source-app rules, path rules (added later as B20), regex rules, tracking removal, shortened-link expansion, extensions, sync, accounts, AI service, plugin system, global shortcuts, automatic updater, or monetization flow. It does not replace in-browser navigation.
 
 Arc, Dia, Chrome, Zen, Safari, and Brave are required MVP compatibility targets, explicitly selected by the user. Each must support discovery, manual selection, domain-rule routing, and intact HTTP/HTTPS dispatch, both already running and fully quit. All six pass on macOS 26; see [testing and release](testing-and-release.md).
 

@@ -17,7 +17,7 @@ https://github.com/user-attachments/assets/d3e3d63b-ee16-439d-b9af-25157f45f91d
 ## What it does
 
 - Shows a compact picker next to the pointer with your browsers, their icons and the link's host. Press 1 to 9, use the arrow keys and Return, or click.
-- Routes by domain. A rule like `example.com` (optionally with its subdomains) sends matching links to one browser without asking. Rules run top to bottom and the first match wins.
+- Routes by domain and path. A rule like `example.com` (optionally with its subdomains, optionally limited to a path such as `/team`) sends matching links to one browser without asking. Rules run top to bottom and the first match wins.
 - Knows browser profiles. Browsers with several profiles get a › in the picker that shows them, and rules can send a domain to one profile. This works with Arc (by space), Dia, Chrome, Brave, Edge, Vivaldi, Zen and Firefox. Safari has no way to choose a profile from outside.
 - Lets you create a rule from the picker with "Always open example.com in the chosen browser".
 - Explains problems instead of guessing. If a rule's browser is gone or a browser refuses the link, Blink keeps the link and lets you retry, pick another browser, copy it or cancel. It never falls back silently.
@@ -100,9 +100,9 @@ To list profiles, Blink reads each supported browser's profile list (`Local Stat
 
 - Links opened inside a browser stay in that browser. Some apps open links in their own web views or always use a specific browser; those links never reach Blink.
 - Safari profiles and Firefox containers can't be chosen. Choosing a browser without a profile opens the link the way that browser normally does.
-- Settings from Blink 1.2 or later can't be read by Blink 1.1. Going back to 1.1 leaves them untouched but runs without your rules.
+- Settings from Blink 1.2 or later can't be read by Blink 1.1, and settings from Blink 1.3 or later can't be read by Blink 1.2. Going back leaves them untouched but runs without your rules.
 - A link counts as opened when macOS accepts it for the browser. Blink can't know whether the page then loads.
-- Rules match whole hosts only: no paths, wildcards or regular expressions.
+- Rules match a host and an optional path prefix, compared segment by segment and ignoring case: `/team` covers `/Team/page` but not `/teams`. No queries, wildcards or regular expressions.
 
 ## Documentation
 

@@ -141,12 +141,12 @@ final class AppModel {
         coordinator.choose(destination)
     }
 
-    /// Points the host's exact rule at `destination`, creating it at the end of the list if needed,
+    /// Points the host's exact, path-free rule at `destination`, creating it at the end of the list if needed,
     /// so repeated choices never stack up shadowed duplicates.
     private func saveAlwaysRule(host: String, destination: Destination) {
         guard case let .success(domain) = HostNormalizer.normalizeRuleDomain(host) else { return }
         let saved = preferences.update { configuration in
-            if let index = configuration.rules.firstIndex(where: { $0.domain == domain && !$0.includeSubdomains }) {
+            if let index = configuration.rules.firstIndex(where: { $0.domain == domain && !$0.includeSubdomains && $0.pathPrefix.isEmpty }) {
                 configuration.rules[index].destination = destination
                 configuration.rules[index].isEnabled = true
             } else {
