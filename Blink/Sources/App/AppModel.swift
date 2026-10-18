@@ -7,7 +7,7 @@ import Observation
 final class AppModel {
     let preferences: Preferences
     let catalog: BrowserCatalog
-    let profiles = ProfileCatalog()
+    let profiles: ProfileCatalog
     let system: SystemIntegration
     let coordinator: RequestCoordinator
 
@@ -28,10 +28,12 @@ final class AppModel {
 
     init(preferences: Preferences) {
         let catalog = BrowserCatalog()
+        let profiles = ProfileCatalog()
         self.preferences = preferences
         self.catalog = catalog
+        self.profiles = profiles
         system = SystemIntegration()
-        coordinator = RequestCoordinator(locator: catalog, opener: WorkspaceOpener()) {
+        coordinator = RequestCoordinator(locator: catalog, opener: WorkspaceOpener(profiles: profiles)) {
             preferences.configuration.rules
         }
         coordinator.isPaused = !preferences.configuration.onboardingCompleted

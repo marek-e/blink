@@ -172,11 +172,18 @@ struct PickerView: View {
                 Text(detail).font(.caption).foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
                 HStack {
-                    if case .launchFailed = failure {
+                    switch failure {
+                    case .launchFailed:
                         Button("Try Again") { model.retry(active.request.id) }
-                    }
-                    if case .destinationUnavailable = failure, active.matchedRuleID != nil {
-                        Button("Edit Rules") { showSettings(.rules) }
+                    case .automationDenied:
+                        Button("Try Again") { model.retry(active.request.id) }
+                        openWithoutProfileButton(failure)
+                        Button("Privacy Settings") { SystemIntegration.openAutomationSettings() }
+                    case .profileUnavailable:
+                        openWithoutProfileButton(failure)
+                        if active.matchedRuleID != nil { Button("Edit Rules") { showSettings(.rules) } }
+                    case .destinationUnavailable:
+                        if active.matchedRuleID != nil { Button("Edit Rules") { showSettings(.rules) } }
                     }
                 }
                 .controlSize(.small)
@@ -187,6 +194,13 @@ struct PickerView: View {
         .background(Color.orange.opacity(0.12), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
         .accessibilityElement(children: .contain)
         .onAppear { Announcer.announce("\(title). \(detail)") }
+    }
+
+    /// Opens the link in the failed browser the way it normally opens links, as an explicit choice.
+    private func openWithoutProfileButton(_ failure: RequestFailure) -> some View {
+        Button("Open in \(model.catalog.name(for: failure.bundleID))") {
+            model.choose(Destination(bundleID: failure.bundleID), for: active.request.id)
+        }
     }
 
     private func slowBanner(name: String) -> some View {

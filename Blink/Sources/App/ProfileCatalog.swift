@@ -9,13 +9,16 @@ import Observation
 @MainActor
 @Observable
 final class ProfileCatalog {
+    /// Every profile found, by bundle ID.
     private(set) var profiles: [String: [ProfileReference]] = [:]
 
     @ObservationIgnored private var modificationDates: [String: Date] = [:]
 
-    /// The browser's profiles, or nothing when it has fewer than two or Blink can't read them.
-    func profiles(for bundleID: String) -> [ProfileReference] {
-        profiles[bundleID] ?? []
+    /// The browser's profiles to choose from: none when it has fewer than two, since there's
+    /// nothing to choose, or when Blink can't read them.
+    func choices(for bundleID: String) -> [ProfileReference] {
+        let all = profiles[bundleID] ?? []
+        return all.count > 1 ? all : []
     }
 
     /// Starts reading the lists of `bundleIDs` that changed, without waiting for the result.
@@ -37,8 +40,11 @@ final class ProfileCatalog {
                 continue
             case let .read(list, modified):
                 modificationDates[bundleID] = modified
-                let usable = list.count > 1 ? list : []
-                if profiles[bundleID] != usable { profiles[bundleID] = usable }
+                // Compare names too: `ProfileReference` equality ignores them.
+                let previous = profiles[bundleID]
+                if previous?.map(\.id) != list.map(\.id) || previous?.map(\.name) != list.map(\.name) {
+                    profiles[bundleID] = list
+                }
             case .unavailable:
                 modificationDates[bundleID] = nil
                 if profiles[bundleID] != nil { profiles[bundleID] = nil }
@@ -50,7 +56,7 @@ final class ProfileCatalog {
     /// The current version of `profile`, after re-reading the browser's list. Nil when it's gone.
     func current(_ profile: ProfileReference, for bundleID: String) async -> ProfileReference? {
         await refresh([bundleID])
-        return profiles(for: bundleID).first { $0 == profile }
+        return profiles[bundleID]?.first { $0 == profile }
     }
 
     private enum ReadResult: Sendable {
