@@ -1,0 +1,35 @@
+launch-video/src/index.ts
+  s_095e25c42f285d::t_f45b7969b28a29 1-4
+launch-video/src/Launch.tsx
+  s_095e25c42f285d::t_f45b7969b28a29 1-682
+README.md
+  s_095e25c42f285d::t_cad76eb20bfd0d 9-10
+launch-video/tsconfig.json
+  s_095e25c42f285d::t_f45b7969b28a29 1
+launch-video/.gitignore
+  s_095e25c42f285d::t_f45b7969b28a29 1-2
+launch-video/src/ui.tsx
+  s_095e25c42f285d::t_f45b7969b28a29 1-388
+launch-video/src/Root.tsx
+  s_095e25c42f285d::t_f45b7969b28a29 1-6
+launch-video/package.json
+  s_095e25c42f285d::t_f45b7969b28a29 1-17
+launch-video/package-lock.json
+  s_095e25c42f285d::t_c963c46c0a5754 1-3895
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b31607831e8a1db9d8318e622d37330eb01d8fc7",
+  "prompts": {},
+  "sessions": {
+    "s_095e25c42f285d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "74a03e18-0e36-4700-ad5f-d5756f88941e",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Marek Elmayan <melmayan.dev@gmail.com>"
+    }
+  }
+}
