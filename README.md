@@ -1,10 +1,16 @@
+![Blink's app icon](Blink/Resources/Assets.xcassets/AppIcon.appiconset/icon_128x128@2x.png)
+
 # Blink
 
 From link to browser, instantly.
 
 Blink is a small native macOS app that sits between your apps and your browsers. When you open a link from Mail, Slack, Notes or anywhere else, Blink either asks which browser to use or sends the link straight to the browser your rules pick.
 
-![Blink's app icon](Blink/Resources/Assets.xcassets/AppIcon.appiconset/icon_128x128@2x.png)
+
+
+https://github.com/user-attachments/assets/d3e3d63b-ee16-439d-b9af-25157f45f91d
+
+
 
 ## What it does
 
