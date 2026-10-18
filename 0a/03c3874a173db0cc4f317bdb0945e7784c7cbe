@@ -1,0 +1,20 @@
+docs/profiles-capability.md
+  s_8b010254822365::t_e6969f88fb797f 5,7-10,12-15
+  s_8b010254822365::t_d84994ac127ff4 70-127
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0a03c3874a173db0cc4f317bdb0945e7784c7cbe",
+  "prompts": {},
+  "sessions": {
+    "s_8b010254822365": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9b740933-4bbd-482e-847e-8f3d92b77a21",
+        "model": "unknown"
+      },
+      "human_author": "Marek Elmayan <melmayan.dev@gmail.com>"
+    }
+  }
+}
