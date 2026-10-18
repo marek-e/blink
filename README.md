@@ -6,6 +6,8 @@ Blink is a small native macOS app that sits between your apps and your browsers.
 
 ![Blink's app icon](Blink/Resources/Assets.xcassets/AppIcon.appiconset/icon_128x128@2x.png)
 
+[![The Blink picker next to a link, listing Arc, Dia, Google Chrome, Zen and Safari. Click to watch the launch video.](docs/media/blink-launch-poster.png)](docs/media/blink-launch.mp4)
+
 ## What it does
 
 - Shows a compact picker next to the pointer with your browsers, their icons and the link's host. Press 1 to 9, use the arrow keys and Return, or click.
