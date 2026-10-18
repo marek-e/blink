@@ -26,6 +26,7 @@ Updated: 2026-10-17. "Proposed" means a working assumption without user approval
 | Local HTML files handed over by macOS are routed through the picker | Default browsers receive them | Product B16 |
 | Yield activation to the browser on dispatch | Without it Blink stayed frontmost | Integration report |
 | Destinations can name a profile; schema version 2 | Arc, Dia, Chrome and Zen tested running and quit | [ADR 0003](adr/0003-profile-destinations.md), [capability matrix](profiles-capability.md) |
+| Rules can match a path prefix, segment by segment; schema version 3 | Tests | [ADR 0004](adr/0004-rule-path-prefixes.md) |
 | No URL history or telemetry | Logs audited | Architecture |
 | Manual updates | No updater shipped | Release plan |
 | Original icon (forked-path mark) | `scripts/IconGenerator` | |

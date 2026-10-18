@@ -119,10 +119,13 @@ struct ConfigurationTests {
         #expect(throws: ConfigurationError.self) {
             try Configuration(rules: [Rule(domain: "example.com", destination: .init(bundleID: ""))]).validate()
         }
+        #expect(throws: ConfigurationError.invalid("non-canonical rule path")) {
+            try Configuration(rules: [Rule(domain: "example.com", pathPrefix: "/team/", destination: .init(bundleID: "a"))]).validate()
+        }
 
         var newer = Configuration()
-        newer.schemaVersion = 3
-        #expect(throws: ConfigurationError.unsupportedVersion(3)) { try newer.validate() }
+        newer.schemaVersion = 4
+        #expect(throws: ConfigurationError.unsupportedVersion(4)) { try newer.validate() }
     }
 }
 
@@ -171,6 +174,42 @@ struct ConfigurationStoreTests {
         #expect(savedRule["id"] as? String == rule.id.uuidString)
     }
 
+    @Test func pathPrefixesRoundTrip() throws {
+        let store = ConfigurationStore(fileURL: fileURL)
+        let rule = Rule(domain: "github.com", pathPrefix: "/hublo", destination: .init(bundleID: "company.thebrowser.Browser"))
+        let configuration = Configuration(rules: [rule])
+        try store.save(configuration)
+        #expect(ConfigurationStore(fileURL: fileURL).load() == .loaded(configuration))
+
+        let json = try #require(try JSONSerialization.jsonObject(with: Data(contentsOf: fileURL)) as? [String: Any])
+        #expect(json["schemaVersion"] as? Int == 3)
+        let savedRule = try #require((json["rules"] as? [[String: Any]])?.first)
+        #expect(savedRule["pathPrefix"] as? String == "/hublo")
+    }
+
+    @Test func upgradesVersionTwoFiles() throws {
+        try write("""
+        {
+          "schemaVersion": 2,
+          "onboardingCompleted": true,
+          "browsers": [],
+          "rules": [{
+            "id": "7D3AD686-228B-4A39-B316-E55D476C78E2",
+            "domain": "example.com",
+            "includeSubdomains": false,
+            "destination": { "bundleID": "com.apple.Safari" },
+            "isEnabled": true
+          }]
+        }
+        """)
+        guard case let .loaded(configuration) = ConfigurationStore(fileURL: fileURL).load() else {
+            Issue.record("expected loaded configuration")
+            return
+        }
+        #expect(configuration.schemaVersion == 3)
+        #expect(configuration.rules.first?.pathPrefix == "")
+    }
+
     @Test func loadsDocumentedExample() throws {
         try write("""
         {
@@ -201,6 +240,7 @@ struct ConfigurationStoreTests {
         #"{"schemaVersion": 1}"#,
         #"{"schemaVersion": 1, "onboardingCompleted": false, "browsers": [], "rules": [{"id": "x"}]}"#,
         #"{"schemaVersion": 0, "onboardingCompleted": false, "browsers": [], "rules": []}"#,
+        #"{"schemaVersion": 3, "onboardingCompleted": false, "browsers": [], "rules": [{"id": "7D3AD686-228B-4A39-B316-E55D476C78E2", "domain": "example.com", "includeSubdomains": false, "pathPrefix": null, "destination": {"bundleID": "a"}, "isEnabled": true}]}"#,
         #"{"schemaVersion": 1, "onboardingCompleted": false, "browsers": [], "rules": [{"id": "7D3AD686-228B-4A39-B316-E55D476C78E2", "domain": "*.example.com", "includeSubdomains": false, "destinationBundleID": "a", "isEnabled": true}]}"#,
     ])
     func invalidFilesEnterReadOnlyRecoveryAndAreNeverOverwritten(text: String) throws {

@@ -76,11 +76,11 @@ Enabled rules are evaluated in list order. The result is `noMatch` or `matched(r
 
 One UTF-8 JSON file at `~/Library/Application Support/dev.melmayan.blink/configuration.json`. The folder name is the bundle ID, so it must not change between releases.
 
-Schema version 2. Version 1 files, which stored a rule's browser as `destinationBundleID`, load as version 2 and are rewritten on the next save ([ADR 0003](adr/0003-profile-destinations.md)). `showsMenuBarIcon` may be missing from files written by early builds; they load with the icon shown. `hiddenProfileIDs` may be missing; it defaults to empty.
+Schema version 3. Version 1 files, which stored a rule's browser as `destinationBundleID`, and version 2 files, which had no path prefixes, load as version 3 and are rewritten on the next save ([ADR 0003](adr/0003-profile-destinations.md), [ADR 0004](adr/0004-rule-path-prefixes.md)). `showsMenuBarIcon` may be missing from files written by early builds; they load with the icon shown. `hiddenProfileIDs` may be missing; it defaults to empty.
 
 ```json
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "onboardingCompleted": false,
   "showsMenuBarIcon": true,
   "browsers": [
@@ -91,6 +91,7 @@ Schema version 2. Version 1 files, which stored a rule's browser as `destination
       "id": "7D3AD686-228B-4A39-B316-E55D476C78E2",
       "domain": "example.com",
       "includeSubdomains": false,
+      "pathPrefix": "/team",
       "destination": {
         "bundleID": "com.google.Chrome",
         "profile": { "id": "Profile 1", "name": "Work" }
@@ -101,11 +102,11 @@ Schema version 2. Version 1 files, which stored a rule's browser as `destination
 }
 ```
 
-A profile's `id` is what survives renames: an Arc space ID, a Chromium profile directory or a Firefox profile path. `name` is the last name seen, shown when the profile is gone. A destination without `profile` opens the browser normally.
+A profile's `id` is what survives renames: an Arc space ID, a Chromium profile directory or a Firefox profile path. `name` is the last name seen, shown when the profile is gone. A destination without `profile` opens the browser normally. `pathPrefix` is omitted for rules that match any path; when present it is canonical: a leading slash, no trailing or repeated slashes, and segments percent-encoded consistently.
 
 Browser order is picker order and rule order is precedence. Newly discovered browsers are appended in localized name order. Entries for uninstalled browsers stay, so reinstalling keeps their place, until the user forgets them in Settings.
 
-Loading checks the schema version first. A newer version, invalid JSON, a wrong structure, duplicate browser or rule IDs, empty identifiers, or a non-canonical rule domain puts the store in read-only recovery. Blink then runs with temporary defaults (discovered browsers, no rules), saves nothing, and Settings explains the problem. Reset moves the original to `configuration.backup-<timestamp>.json` and writes fresh defaults. A missing file means first run.
+Loading checks the schema version first. A newer version, invalid JSON, a wrong structure, duplicate browser or rule IDs, empty identifiers, or a non-canonical rule domain or path prefix puts the store in read-only recovery. Blink then runs with temporary defaults (discovered browsers, no rules), saves nothing, and Settings explains the problem. Reset moves the original to `configuration.backup-<timestamp>.json` and writes fresh defaults. A missing file means first run.
 
 Writes validate first, write a temporary file in the same directory, `fsync` it and `rename` it over the original. User edits appear only after the write succeeds; a failed save shows an alert with Try Again and leaves the previous settings in effect. Newly discovered browsers are not a user edit, so a failed save keeps them in memory and logs the failure.
 

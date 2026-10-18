@@ -15,6 +15,12 @@ public struct ValidatedLink: Hashable, Sendable {
     public let host: String
 
     public var scheme: String { kind == .file ? "file" : url.scheme!.lowercased() }
+
+    /// The percent-encoded path rules compare against; empty for files.
+    public var encodedPath: String {
+        guard kind == .web else { return "" }
+        return URLComponents(url: url, resolvingAgainstBaseURL: false)?.percentEncodedPath ?? ""
+    }
 }
 
 public enum LinkRejection: Error, Equatable, Sendable {
