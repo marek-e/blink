@@ -1,0 +1,50 @@
+docs/architecture.md
+  s_a273f7ff9f8cfd::t_694f4b0b819e8a 75
+  s_a273f7ff9f8cfd::t_65269055431850 81
+README.md
+  s_a273f7ff9f8cfd::t_bf84fed1bee419 87
+  s_a273f7ff9f8cfd::t_65269055431850 57,61
+LICENSE
+  s_a273f7ff9f8cfd::t_bf84fed1bee419 1-21
+Blink/Sources/App/AppDelegate.swift
+  s_a273f7ff9f8cfd::t_a8637fe1f99707 115-116
+docs/releases/1.0.0.md
+  s_a273f7ff9f8cfd::t_694f4b0b819e8a 7
+Packages/BlinkCore/Sources/BlinkCore/Configuration.swift
+  s_a273f7ff9f8cfd::t_694f4b0b819e8a 38
+  s_a273f7ff9f8cfd::t_546b8447b03745 39,45,51,56-62
+  s_a273f7ff9f8cfd::t_2f54bb1f5b06a6 63-64
+Blink/Sources/Settings/SettingsWindowController.swift
+  s_a273f7ff9f8cfd::t_a8637fe1f99707 13
+Packages/BlinkCore/Tests/BlinkCoreTests/ConfigurationTests.swift
+  s_a273f7ff9f8cfd::t_546b8447b03745 159,167-168,194-195
+Blink/Sources/Settings/GeneralSettingsView.swift
+  s_a273f7ff9f8cfd::t_a8637fe1f99707 54-58,60-68,89-90
+  s_a273f7ff9f8cfd::t_5b7ad125885a12 59
+  s_a273f7ff9f8cfd::t_224429dbcdf389 91
+Blink/Sources/App/StatusItemController.swift
+  s_a273f7ff9f8cfd::t_a8637fe1f99707 26-29
+docs/product.md
+  s_a273f7ff9f8cfd::t_65269055431850 47
+docs/decisions.md
+  s_a273f7ff9f8cfd::t_bf84fed1bee419 38
+docs/testing-and-release.md
+  s_a273f7ff9f8cfd::t_694f4b0b819e8a 58,101
+  s_a273f7ff9f8cfd::t_bf84fed1bee419 109
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b57114aca58cafc8dc5a334ac0ae707d3ee62790",
+  "prompts": {},
+  "sessions": {
+    "s_a273f7ff9f8cfd": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "23c07ae5-030b-4f18-b222-f0aef33b5d81",
+        "model": "unknown"
+      },
+      "human_author": "Marek Elmayan <melmayan.dev@gmail.com>"
+    }
+  }
+}
