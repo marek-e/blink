@@ -347,11 +347,14 @@ struct PickerView: View {
             HStack(spacing: 8) {
                 copyButton(emphasis: .primary).fixedSize()
                     .buttonStyle(.glass)
+                    .modifier(GlassHover())
                 Spacer(minLength: 0)
                 cancelButton(emphasis: .primary).fixedSize()
                     .buttonStyle(.glass)
+                    .modifier(GlassHover())
                 openAction(emphasis: .onAccent)
                     .buttonStyle(.glassProminent)
+                    .modifier(GlassHover(isProminent: true))
             }
             .buttonBorderShape(.capsule)
         }
@@ -399,10 +402,11 @@ struct PickerView: View {
             .accessibilityElement(children: .ignore)
             .accessibilityLabel("Opening")
         } else if choices.indices.contains(selection) {
+            // Just "Open", so the bar keeps its width as the selection moves.
             Button {
                 choose(selection)
             } label: {
-                ActionLabel(title: "Open in \(choices[selection].name)", key: "↩", emphasis: emphasis)
+                ActionLabel(title: "Open", key: "↩", emphasis: emphasis)
             }
             .accessibilityLabel("Open in \(choices[selection].name)")
         }
@@ -529,6 +533,37 @@ private struct ActionBarButtonStyle: ButtonStyle {
     }
 }
 
+/// Glass buttons don't react to the pointer on macOS, so this marks hover itself: a lighter tint
+/// for the prominent button, a shade over the others. `.brightness` and overlays don't reach
+/// prominent glass, which the system draws separately.
+@available(macOS 26, *)
+private struct GlassHover: ViewModifier {
+    var isProminent = false
+
+    @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var isHovered = false
+
+    private var showsHover: Bool { isHovered && isEnabled }
+
+    func body(content: Content) -> some View {
+        Group {
+            if isProminent {
+                content.tint(showsHover ? Color.accentColor.mix(with: .white, by: 0.18) : .accentColor)
+            } else {
+                content.overlay {
+                    Capsule()
+                        .fill(.tertiary)
+                        .opacity(showsHover ? 1 : 0)
+                        .allowsHitTesting(false)
+                }
+            }
+        }
+        .animation(reduceMotion ? nil : .easeOut(duration: 0.12), value: showsHover)
+        .onHover { isHovered = $0 }
+    }
+}
+
 private struct BrowserRow: View {
     static let height: CGFloat = 36
 
@@ -567,7 +602,7 @@ private struct BrowserRow: View {
             } else if isSelected {
                 shape.fill(.quaternary)
             } else if isHovered {
-                shape.fill(.quinary)
+                shape.fill(.quaternary.opacity(0.8))
             }
         }
     }
