@@ -59,6 +59,23 @@ final class AppModel {
         configuration.pickerChoices(from: catalog.browsers)
     }
 
+    /// The picker's rows: visible browsers, with the visible profiles of those in `expanded`.
+    func pickerOutline(expanded: Set<String>, selection: Int) -> PickerOutline {
+        let browsers = pickerChoices.map(\.bundleID)
+        var offered: [String: [ProfileReference]] = [:]
+        for bundleID in browsers {
+            offered[bundleID] = profiles.choices(for: bundleID).filter { !configuration.isProfileHidden($0.id, for: bundleID) }
+        }
+        return PickerOutline(browsers: browsers, profiles: offered, expanded: expanded, selection: selection)
+    }
+
+    /// "Arc", or "Perso in Arc" for a profile.
+    func displayName(for destination: Destination) -> String {
+        let browser = catalog.name(for: destination.bundleID)
+        guard let profile = destination.profile else { return browser }
+        return "\(profile.name) in \(browser)"
+    }
+
     func refreshBrowsers() {
         catalog.refresh()
         preferences.mergeDiscovered(catalog.browsers)

@@ -58,6 +58,9 @@ struct PickerKeyTests {
     @Test func mapsPhysicalKeys() {
         #expect(PickerKey(keyCode: 126, hasCommandModifier: false) == .up)
         #expect(PickerKey(keyCode: 125, hasCommandModifier: false) == .down)
+        #expect(PickerKey(keyCode: 124, hasCommandModifier: false) == .expand)
+        #expect(PickerKey(keyCode: 123, hasCommandModifier: false) == .collapse)
+        #expect(PickerKey(keyCode: 124, hasCommandModifier: true) == nil)
         #expect(PickerKey(keyCode: 36, hasCommandModifier: false) == .open)
         #expect(PickerKey(keyCode: 76, hasCommandModifier: false) == .open)
         #expect(PickerKey(keyCode: 18, hasCommandModifier: false) == .digit(1))

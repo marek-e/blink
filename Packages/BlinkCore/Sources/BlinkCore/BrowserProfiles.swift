@@ -76,7 +76,10 @@ public enum ProfileListParser {
             struct Inner: Decodable { var containers: [Container] }
             struct Container: Decodable {
                 var spaces: [Entry]?
+                /// Present on the key that precedes the main window's container.
+                var global: Empty?
             }
+            struct Empty: Decodable {}
             /// Arc stores ordered maps as a flat list alternating IDs and values.
             enum Entry: Decodable {
                 case space(id: String, title: String?)
@@ -94,9 +97,13 @@ public enum ProfileListParser {
             var sidebar: Inner
         }
 
-        guard let sidebar = try? JSONDecoder().decode(Sidebar.self, from: data),
-              let entries = sidebar.sidebar.containers.lazy.compactMap(\.spaces).first
-        else { return [] }
+        guard let containers = try? JSONDecoder().decode(Sidebar.self, from: data).sidebar.containers else { return [] }
+        // Containers alternate keys and values. The main window's spaces follow the `global` key;
+        // Little Arc's follow `littleBrowser` and hold a single untitled space.
+        let main = containers.firstIndex { $0.global != nil }.flatMap { index in
+            containers.indices.contains(index + 1) ? containers[index + 1].spaces : nil
+        }
+        guard let entries = main ?? containers.lazy.compactMap(\.spaces).first else { return [] }
 
         var seen = Set<String>()
         return entries.compactMap { entry in

@@ -65,6 +65,22 @@ struct ProfileListTests {
         #expect(ProfileListParser.arcSpaces(sidebar: sidebar).map(\.name) == ["Work", "Untitled Space", "Home"])
     }
 
+    @Test func skipsLittleArcSpaces() {
+        let sidebar = Data("""
+        {
+          "sidebar": {
+            "containers": [
+              { "littleBrowser": {} },
+              { "items": [], "spaces": ["L", { "id": "L" }] },
+              { "global": {} },
+              { "items": [], "spaces": ["A1", { "id": "A1", "title": "Work" }, "B2", { "id": "B2", "title": "Home" }] }
+            ]
+          }
+        }
+        """.utf8)
+        #expect(ProfileListParser.arcSpaces(sidebar: sidebar).map(\.id) == ["A1", "B2"])
+    }
+
     @Test(arguments: ["", "{}", #"{"sidebar": {"containers": []}}"#, #"{"sidebar": {"containers": [{"spaces": "x"}]}}"#])
     func ignoresUnexpectedArcData(text: String) {
         #expect(ProfileListParser.arcSpaces(sidebar: Data(text.utf8)).isEmpty)

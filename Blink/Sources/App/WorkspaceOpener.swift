@@ -112,45 +112,69 @@ final class WorkspaceOpener: LinkOpening {
 enum ProfileScript {
     case arc, dia
 
-    private var source: String {
+    private var bundleID: String {
+        switch self {
+        case .arc: "company.thebrowser.Browser"
+        case .dia: "company.thebrowser.dia"
+        }
+    }
+
+    /// Adds a tab for `theURL` in the space or profile named by `target`, inside a `tell` block.
+    private var openTab: String {
         switch self {
         case .arc:
             """
-            on run {spaceID, theURL, shouldActivate}
-                tell application id "company.thebrowser.Browser"
-                    repeat 50 times
-                        if (count of windows) > 0 then exit repeat
-                        delay 0.2
+                    -- Little Arc windows don't hold the sidebar's spaces, so find one that does.
+                    set targetWindow to missing value
+                    repeat with candidate in windows
+                        if (id of spaces of candidate) contains target then
+                            set targetWindow to candidate
+                            exit repeat
+                        end if
                     end repeat
-                    if (count of windows) = 0 then make new window
-                    tell front window
-                        tell space id spaceID
+                    if targetWindow is missing value then error "No such space" number -1728
+                    tell targetWindow
+                        tell space id target
                             make new tab with properties {URL:theURL}
                             focus
                         end tell
                     end tell
-                    if shouldActivate is "1" then activate
-                end tell
-            end run
             """
         case .dia:
             """
-            on run {profileName, theURL, shouldActivate}
-                tell application id "company.thebrowser.dia"
-                    repeat 50 times
-                        if (count of windows) > 0 then exit repeat
-                        delay 0.2
-                    end repeat
                     tell front window
-                        set targetProfile to profile profileName
+                        set targetProfile to profile target
                         tell targetProfile to make new tab with properties {URL:theURL}
                         focus targetProfile
                     end tell
-                    if shouldActivate is "1" then activate
-                end tell
-            end run
             """
         }
+    }
+
+    /// Waits for a window, since a browser that's just starting has none yet. A browser that was
+    /// already running without one, or never shows one, is asked to reopen, which opens a window.
+    private var source: String {
+        """
+        on run {target, theURL, shouldActivate}
+            set wasRunning to application id "\(bundleID)" is running
+            tell application id "\(bundleID)"
+                if wasRunning and (count of windows) = 0 then reopen
+                repeat 50 times
+                    if (count of windows) > 0 then exit repeat
+                    delay 0.2
+                end repeat
+                if (count of windows) = 0 then
+                    reopen
+                    repeat 25 times
+                        if (count of windows) > 0 then exit repeat
+                        delay 0.2
+                    end repeat
+                end if
+        \(openTab)
+                if shouldActivate is "1" then activate
+            end tell
+        end run
+        """
     }
 
     @MainActor
