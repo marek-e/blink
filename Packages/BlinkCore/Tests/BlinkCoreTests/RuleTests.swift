@@ -5,7 +5,7 @@ import Testing
 @Suite("Rule evaluation")
 struct RuleTests {
     private func rule(_ domain: String, subdomains: Bool = false, to browser: String = "b", enabled: Bool = true) -> Rule {
-        Rule(domain: domain, includeSubdomains: subdomains, destinationBundleID: browser, isEnabled: enabled)
+        Rule(domain: domain, includeSubdomains: subdomains, destination: .init(bundleID: browser), isEnabled: enabled)
     }
 
     @Test(arguments: [
@@ -32,9 +32,9 @@ struct RuleTests {
         let narrow = rule("docs.example.com", to: "narrow")
         let rules = [disabled, broad, narrow]
         #expect(RuleEvaluator.evaluate(host: "docs.example.com", rules: rules)
-            == .matched(ruleID: broad.id, destinationBundleID: "broad"))
+            == .matched(ruleID: broad.id, destination: .init(bundleID: "broad")))
         #expect(RuleEvaluator.evaluate(host: "docs.example.com", rules: [disabled, narrow, broad])
-            == .matched(ruleID: narrow.id, destinationBundleID: "narrow"))
+            == .matched(ruleID: narrow.id, destination: .init(bundleID: "narrow")))
         #expect(RuleEvaluator.evaluate(host: "other.test", rules: rules) == .noMatch)
         #expect(RuleEvaluator.evaluate(host: "", rules: rules) == .noMatch)
         #expect(RuleEvaluator.evaluate(host: "example.com", rules: []) == .noMatch)

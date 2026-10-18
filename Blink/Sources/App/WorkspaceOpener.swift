@@ -5,7 +5,17 @@ import BlinkCore
 /// which may be Blink itself.
 @MainActor
 final class WorkspaceOpener: LinkOpening {
-    func open(_ url: URL, withApplicationAt applicationURL: URL, activates: Bool, completion: @escaping @MainActor (Bool) -> Void) {
+    func open(
+        _ url: URL,
+        in destination: Destination,
+        withApplicationAt applicationURL: URL,
+        activates: Bool,
+        completion: @escaping @MainActor (DispatchResult) -> Void
+    ) {
+        guard destination.profile == nil else {
+            completion(.profileUnavailable)
+            return
+        }
         let configuration = NSWorkspace.OpenConfiguration()
         configuration.activates = activates
         // macOS 14+ activation is cooperative: Blink must hand activation over, or the browser
@@ -25,7 +35,7 @@ final class WorkspaceOpener: LinkOpening {
             let accepted = error == nil
             Task { @MainActor in
                 if activates, let application { ActivationHandoff.bringForward(application) }
-                completion(accepted)
+                completion(accepted ? .accepted : .rejected)
             }
         }
     }

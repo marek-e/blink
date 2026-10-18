@@ -120,7 +120,7 @@ final class PickerPanelController: NSObject, NSWindowDelegate {
         guard choices.indices.contains(index) else { return }
         session.selection = index
         model.choose(
-            choices[index].bundleID,
+            Destination(bundleID: choices[index].bundleID),
             for: active.request.id,
             alwaysForHost: session.alwaysForHost && model.canCreateRule(for: active)
         )

@@ -128,8 +128,8 @@ private struct RuleRow: View {
     let rule: Rule
     let shadowedBy: Rule?
 
-    private var destinationName: String { model.catalog.name(for: rule.destinationBundleID) }
-    private var destinationInstalled: Bool { model.catalog.availableIDs.contains(rule.destinationBundleID) }
+    private var destinationName: String { model.catalog.name(for: rule.destination.bundleID) }
+    private var destinationInstalled: Bool { model.catalog.availableIDs.contains(rule.destination.bundleID) }
 
     var body: some View {
         HStack(spacing: 10) {
@@ -168,7 +168,7 @@ private struct RuleRow: View {
             Image(systemName: "arrow.right")
                 .foregroundStyle(.tertiary)
                 .accessibilityHidden(true)
-            Image(nsImage: model.catalog.icon(for: rule.destinationBundleID))
+            Image(nsImage: model.catalog.icon(for: rule.destination.bundleID))
                 .resizable()
                 .frame(width: 20, height: 20)
                 .opacity(destinationInstalled ? 1 : 0.4)
@@ -226,10 +226,10 @@ private struct RuleTester: View {
             switch RuleEvaluator.evaluate(host: link.host, rules: model.configuration.rules) {
             case .noMatch:
                 return "No rule matches \(link.host). Blink will ask which browser to use."
-            case let .matched(ruleID, bundleID):
+            case let .matched(ruleID, destination):
                 let rule = model.configuration.rules.first { $0.id == ruleID }
-                let name = model.catalog.name(for: bundleID)
-                let installed = model.catalog.availableIDs.contains(bundleID)
+                let name = model.catalog.name(for: destination.bundleID)
+                let installed = model.catalog.availableIDs.contains(destination.bundleID)
                 return "Opens in \(name) using the rule for \(rule?.domain ?? link.host)."
                     + (installed ? "" : " \(name) isn't installed, so Blink will ask instead.")
             }

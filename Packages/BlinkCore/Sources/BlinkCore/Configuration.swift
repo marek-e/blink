@@ -3,10 +3,20 @@ import Foundation
 public struct BrowserPreference: Codable, Hashable, Sendable {
     public var bundleID: String
     public var isVisible: Bool
+    /// Profiles left out of the picker, by `ProfileReference.id`.
+    public var hiddenProfileIDs: [String]
 
-    public init(bundleID: String, isVisible: Bool = true) {
+    public init(bundleID: String, isVisible: Bool = true, hiddenProfileIDs: [String] = []) {
         self.bundleID = bundleID
         self.isVisible = isVisible
+        self.hiddenProfileIDs = hiddenProfileIDs
+    }
+
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        bundleID = try container.decode(String.self, forKey: .bundleID)
+        isVisible = try container.decode(Bool.self, forKey: .isVisible)
+        hiddenProfileIDs = try container.decodeIfPresent([String].self, forKey: .hiddenProfileIDs) ?? []
     }
 }
 
@@ -31,7 +41,8 @@ public struct DiscoveredBrowser: Hashable, Sendable {
 
 /// Everything Blink persists. Array order is meaningful: browsers are picker order, rules are precedence.
 public struct Configuration: Codable, Equatable, Sendable {
-    public static let currentSchemaVersion = 1
+    /// Version 2 added profiles to rule destinations; version 1 files are upgraded when read.
+    public static let currentSchemaVersion = 2
 
     public var schemaVersion: Int
     public var onboardingCompleted: Bool
@@ -56,6 +67,8 @@ public struct Configuration: Codable, Equatable, Sendable {
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         schemaVersion = try container.decode(Int.self, forKey: .schemaVersion)
+        // Version 1 differs only in how rules store their destination, which `Rule` decodes.
+        if schemaVersion == 1 { schemaVersion = Self.currentSchemaVersion }
         onboardingCompleted = try container.decode(Bool.self, forKey: .onboardingCompleted)
         showsMenuBarIcon = try container.decodeIfPresent(Bool.self, forKey: .showsMenuBarIcon) ?? true
         browsers = try container.decode([BrowserPreference].self, forKey: .browsers)
@@ -76,7 +89,8 @@ public struct Configuration: Codable, Equatable, Sendable {
         var ruleIDs = Set<UUID>()
         for rule in rules {
             guard ruleIDs.insert(rule.id).inserted else { throw .invalid("duplicate rule") }
-            guard !rule.destinationBundleID.isEmpty else { throw .invalid("empty rule destination") }
+            guard !rule.destination.bundleID.isEmpty else { throw .invalid("empty rule destination") }
+            if let profile = rule.destination.profile, profile.id.isEmpty { throw .invalid("empty rule profile") }
             guard case .success(rule.domain) = HostNormalizer.normalizeRuleDomain(rule.domain) else {
                 throw .invalid("non-canonical rule domain")
             }
@@ -131,6 +145,16 @@ public struct Configuration: Codable, Equatable, Sendable {
         let target = index + offset
         guard browsers.indices.contains(target) else { return }
         browsers.swapAt(index, target)
+    }
+
+    public func isProfileHidden(_ profileID: String, for bundleID: String) -> Bool {
+        browsers.first { $0.bundleID == bundleID }?.hiddenProfileIDs.contains(profileID) ?? false
+    }
+
+    public mutating func setProfileVisibility(_ isVisible: Bool, profileID: String, for bundleID: String) {
+        guard let index = browsers.firstIndex(where: { $0.bundleID == bundleID }) else { return }
+        browsers[index].hiddenProfileIDs.removeAll { $0 == profileID }
+        if !isVisible { browsers[index].hiddenProfileIDs.append(profileID) }
     }
 
     public mutating func removeBrowser(_ bundleID: String) {

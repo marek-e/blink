@@ -16,17 +16,24 @@ final class FakeLocator: BrowserLocating {
 final class FakeOpener: LinkOpening {
     struct Call {
         let url: URL
+        let destination: Destination
         let applicationURL: URL
         let activates: Bool
-        let completion: @MainActor (Bool) -> Void
+        let completion: @MainActor (DispatchResult) -> Void
     }
 
     var calls: [Call] = []
     /// When set, completes each dispatch immediately with this value.
-    var autoComplete: Bool?
+    var autoComplete: DispatchResult?
 
-    func open(_ url: URL, withApplicationAt applicationURL: URL, activates: Bool, completion: @escaping @MainActor (Bool) -> Void) {
-        calls.append(Call(url: url, applicationURL: applicationURL, activates: activates, completion: completion))
+    func open(
+        _ url: URL,
+        in destination: Destination,
+        withApplicationAt applicationURL: URL,
+        activates: Bool,
+        completion: @escaping @MainActor (DispatchResult) -> Void
+    ) {
+        calls.append(Call(url: url, destination: destination, applicationURL: applicationURL, activates: activates, completion: completion))
         if let autoComplete { completion(autoComplete) }
     }
 }
@@ -70,8 +77,8 @@ struct RequestCoordinatorTests {
         #expect(coordinator.pendingCount == 2)
 
         #expect(coordinator.choose(bundleID: "safari"))
-        #expect(coordinator.active?.phase == .dispatching(bundleID: "safari"))
-        opener.calls[0].completion(true)
+        #expect(coordinator.active?.phase == .dispatching(.init(bundleID: "safari")))
+        opener.calls[0].completion(.accepted)
         #expect(box.outcomes.map(\.0) == [first.id])
         #expect(coordinator.active?.request == second)
         #expect(coordinator.queued.isEmpty)
@@ -83,7 +90,7 @@ struct RequestCoordinatorTests {
         coordinator.enqueue(link("https://example.com/2"))
         coordinator.choose(bundleID: "safari")
         #expect(opener.calls[0].activates == false)
-        opener.calls[0].completion(true)
+        opener.calls[0].completion(.accepted)
         coordinator.choose(bundleID: "safari")
         #expect(opener.calls[1].activates == true)
     }
@@ -128,48 +135,48 @@ struct RequestCoordinatorTests {
         coordinator.choose(bundleID: "safari")
         coordinator.cancelActive()
         #expect(box.outcomes.isEmpty)
-        #expect(coordinator.active?.phase == .dispatching(bundleID: "safari"))
+        #expect(coordinator.active?.phase == .dispatching(.init(bundleID: "safari")))
     }
 
     @Test func launchFailureKeepsRequestAndNeedsExplicitRetry() {
         let (coordinator, box) = makeCoordinator()
         let request = coordinator.enqueue(link("https://example.com"))
         coordinator.choose(bundleID: "safari")
-        opener.calls[0].completion(false)
+        opener.calls[0].completion(.rejected)
         #expect(coordinator.active?.request == request)
-        #expect(coordinator.active?.phase == .failed(.launchFailed(bundleID: "safari")))
+        #expect(coordinator.active?.phase == .failed(.launchFailed(.init(bundleID: "safari"))))
         #expect(opener.calls.count == 1)
         #expect(box.outcomes.isEmpty)
 
         #expect(coordinator.retry())
         #expect(opener.calls.count == 2)
         #expect(opener.calls[1].applicationURL.path == "/Applications/safari.app")
-        opener.calls[1].completion(true)
-        #expect(box.outcomes.map(\.1) == [.opened(bundleID: "safari")])
+        opener.calls[1].completion(.accepted)
+        #expect(box.outcomes.map(\.1) == [.opened(.init(bundleID: "safari"))])
     }
 
     @Test func failedRequestCanUseAnotherBrowser() {
         let (coordinator, box) = makeCoordinator()
         coordinator.enqueue(link("https://example.com"))
         coordinator.choose(bundleID: "safari")
-        opener.calls[0].completion(false)
+        opener.calls[0].completion(.rejected)
         coordinator.choose(bundleID: "zen")
-        opener.calls[1].completion(true)
-        #expect(box.outcomes.map(\.1) == [.opened(bundleID: "zen")])
+        opener.calls[1].completion(.accepted)
+        #expect(box.outcomes.map(\.1) == [.opened(.init(bundleID: "zen"))])
     }
 
     @Test func staleCompletionsAreIgnored() {
         let (coordinator, box) = makeCoordinator()
         let first = coordinator.enqueue(link("https://example.com/1"))
         coordinator.choose(bundleID: "safari")
-        opener.calls[0].completion(false)
+        opener.calls[0].completion(.rejected)
         coordinator.retry()
         // The first attempt reports again: it belongs to an old attempt and must not complete the request.
-        opener.calls[0].completion(true)
+        opener.calls[0].completion(.accepted)
         #expect(box.outcomes.isEmpty)
         #expect(coordinator.active?.request == first)
-        opener.calls[1].completion(true)
-        opener.calls[1].completion(true)
+        opener.calls[1].completion(.accepted)
+        opener.calls[1].completion(.accepted)
         #expect(box.outcomes.count == 1)
     }
 
@@ -177,7 +184,7 @@ struct RequestCoordinatorTests {
         let (coordinator, _) = makeCoordinator()
         coordinator.enqueue(link("https://example.com"))
         #expect(!coordinator.choose(bundleID: "arc"))
-        #expect(coordinator.active?.phase == .failed(.destinationUnavailable(bundleID: "arc")))
+        #expect(coordinator.active?.phase == .failed(.destinationUnavailable(.init(bundleID: "arc"))))
         #expect(opener.calls.isEmpty)
         #expect(!coordinator.retry())
     }
@@ -190,32 +197,32 @@ struct RequestCoordinatorTests {
     }
 
     @Test func matchingRuleDispatchesWithoutPicker() {
-        let rule = Rule(domain: "example.com", includeSubdomains: true, destinationBundleID: "zen")
+        let rule = Rule(domain: "example.com", includeSubdomains: true, destination: .init(bundleID: "zen"))
         let (coordinator, box) = makeCoordinator(rules: [rule])
         coordinator.enqueue(link("https://docs.example.com/x"))
         #expect(coordinator.active?.needsPicker == false)
         #expect(coordinator.active?.matchedRuleID == rule.id)
-        #expect(coordinator.active?.phase == .dispatching(bundleID: "zen"))
-        opener.calls[0].completion(true)
-        #expect(box.outcomes.map(\.1) == [.opened(bundleID: "zen")])
+        #expect(coordinator.active?.phase == .dispatching(.init(bundleID: "zen")))
+        opener.calls[0].completion(.accepted)
+        #expect(box.outcomes.map(\.1) == [.opened(.init(bundleID: "zen"))])
     }
 
     @Test func unavailableRuleDestinationNeverFallsThrough() {
-        let first = Rule(domain: "example.com", destinationBundleID: "arc")
-        let second = Rule(domain: "example.com", destinationBundleID: "safari")
+        let first = Rule(domain: "example.com", destination: .init(bundleID: "arc"))
+        let second = Rule(domain: "example.com", destination: .init(bundleID: "safari"))
         let (coordinator, _) = makeCoordinator(rules: [first, second])
         coordinator.enqueue(link("https://example.com"))
-        #expect(coordinator.active?.phase == .failed(.destinationUnavailable(bundleID: "arc")))
+        #expect(coordinator.active?.phase == .failed(.destinationUnavailable(.init(bundleID: "arc"))))
         #expect(coordinator.active?.needsPicker == true)
         #expect(coordinator.active?.matchedRuleID == first.id)
         #expect(opener.calls.isEmpty)
     }
 
     @Test func ruleLaunchFailureShowsRecovery() {
-        let (coordinator, _) = makeCoordinator(rules: [Rule(domain: "example.com", destinationBundleID: "zen")])
+        let (coordinator, _) = makeCoordinator(rules: [Rule(domain: "example.com", destination: .init(bundleID: "zen"))])
         coordinator.enqueue(link("https://example.com"))
-        opener.calls[0].completion(false)
-        #expect(coordinator.active?.phase == .failed(.launchFailed(bundleID: "zen")))
+        opener.calls[0].completion(.rejected)
+        #expect(coordinator.active?.phase == .failed(.launchFailed(.init(bundleID: "zen"))))
         #expect(coordinator.active?.needsPicker == true)
         #expect(opener.calls.count == 1)
     }
@@ -224,15 +231,15 @@ struct RequestCoordinatorTests {
         let (coordinator, box) = makeCoordinator()
         coordinator.enqueue(link("https://example.com/1"))
         coordinator.enqueue(link("https://example.com/2"))
-        box.rules = [Rule(domain: "example.com", destinationBundleID: "zen")]
+        box.rules = [Rule(domain: "example.com", destination: .init(bundleID: "zen"))]
         #expect(coordinator.active?.phase == .choosing)
         coordinator.cancelActive()
-        #expect(coordinator.active?.phase == .dispatching(bundleID: "zen"))
+        #expect(coordinator.active?.phase == .dispatching(.init(bundleID: "zen")))
     }
 
     @Test func synchronousCompletionsDrainTheQueue() {
-        opener.autoComplete = true
-        let (coordinator, box) = makeCoordinator(rules: [Rule(domain: "example.com", destinationBundleID: "zen")])
+        opener.autoComplete = .accepted
+        let (coordinator, box) = makeCoordinator(rules: [Rule(domain: "example.com", destination: .init(bundleID: "zen"))])
         for index in 0..<5 { coordinator.enqueue(link("https://example.com/\(index)")) }
         #expect(coordinator.pendingCount == 0)
         #expect(box.outcomes.count == 5)
@@ -241,7 +248,7 @@ struct RequestCoordinatorTests {
 
     @Test func slowDispatchBecomesVisibleAndCancellable() async throws {
         let (coordinator, box) = makeCoordinator(
-            rules: [Rule(domain: "example.com", destinationBundleID: "zen")],
+            rules: [Rule(domain: "example.com", destination: .init(bundleID: "zen"))],
             slowAfter: .milliseconds(20)
         )
         let stuck = coordinator.enqueue(link("https://example.com/1"))
@@ -259,7 +266,7 @@ struct RequestCoordinatorTests {
         #expect(box.outcomes.map(\.1) == [.cancelled])
         #expect(coordinator.active?.request == next)
         // The browser finally answers for the cancelled request: ignored.
-        opener.calls[0].completion(true)
+        opener.calls[0].completion(.accepted)
         #expect(box.outcomes.count == 1)
     }
 
@@ -267,7 +274,7 @@ struct RequestCoordinatorTests {
         let (coordinator, box) = makeCoordinator(slowAfter: .milliseconds(20))
         coordinator.enqueue(link("https://example.com"))
         coordinator.choose(bundleID: "safari")
-        opener.calls[0].completion(true)
+        opener.calls[0].completion(.accepted)
         try await Task.sleep(for: .milliseconds(100))
         #expect(coordinator.active == nil)
         #expect(box.outcomes.count == 1)
@@ -291,7 +298,7 @@ struct RequestCoordinatorTests {
         coordinator.discardAll()
         #expect(coordinator.pendingCount == 0)
         #expect(box.outcomes.map(\.1) == [.discarded, .discarded])
-        opener.calls[0].completion(true)
+        opener.calls[0].completion(.accepted)
         #expect(box.outcomes.count == 2)
         #expect(coordinator.active == nil)
     }

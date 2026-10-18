@@ -90,8 +90,8 @@ struct ConfigurationTests {
         configuration.moveBrowser("b", by: -1)
         #expect(configuration.browsers.map(\.bundleID) == ["b", "a"])
 
-        let first = Rule(domain: "a.test", destinationBundleID: "a")
-        let second = Rule(domain: "b.test", destinationBundleID: "b")
+        let first = Rule(domain: "a.test", destination: .init(bundleID: "a"))
+        let second = Rule(domain: "b.test", destination: .init(bundleID: "b"))
         configuration.rules = [first, second]
         configuration.moveRule(first.id, by: 1)
         #expect(configuration.rules == [second, first])
@@ -111,18 +111,18 @@ struct ConfigurationTests {
         duplicateBrowser.browsers = [BrowserPreference(bundleID: "")]
         #expect(throws: ConfigurationError.self) { try duplicateBrowser.validate() }
 
-        let rule = Rule(domain: "example.com", destinationBundleID: "a")
+        let rule = Rule(domain: "example.com", destination: .init(bundleID: "a"))
         #expect(throws: ConfigurationError.self) { try Configuration(rules: [rule, rule]).validate() }
         #expect(throws: ConfigurationError.self) {
-            try Configuration(rules: [Rule(domain: "Example.com", destinationBundleID: "a")]).validate()
+            try Configuration(rules: [Rule(domain: "Example.com", destination: .init(bundleID: "a"))]).validate()
         }
         #expect(throws: ConfigurationError.self) {
-            try Configuration(rules: [Rule(domain: "example.com", destinationBundleID: "")]).validate()
+            try Configuration(rules: [Rule(domain: "example.com", destination: .init(bundleID: ""))]).validate()
         }
 
         var newer = Configuration()
-        newer.schemaVersion = 2
-        #expect(throws: ConfigurationError.unsupportedVersion(2)) { try newer.validate() }
+        newer.schemaVersion = 3
+        #expect(throws: ConfigurationError.unsupportedVersion(3)) { try newer.validate() }
     }
 }
 
@@ -153,7 +153,7 @@ struct ConfigurationStoreTests {
 
     @Test func roundTripsAndMatchesDocumentedSchema() throws {
         let store = ConfigurationStore(fileURL: fileURL)
-        let rule = Rule(domain: "example.com", includeSubdomains: true, destinationBundleID: "com.apple.Safari")
+        let rule = Rule(domain: "example.com", includeSubdomains: true, destination: .init(bundleID: "com.apple.Safari"))
         let configuration = Configuration(
             onboardingCompleted: true,
             showsMenuBarIcon: false,
@@ -167,7 +167,7 @@ struct ConfigurationStoreTests {
         #expect(Set(json.keys) == ["schemaVersion", "onboardingCompleted", "showsMenuBarIcon", "browsers", "rules"])
         #expect(json["showsMenuBarIcon"] as? Bool == false)
         let savedRule = try #require((json["rules"] as? [[String: Any]])?.first)
-        #expect(Set(savedRule.keys) == ["id", "domain", "includeSubdomains", "destinationBundleID", "isEnabled"])
+        #expect(Set(savedRule.keys) == ["id", "domain", "includeSubdomains", "destination", "isEnabled"])
         #expect(savedRule["id"] as? String == rule.id.uuidString)
     }
 

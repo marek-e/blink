@@ -40,8 +40,8 @@ struct PickerView: View {
     private var waitingCount: Int { model.coordinator.queued.count }
     /// While a link is being sent, the highlight follows the browser it's going to.
     private var selection: Int {
-        if case let .dispatching(bundleID) = active.phase,
-           let index = choices.firstIndex(where: { $0.bundleID == bundleID }) {
+        if case let .dispatching(destination) = active.phase,
+           let index = choices.firstIndex(where: { $0.bundleID == destination.bundleID }) {
             return index
         }
         return min(session.selection, max(choices.count - 1, 0))
@@ -64,8 +64,8 @@ struct PickerView: View {
                 failureBanner(failure)
                     .padding(.horizontal, 12)
                     .padding(.bottom, 8)
-            } else if case let .dispatching(bundleID) = active.phase, active.isSlow {
-                slowBanner(name: model.catalog.name(for: bundleID))
+            } else if case let .dispatching(destination) = active.phase, active.isSlow {
+                slowBanner(name: model.catalog.name(for: destination.bundleID))
                     .padding(.horizontal, 12)
                     .padding(.bottom, 8)
             }
@@ -154,6 +154,13 @@ struct PickerView: View {
         case .launchFailed:
             title = "\(name) couldn't open this link"
             detail = "Try again, or choose another browser."
+        case let .profileUnavailable(destination):
+            let profile = destination.profile?.name ?? "This profile"
+            title = "\(profile) isn't in \(name) anymore"
+            detail = "It may have been renamed or deleted. Open the link in \(name) without choosing a profile, or choose another browser."
+        case .automationDenied:
+            title = "Blink isn't allowed to control \(name)"
+            detail = "Opening a link in a \(name) profile needs permission. Allow Blink in System Settings › Privacy & Security › Automation, or open the link in \(name) without choosing a profile."
         }
 
         return HStack(alignment: .top, spacing: 8) {
@@ -235,7 +242,7 @@ struct PickerView: View {
                     isSelected: index == selection,
                     isHovered: hovered == browser.bundleID,
                     isActive: controlActiveState == .key,
-                    isOpening: active.phase == .dispatching(bundleID: browser.bundleID)
+                    isOpening: active.phase == .dispatching(Destination(bundleID: browser.bundleID))
                 )
                 .contentShape(Rectangle())
                 .onTapGesture { choose(index) }

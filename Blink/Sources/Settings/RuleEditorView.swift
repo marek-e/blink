@@ -25,10 +25,10 @@ struct RuleDraft: Identifiable {
     init(rule: Rule) {
         id = rule.id
         isNew = false
-        originalDestination = rule.destinationBundleID
+        originalDestination = rule.destination.bundleID
         domainText = rule.domain
         includeSubdomains = rule.includeSubdomains
-        destination = rule.destinationBundleID
+        destination = rule.destination.bundleID
         isEnabled = rule.isEnabled
     }
 }
@@ -74,7 +74,7 @@ struct RuleEditorView: View {
             id: draft.id,
             domain: domain,
             includeSubdomains: draft.includeSubdomains && HostNormalizer.supportsSubdomains(domain),
-            destinationBundleID: draft.destination,
+            destination: Destination(bundleID: draft.destination),
             isEnabled: draft.isEnabled
         )
     }
