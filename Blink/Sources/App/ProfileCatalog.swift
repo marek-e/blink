@@ -21,6 +21,11 @@ final class ProfileCatalog {
         return all.count > 1 ? all : []
     }
 
+    /// Whether `profile` is among the browser's profiles; nil when Blink has no list to check against.
+    func contains(_ profile: ProfileReference, for bundleID: String) -> Bool? {
+        profiles[bundleID].map { $0.contains(profile) }
+    }
+
     /// Starts reading the lists of `bundleIDs` that changed, without waiting for the result.
     func refreshInBackground(_ bundleIDs: some Sequence<String>) {
         let bundleIDs = Array(bundleIDs)

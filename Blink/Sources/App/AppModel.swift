@@ -69,11 +69,18 @@ final class AppModel {
         return PickerOutline(browsers: browsers, profiles: offered, expanded: expanded, selection: selection)
     }
 
-    /// "Arc", or "Perso in Arc" for a profile.
+    /// "Arc", or "Arc · Perso" for a profile.
     func displayName(for destination: Destination) -> String {
         let browser = catalog.name(for: destination.bundleID)
         guard let profile = destination.profile else { return browser }
-        return "\(profile.name) in \(browser)"
+        return "\(browser) · \(profile.name)"
+    }
+
+    /// Whether a destination's profile is known to be gone. False when there's no profile, or no
+    /// list to check against.
+    func isProfileMissing(_ destination: Destination) -> Bool {
+        guard let profile = destination.profile else { return false }
+        return profiles.contains(profile, for: destination.bundleID) == false
     }
 
     func refreshBrowsers() {

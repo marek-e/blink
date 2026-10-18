@@ -6,7 +6,7 @@ struct BrowsersSettingsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Browsers appear in the picker in this order. Hidden browsers are left out of the picker, but rules can still open links in them.")
+            Text("Browsers appear in the picker in this order. Hidden browsers and profiles are left out of the picker, but rules can still open links in them.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -73,6 +73,10 @@ struct BrowserPreferencesList: View {
                 if !isInstalled {
                     Text("Not installed").font(.caption).foregroundStyle(.secondary)
                 }
+                let profiles = model.profiles.choices(for: preference.bundleID)
+                if isInstalled && !profiles.isEmpty {
+                    ProfileVisibilityList(model: model, bundleID: preference.bundleID, browserName: name, profiles: profiles)
+                }
             }
             Spacer()
             Toggle("Show in picker", isOn: Binding(
@@ -117,5 +121,58 @@ struct BrowserPreferencesList: View {
         .padding(.vertical, 2)
         .accessibilityElement(children: .contain)
         .accessibilityLabel(isInstalled ? name : "\(name), not installed")
+    }
+}
+
+/// A browser's profile count, opening a list with a checkbox for showing each profile under the
+/// browser in the picker. A popover, because disclosure groups don't work inside list rows.
+private struct ProfileVisibilityList: View {
+    let model: AppModel
+    let bundleID: String
+    let browserName: String
+    let profiles: [ProfileReference]
+
+    @State private var isPresented = false
+
+    var body: some View {
+        Button {
+            isPresented.toggle()
+        } label: {
+            HStack(spacing: 3) {
+                Text(profileSummary)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 8, weight: .semibold))
+                    .accessibilityHidden(true)
+            }
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help("Choose which \(browserName) profiles the picker shows")
+        .accessibilityLabel("\(profileSummary). Choose which profiles the picker shows")
+        .popover(isPresented: $isPresented, arrowEdge: .trailing) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Show under \(browserName) in the picker")
+                    .font(.headline)
+                ForEach(profiles, id: \.id) { profile in
+                    Toggle(profile.name, isOn: Binding(
+                        get: { !model.configuration.isProfileHidden(profile.id, for: bundleID) },
+                        set: { visible in
+                            model.preferences.update { $0.setProfileVisibility(visible, profileID: profile.id, for: bundleID) }
+                        }
+                    ))
+                    .toggleStyle(.checkbox)
+                }
+            }
+            .padding(16)
+            .frame(minWidth: 220, alignment: .leading)
+        }
+    }
+
+    private var profileSummary: String {
+        let hidden = profiles.filter { model.configuration.isProfileHidden($0.id, for: bundleID) }.count
+        let total = profiles.count == 1 ? "1 profile" : "\(profiles.count) profiles"
+        return hidden == 0 ? total : "\(total), \(hidden) hidden"
     }
 }
