@@ -442,6 +442,8 @@ private struct KeyCap: View {
     let key: String
     var tint = Tint.neutral
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         Text(key)
             .font(.caption.monospacedDigit().weight(.medium))
@@ -455,7 +457,8 @@ private struct KeyCap: View {
     private var foreground: AnyShapeStyle {
         switch tint {
         case .neutral: AnyShapeStyle(.secondary)
-        case .accent: AnyShapeStyle(Color.accentColor)
+        // Accent text on a dark accent-tinted row is too faint, so dark mode inverts it.
+        case .accent: colorScheme == .dark ? AnyShapeStyle(Color.white) : AnyShapeStyle(Color.accentColor)
         case .onAccent: AnyShapeStyle(Color.white.opacity(0.9))
         }
     }
@@ -463,7 +466,7 @@ private struct KeyCap: View {
     private var background: AnyShapeStyle {
         switch tint {
         case .neutral: AnyShapeStyle(.quaternary)
-        case .accent: AnyShapeStyle(Color.accentColor.opacity(0.15))
+        case .accent: AnyShapeStyle(Color.accentColor.opacity(colorScheme == .dark ? 0.6 : 0.15))
         case .onAccent: AnyShapeStyle(Color.white.opacity(0.22))
         }
     }
