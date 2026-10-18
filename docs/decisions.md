@@ -38,13 +38,15 @@ Updated: 2026-10-17. "Proposed" means a working assumption without user approval
 | Open source under the MIT License | Owner's choice on 2026-10-18, replacing the earlier proprietary decision. MIT is short and permissive, and fits a small utility that others may fork or package |
 | Name "Blink" kept | A 2026-10-18 search found no browser picker or link router called Blink. The name is crowded elsewhere (Chromium's engine, Amazon's cameras, several unrelated Mac apps), so App Store search would be noisy. This is not legal clearance |
 | Releases on GitHub Releases for `marek-e/blink`, support through GitHub issues | The repository is already there; `.github/workflows/release.yml` publishes tagged builds |
+| Unsigned releases until a Developer ID exists; signed automatically once the secrets are added | The Apple Developer Program costs $99 a year. Ad-hoc builds run after a one-time Open Anyway |
+| Homebrew through this repository as a tap (`Casks/blink.rb`) | The official cask catalog requires notarized apps |
 | English only for 1.0 | Small UI; localization can follow demand |
 
 ## Still open
 
 | Question | Current state | Resolve by |
 | --- | --- | --- |
-| Developer ID certificate and notarization credentials | Only the owner can enroll in the Apple Developer Program. Until then, builds run on the Mac that built them. Everything else in the release pipeline was dry-run | Before giving Blink to anyone else |
+| Developer ID certificate and notarization credentials | Only the owner can enroll in the Apple Developer Program ($99 a year). Until then, releases are unsigned and need Open Anyway once | Optional; removes the first-launch block |
 | Are browser profiles essential? | Deferred | Before expanding scope |
 
 ## Decision process

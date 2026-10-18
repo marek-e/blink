@@ -58,7 +58,11 @@ scripts/release.sh
 
 Set `SKIP_NOTARIZATION=1` for a signing-only run. `DEVELOPER_ID_APPLICATION=- SKIP_NOTARIZATION=1 scripts/release.sh` signs ad-hoc and exercises every step except notarization, without any certificate.
 
-Pushing a tag such as `v1.0.0` runs `.github/workflows/release.yml`, which does the same on GitHub Actions and publishes the DMG, zip and checksums to GitHub Releases with the notes in `docs/releases/<version>.md`. The workflow's header lists the repository secrets it needs. Bump `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` in `project.yml`, regenerate, and then follow the checklist in [testing and release](docs/testing-and-release.md).
+Pushing a tag such as `v1.0.0` runs `.github/workflows/release.yml`, which builds on GitHub Actions and publishes the DMG, zip and checksums to GitHub Releases with the notes in `docs/releases/<version>.md`. With the Developer ID secrets listed in the workflow's header, the build is signed and notarized. Without them it is signed ad-hoc, and `docs/releases/unsigned-note.md` is appended to the notes to explain Open Anyway. CI packages every push the same way and keeps the DMG as a build artifact for 14 days.
+
+To release: bump `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` in `project.yml` and regenerate, set the same `version` in `Casks/blink.rb` (the workflow refuses a mismatch), add `docs/releases/<version>.md`, follow the checklist in [testing and release](docs/testing-and-release.md), then tag and push.
+
+`Casks/blink.rb` makes this repository a Homebrew tap. Check it with `brew tap blinktest/blink "$PWD" && brew audit --cask --strict blinktest/blink/blink`, then `brew untap blinktest/blink`.
 
 The bundle identifier is `dev.melmayan.blink`. Don't change it: the settings folder and the default-browser registration follow it, so existing users would lose their settings.
 

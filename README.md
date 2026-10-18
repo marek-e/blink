@@ -25,13 +25,24 @@ macOS 14 Sonoma or later, on Apple silicon or Intel.
 
 ## Install
 
-There is no signed download yet. Build and install from source with a Swift 6 Xcode (developed with Xcode 27.1):
+Download `Blink-<version>.dmg` from [GitHub Releases](https://github.com/marek-e/blink/releases), open it and drag Blink to Applications.
+
+Or install with Homebrew. This repository is its own tap:
+
+```sh
+brew tap marek-e/blink https://github.com/marek-e/blink
+brew install --cask marek-e/blink/blink
+```
+
+Releases aren't signed with an Apple Developer ID yet, so macOS blocks Blink the first time you open it. Open it once, then go to System Settings › Privacy & Security, find the message about Blink and click Open Anyway. You only need to do this once. Each release lists SHA-256 checksums for its files.
+
+To build from source instead, use a Swift 6 Xcode (developed with Xcode 27.1) and run:
 
 ```sh
 scripts/install-local.sh
 ```
 
-The script runs the tests, builds a Release copy signed for this Mac only, installs it as `/Applications/Blink.app` and opens it. Signed, notarized builds for other Macs come from `scripts/release.sh` once a Developer ID is available (see [CONTRIBUTING](CONTRIBUTING.md)).
+The script runs the tests, builds a Release copy signed for this Mac only, installs it as `/Applications/Blink.app` and opens it.
 
 ## First run
 
@@ -66,7 +77,7 @@ Settings has three tabs:
 
 1. In System Settings › Desktop & Dock, set "Default web browser" back to your browser.
 2. Turn off Open Blink at login in Blink's settings, or remove it in System Settings › General › Login Items.
-3. Quit Blink and move `/Applications/Blink.app` to the Trash.
+3. Quit Blink and move `/Applications/Blink.app` to the Trash, or run `brew uninstall --cask blink` if you installed it with Homebrew.
 4. To remove its settings too, delete `~/Library/Application Support/dev.melmayan.blink`.
 
 ## Privacy

@@ -107,8 +107,9 @@ Blink logs "Picker interactive N ms after arrival" in the intake category, so th
 - [x] Privacy checks: no URLs in logs or on disk.
 - [x] Bundle ID, icon, version 1.0.0 (1) and ownership settled.
 - [x] License (MIT) and name review recorded in [decisions](decisions.md).
-- [ ] Signed with the owner's Developer ID and notarized. `scripts/release.sh` and the release workflow were dry-run end to end with ad-hoc signing; they need the owner's certificate and notarization credentials.
-- [ ] A downloaded, notarized copy passes Gatekeeper on a clean account (depends on the previous item).
+- [x] Release packaging runs on GitHub Actions for every push (ad-hoc signed DMG, zip and checksums), and the Homebrew cask passes `brew audit --strict`.
+- [ ] Optional: signed with the owner's Developer ID and notarized. Without it, releases are ad-hoc signed and the notes explain Open Anyway.
+- [ ] Optional, after signing: a downloaded, notarized copy passes Gatekeeper on a clean account.
 - [x] Installation, default-browser reversal, limitations and uninstall instructions written (README).
 - [x] Release notes in `docs/releases/1.0.0.md`; the pipeline writes checksums and the revision.
 
