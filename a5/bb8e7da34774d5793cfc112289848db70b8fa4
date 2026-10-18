@@ -1,0 +1,25 @@
+Casks/blink.rb
+  s_d5995b33e15cb8::t_c25576e155b2e5 6
+project.yml
+  s_d5995b33e15cb8::t_c25576e155b2e5 9-10
+Blink.xcodeproj/project.pbxproj
+  s_d5995b33e15cb8::t_c25576e155b2e5 331,346,391,412
+docs/releases/1.3.0.md
+  s_d5995b33e15cb8::t_c25576e155b2e5 1-8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a5bb8e7da34774d5793cfc112289848db70b8fa4",
+  "prompts": {},
+  "sessions": {
+    "s_d5995b33e15cb8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ace1fcde-e6d8-4856-8db8-88eff9f8d9d3",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Marek Elmayan <melmayan.dev@gmail.com>"
+    }
+  }
+}
