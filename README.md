@@ -12,6 +12,8 @@ https://github.com/user-attachments/assets/d3e3d63b-ee16-439d-b9af-25157f45f91d
 
 
 
+[![The Blink picker next to a link, listing Arc, Dia, Google Chrome, Zen and Safari. Click to watch the launch video.](docs/media/blink-launch-poster.png)](docs/media/blink-launch.mp4)
+
 ## What it does
 
 - Shows a compact picker next to the pointer with your browsers, their icons and the link's host. Press 1 to 9, use the arrow keys and Return, or click.
