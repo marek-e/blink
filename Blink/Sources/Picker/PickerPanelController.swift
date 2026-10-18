@@ -41,6 +41,12 @@ final class PickerPanelController: NSObject, NSWindowDelegate {
             showSettings: showSettings
         ))
         host.sizingOptions = [.preferredContentSize]
+        // Glass draws its backdrop across the whole view. Clipping keeps the window's shadow on the
+        // rounded panel instead of its bounding rectangle.
+        host.view.wantsLayer = true
+        host.view.layer?.cornerRadius = PickerView.cornerRadius
+        host.view.layer?.cornerCurve = .continuous
+        host.view.layer?.masksToBounds = true
         panel.contentViewController = host
         panel.delegate = self
         panel.onCancel = { [weak self] in self?.cancelPresented() }

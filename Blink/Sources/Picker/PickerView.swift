@@ -20,7 +20,7 @@ struct PickerContainer: View {
 /// The picker's content. Keyboard input (arrows, Return, 1–9) is handled by `PickerPanel`.
 struct PickerView: View {
     static let width: CGFloat = 360
-    static let cornerRadius: CGFloat = 14
+    static let cornerRadius: CGFloat = PickerGlass.isAvailable ? 22 : 14
     /// Room kept for the header, a banner and the footer when limiting the browser list's height.
     static let reservedHeight: CGFloat = 300
 
@@ -81,9 +81,7 @@ struct PickerView: View {
             footer
         }
         .frame(width: Self.width)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Self.cornerRadius, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: Self.cornerRadius, style: .continuous).strokeBorder(.separator, lineWidth: 0.5))
-        .clipShape(RoundedRectangle(cornerRadius: Self.cornerRadius, style: .continuous))
+        .modifier(PanelBackground(shape: RoundedRectangle(cornerRadius: Self.cornerRadius, style: .continuous)))
         .onExitCommand { model.cancel(active.request.id) }
     }
 
@@ -304,98 +302,196 @@ struct PickerView: View {
                 .padding(.horizontal, 14)
                 .padding(.vertical, 9)
             }
-            Divider()
             actionBar
-                .padding(.horizontal, 6)
-                .frame(height: 38)
-                // An explicit shape: without one, the style fills the container shape, which draws
-                // the bar as an inset rounded card.
-                .background(.quinary, in: Rectangle())
         }
         .animation(reduceMotion ? nil : .default, value: copied)
     }
 
     /// Command-palette style: each action names the key that runs it, and the primary action
     /// names the browser Return opens.
+    @ViewBuilder
     private var actionBar: some View {
-        HStack(spacing: 2) {
-            Button {
-                AppModel.copyToPasteboard(link.url)
-                copied = true
-                Announcer.announce("Link copied")
-                Task {
-                    try? await Task.sleep(for: .seconds(1.5))
-                    copied = false
-                }
-            } label: {
-                ActionLabel(title: copied ? "Copied" : "Copy Link", key: "⌘C")
-            }
-            .accessibilityLabel("Copy Link")
-            .fixedSize()
-            Spacer(minLength: 8)
-            Button(role: .cancel) {
-                model.cancel(active.request.id)
-            } label: {
-                ActionLabel(title: "Cancel", key: "esc")
-            }
-            .disabled(isDispatching && !active.isSlow)
-            .fixedSize()
-            if isDispatching {
-                HStack(spacing: 6) {
-                    ProgressView()
-                        .controlSize(.small)
-                    Text("Opening…")
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
-                }
-                .padding(.horizontal, 8)
-                .accessibilityElement(children: .ignore)
-                .accessibilityLabel("Opening")
-            } else if choices.indices.contains(selection) {
-                Button {
-                    choose(selection)
-                } label: {
-                    ActionLabel(title: "Open in \(choices[selection].name)", key: "↩", isPrimary: true)
-                }
-                .accessibilityLabel("Open in \(choices[selection].name)")
-            }
+        #if compiler(>=6.2)
+        if #available(macOS 26, *) {
+            glassActionBar
+        } else {
+            plainActionBar
         }
-        .buttonStyle(ActionBarButtonStyle())
+        #else
+        plainActionBar
+        #endif
+    }
+
+    private var plainActionBar: some View {
+        VStack(spacing: 0) {
+            Divider()
+            HStack(spacing: 2) {
+                copyButton(emphasis: .secondary).fixedSize()
+                Spacer(minLength: 8)
+                cancelButton(emphasis: .secondary).fixedSize()
+                openAction(emphasis: .primary)
+            }
+            .buttonStyle(ActionBarButtonStyle())
+            .padding(.horizontal, 6)
+            .frame(height: 38)
+            // An explicit shape: without one, the style fills the container shape, which draws
+            // the bar as an inset rounded card.
+            .background(.quinary, in: Rectangle())
+        }
+    }
+
+    #if compiler(>=6.2)
+    @available(macOS 26, *)
+    private var glassActionBar: some View {
+        GlassEffectContainer {
+            HStack(spacing: 8) {
+                copyButton(emphasis: .primary).fixedSize()
+                    .buttonStyle(.glass)
+                Spacer(minLength: 0)
+                cancelButton(emphasis: .primary).fixedSize()
+                    .buttonStyle(.glass)
+                openAction(emphasis: .onAccent)
+                    .buttonStyle(.glassProminent)
+            }
+            .buttonBorderShape(.capsule)
+        }
+        .padding(.horizontal, 12)
+        .padding(.top, 4)
+        .padding(.bottom, 12)
+    }
+    #endif
+
+    private func copyButton(emphasis: ActionLabel.Emphasis) -> some View {
+        Button {
+            AppModel.copyToPasteboard(link.url)
+            copied = true
+            Announcer.announce("Link copied")
+            Task {
+                try? await Task.sleep(for: .seconds(1.5))
+                copied = false
+            }
+        } label: {
+            ActionLabel(title: copied ? "Copied" : "Copy", key: "⌘C", emphasis: emphasis)
+        }
+        .accessibilityLabel("Copy Link")
+    }
+
+    private func cancelButton(emphasis: ActionLabel.Emphasis) -> some View {
+        Button(role: .cancel) {
+            model.cancel(active.request.id)
+        } label: {
+            ActionLabel(title: "Cancel", key: "esc", emphasis: emphasis)
+        }
+        .disabled(isDispatching && !active.isSlow)
+    }
+
+    @ViewBuilder
+    private func openAction(emphasis: ActionLabel.Emphasis) -> some View {
+        if isDispatching {
+            HStack(spacing: 6) {
+                ProgressView()
+                    .controlSize(.small)
+                Text("Opening…")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.horizontal, 8)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("Opening")
+        } else if choices.indices.contains(selection) {
+            Button {
+                choose(selection)
+            } label: {
+                ActionLabel(title: "Open in \(choices[selection].name)", key: "↩", emphasis: emphasis)
+            }
+            .accessibilityLabel("Open in \(choices[selection].name)")
+        }
+    }
+}
+
+/// Liquid Glass on macOS 26 and later, when built with its SDK; materials before that.
+enum PickerGlass {
+    static var isAvailable: Bool {
+        #if compiler(>=6.2)
+        if #available(macOS 26, *) { return true }
+        #endif
+        return false
+    }
+}
+
+private struct PanelBackground<S: InsettableShape>: ViewModifier {
+    let shape: S
+
+    func body(content: Content) -> some View {
+        #if compiler(>=6.2)
+        if #available(macOS 26, *) {
+            return AnyView(content.clipShape(shape).glassEffect(.regular, in: shape))
+        }
+        #endif
+        return AnyView(content
+            .background(.regularMaterial, in: shape)
+            .overlay(shape.strokeBorder(.separator, lineWidth: 0.5))
+            .clipShape(shape))
     }
 }
 
 /// A keyboard key, drawn like a keycap.
 private struct KeyCap: View {
+    enum Tint { case neutral, accent, onAccent }
+
     let key: String
-    var isTinted = false
+    var tint = Tint.neutral
 
     var body: some View {
         Text(key)
             .font(.caption.monospacedDigit().weight(.medium))
-            .foregroundStyle(isTinted ? AnyShapeStyle(Color.accentColor) : AnyShapeStyle(.secondary))
+            .foregroundStyle(foreground)
             .frame(minWidth: 18, minHeight: 18)
             .padding(.horizontal, key.count > 1 ? 4 : 0)
-            .background(
-                isTinted ? AnyShapeStyle(Color.accentColor.opacity(0.15)) : AnyShapeStyle(.quaternary),
-                in: RoundedRectangle(cornerRadius: 5, style: .continuous)
-            )
+            .background(background, in: RoundedRectangle(cornerRadius: 5, style: .continuous))
             .accessibilityHidden(true)
+    }
+
+    private var foreground: AnyShapeStyle {
+        switch tint {
+        case .neutral: AnyShapeStyle(.secondary)
+        case .accent: AnyShapeStyle(Color.accentColor)
+        case .onAccent: AnyShapeStyle(Color.white.opacity(0.9))
+        }
+    }
+
+    private var background: AnyShapeStyle {
+        switch tint {
+        case .neutral: AnyShapeStyle(.quaternary)
+        case .accent: AnyShapeStyle(Color.accentColor.opacity(0.15))
+        case .onAccent: AnyShapeStyle(Color.white.opacity(0.22))
+        }
     }
 }
 
 private struct ActionLabel: View {
+    enum Emphasis { case secondary, primary, onAccent }
+
     let title: String
     let key: String
-    var isPrimary = false
+    let emphasis: Emphasis
 
     var body: some View {
         HStack(spacing: 6) {
             Text(title)
-                .font(.callout.weight(isPrimary ? .semibold : .regular))
-                .foregroundStyle(isPrimary ? .primary : .secondary)
+                .font(.callout.weight(emphasis == .secondary ? .regular : .semibold))
+                .foregroundStyle(foreground)
                 .lineLimit(1)
-                .truncationMode(.middle)
-            KeyCap(key: key)
+                .truncationMode(.tail)
+            KeyCap(key: key, tint: emphasis == .onAccent ? .onAccent : .neutral)
+        }
+    }
+
+    private var foreground: AnyShapeStyle {
+        switch emphasis {
+        case .secondary: AnyShapeStyle(.secondary)
+        case .primary: AnyShapeStyle(.primary)
+        case .onAccent: AnyShapeStyle(Color.white)
         }
     }
 }
@@ -456,13 +552,13 @@ private struct BrowserRow: View {
             if isOpening {
                 Text("Opening…").font(.caption).foregroundStyle(.secondary)
             } else if let shortcut {
-                KeyCap(key: "\(shortcut)", isTinted: isHighlighted)
+                KeyCap(key: "\(shortcut)", tint: isHighlighted ? .accent : .neutral)
             }
         }
         .padding(.horizontal, 8)
         .frame(height: Self.height)
         .background {
-            let shape = RoundedRectangle(cornerRadius: 8, style: .continuous)
+            let shape = RoundedRectangle(cornerRadius: PickerGlass.isAvailable ? 12 : 8, style: .continuous)
             if isHighlighted {
                 shape.fill(Color.accentColor.opacity(0.2))
             } else if isSelected {
