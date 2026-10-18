@@ -146,7 +146,7 @@ final class PickerPanel: NSPanel {
 
     init() {
         super.init(
-            contentRect: NSRect(x: 0, y: 0, width: 340, height: 300),
+            contentRect: NSRect(x: 0, y: 0, width: PickerView.width, height: 300),
             // Non-activating: the panel takes keyboard focus even when macOS's cooperative activation
             // keeps another app active (for example a browser that just launched itself).
             styleMask: [.borderless, .nonactivatingPanel],

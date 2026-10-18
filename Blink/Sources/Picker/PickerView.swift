@@ -19,9 +19,10 @@ struct PickerContainer: View {
 
 /// The picker's content. Keyboard input (arrows, Return, 1–9) is handled by `PickerPanel`.
 struct PickerView: View {
-    static let width: CGFloat = 340
+    static let width: CGFloat = 360
+    static let cornerRadius: CGFloat = 14
     /// Room kept for the header, a banner and the footer when limiting the browser list's height.
-    static let reservedHeight: CGFloat = 320
+    static let reservedHeight: CGFloat = 300
 
     let model: AppModel
     @Bindable var session: PickerSession
@@ -55,9 +56,9 @@ struct PickerView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             header
-                .padding(.horizontal, 16)
-                .padding(.top, 16)
-                .padding(.bottom, 12)
+                .padding(.horizontal, 14)
+                .padding(.top, 14)
+                .padding(.bottom, 10)
 
             if case let .failed(failure) = active.phase {
                 failureBanner(failure)
@@ -77,28 +78,40 @@ struct PickerView: View {
                 browserList
             }
 
-            Divider()
             footer
-                .padding(12)
         }
         .frame(width: Self.width)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(.separator, lineWidth: 0.5))
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Self.cornerRadius, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: Self.cornerRadius, style: .continuous).strokeBorder(.separator, lineWidth: 0.5))
+        .clipShape(RoundedRectangle(cornerRadius: Self.cornerRadius, style: .continuous))
         .onExitCommand { model.cancel(active.request.id) }
     }
 
     // MARK: Header
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack(alignment: .firstTextBaseline) {
-                Text(LinkPreview.title(of: link))
-                    .font(.title3.weight(.semibold))
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-                    .textSelection(.enabled)
-                    .help(LinkPreview.title(of: link))
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 10) {
+                Image(systemName: link.kind == .file ? "doc" : "link")
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(.secondary)
+                    .frame(width: 28, height: 28)
+                    .background(.quaternary, in: RoundedRectangle(cornerRadius: 7, style: .continuous))
+                    .accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(LinkPreview.title(of: link))
+                        .font(.headline)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                        .textSelection(.enabled)
+                        .help(LinkPreview.title(of: link))
+                    Text(LinkPreview.summary(of: link))
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                        .textSelection(.enabled)
+                }
                 Spacer(minLength: 8)
                 if waitingCount > 0 {
                     Text(waitingCount == 1 ? "1 more link" : "\(waitingCount) more links")
@@ -109,12 +122,6 @@ struct PickerView: View {
                         .accessibilityLabel(waitingCount == 1 ? "1 more link waiting" : "\(waitingCount) more links waiting")
                 }
             }
-            Text(LinkPreview.summary(of: link))
-                .font(.callout)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-                .truncationMode(.middle)
-                .textSelection(.enabled)
 
             DisclosureGroup(isExpanded: $session.showsFullLink) {
                 ScrollView {
@@ -130,7 +137,6 @@ struct PickerView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            .padding(.top, 2)
         }
     }
 
@@ -203,7 +209,7 @@ struct PickerView: View {
     /// Scrolls only when every row wouldn't fit on the screen.
     @ViewBuilder
     private var browserList: some View {
-        let rowsHeight = CGFloat(choices.count) * (BrowserRow.height + 2) - 2 + 12
+        let rowsHeight = CGFloat(choices.count) * BrowserRow.height + 12
         let maxHeight = max(session.maxListHeight, 3 * BrowserRow.height)
         if rowsHeight > maxHeight {
             ScrollViewReader { proxy in
@@ -222,7 +228,7 @@ struct PickerView: View {
     }
 
     private var browserRows: some View {
-        VStack(spacing: 2) {
+        VStack(spacing: 0) {
             ForEach(Array(choices.enumerated()), id: \.element.bundleID) { index, browser in
                 BrowserRow(
                     model: model,
@@ -283,8 +289,9 @@ struct PickerView: View {
     // MARK: Footer
 
     private var footer: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(spacing: 0) {
             if canCreateRule && !choices.isEmpty {
+                Divider()
                 Toggle(isOn: $session.alwaysForHost) {
                     Text("Always open \(link.host) in the chosen browser")
                         .lineLimit(1)
@@ -293,36 +300,138 @@ struct PickerView: View {
                 .toggleStyle(.checkbox)
                 .font(.callout)
                 .help("Adds a rule for this exact domain. You can change it in Settings.")
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 9)
             }
-            HStack {
-                Button {
-                    AppModel.copyToPasteboard(link.url)
-                    copied = true
-                    Announcer.announce("Link copied")
-                    Task {
-                        try? await Task.sleep(for: .seconds(1.5))
-                        copied = false
-                    }
-                } label: {
-                    Label(copied ? "Copied" : "Copy Link", systemImage: copied ? "checkmark" : "doc.on.doc")
-                }
-                .accessibilityLabel("Copy Link")
-                Spacer()
-                if isDispatching {
-                    ProgressView()
-                        .controlSize(.small)
-                        .accessibilityLabel("Opening")
-                }
-                Button("Cancel", role: .cancel) { model.cancel(active.request.id) }
-                    .disabled(isDispatching && !active.isSlow)
-            }
+            Divider()
+            actionBar
+                .padding(.horizontal, 6)
+                .frame(height: 38)
+                // An explicit shape: without one, the style fills the container shape, which draws
+                // the bar as an inset rounded card.
+                .background(.quinary, in: Rectangle())
         }
         .animation(reduceMotion ? nil : .default, value: copied)
+    }
+
+    /// Command-palette style: each action names the key that runs it, and the primary action
+    /// names the browser Return opens.
+    private var actionBar: some View {
+        HStack(spacing: 2) {
+            Button {
+                AppModel.copyToPasteboard(link.url)
+                copied = true
+                Announcer.announce("Link copied")
+                Task {
+                    try? await Task.sleep(for: .seconds(1.5))
+                    copied = false
+                }
+            } label: {
+                ActionLabel(title: copied ? "Copied" : "Copy Link", key: "⌘C")
+            }
+            .accessibilityLabel("Copy Link")
+            .fixedSize()
+            Spacer(minLength: 8)
+            Button(role: .cancel) {
+                model.cancel(active.request.id)
+            } label: {
+                ActionLabel(title: "Cancel", key: "esc")
+            }
+            .disabled(isDispatching && !active.isSlow)
+            .fixedSize()
+            if isDispatching {
+                HStack(spacing: 6) {
+                    ProgressView()
+                        .controlSize(.small)
+                    Text("Opening…")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.horizontal, 8)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("Opening")
+            } else if choices.indices.contains(selection) {
+                Button {
+                    choose(selection)
+                } label: {
+                    ActionLabel(title: "Open in \(choices[selection].name)", key: "↩", isPrimary: true)
+                }
+                .accessibilityLabel("Open in \(choices[selection].name)")
+            }
+        }
+        .buttonStyle(ActionBarButtonStyle())
+    }
+}
+
+/// A keyboard key, drawn like a keycap.
+private struct KeyCap: View {
+    let key: String
+    var isTinted = false
+
+    var body: some View {
+        Text(key)
+            .font(.caption.monospacedDigit().weight(.medium))
+            .foregroundStyle(isTinted ? AnyShapeStyle(Color.accentColor) : AnyShapeStyle(.secondary))
+            .frame(minWidth: 18, minHeight: 18)
+            .padding(.horizontal, key.count > 1 ? 4 : 0)
+            .background(
+                isTinted ? AnyShapeStyle(Color.accentColor.opacity(0.15)) : AnyShapeStyle(.quaternary),
+                in: RoundedRectangle(cornerRadius: 5, style: .continuous)
+            )
+            .accessibilityHidden(true)
+    }
+}
+
+private struct ActionLabel: View {
+    let title: String
+    let key: String
+    var isPrimary = false
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Text(title)
+                .font(.callout.weight(isPrimary ? .semibold : .regular))
+                .foregroundStyle(isPrimary ? .primary : .secondary)
+                .lineLimit(1)
+                .truncationMode(.middle)
+            KeyCap(key: key)
+        }
+    }
+}
+
+private struct ActionBarButtonStyle: ButtonStyle {
+    func makeBody(configuration: ButtonStyleConfiguration) -> some View {
+        ActionBarButton(configuration: configuration)
+    }
+
+    private struct ActionBarButton: View {
+        let configuration: ButtonStyleConfiguration
+        @Environment(\.isEnabled) private var isEnabled
+        @State private var isHovered = false
+
+        var body: some View {
+            configuration.label
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background {
+                    RoundedRectangle(cornerRadius: 6, style: .continuous)
+                        .fill(fill)
+                }
+                .contentShape(Rectangle())
+                .opacity(isEnabled ? 1 : 0.45)
+                .onHover { isHovered = $0 }
+        }
+
+        private var fill: AnyShapeStyle {
+            if configuration.isPressed { return AnyShapeStyle(.tertiary) }
+            return isHovered && isEnabled ? AnyShapeStyle(.quaternary) : AnyShapeStyle(.clear)
+        }
     }
 }
 
 private struct BrowserRow: View {
-    static let height: CGFloat = 40
+    static let height: CGFloat = 36
 
     let model: AppModel
     let browser: DiscoveredBrowser
@@ -338,32 +447,29 @@ private struct BrowserRow: View {
         HStack(spacing: 10) {
             Image(nsImage: model.catalog.icon(for: browser.bundleID))
                 .resizable()
-                .frame(width: 28, height: 28)
+                .frame(width: 24, height: 24)
                 .accessibilityHidden(true)
             Text(browser.name)
                 .lineLimit(1)
                 .truncationMode(.tail)
             Spacer(minLength: 8)
             if isOpening {
-                Text("Opening…").font(.caption).foregroundStyle(isHighlighted ? .white : .secondary)
+                Text("Opening…").font(.caption).foregroundStyle(.secondary)
             } else if let shortcut {
-                Text("\(shortcut)")
-                    .font(.caption.monospacedDigit())
-                    .foregroundStyle(isHighlighted ? .white.opacity(0.85) : .secondary)
-                    .accessibilityHidden(true)
+                KeyCap(key: "\(shortcut)", isTinted: isHighlighted)
             }
         }
-        .padding(.horizontal, 10)
+        .padding(.horizontal, 8)
         .frame(height: Self.height)
-        .foregroundStyle(isHighlighted ? .white : .primary)
         .background {
-            RoundedRectangle(cornerRadius: 6, style: .continuous)
-                .fill(background)
+            let shape = RoundedRectangle(cornerRadius: 8, style: .continuous)
+            if isHighlighted {
+                shape.fill(Color.accentColor.opacity(0.2))
+            } else if isSelected {
+                shape.fill(.quaternary)
+            } else if isHovered {
+                shape.fill(.quinary)
+            }
         }
-    }
-
-    private var background: AnyShapeStyle {
-        if isSelected { return isActive ? AnyShapeStyle(Color.accentColor) : AnyShapeStyle(.quaternary) }
-        return isHovered ? AnyShapeStyle(.quinary) : AnyShapeStyle(.clear)
     }
 }
