@@ -36,7 +36,8 @@ public struct Rule: Codable, Hashable, Identifiable, Sendable {
         id = try container.decode(UUID.self, forKey: .id)
         domain = try container.decode(String.self, forKey: .domain)
         includeSubdomains = try container.decode(Bool.self, forKey: .includeSubdomains)
-        pathPrefix = try container.decodeIfPresent(String.self, forKey: .pathPrefix) ?? ""
+        // Absent means any path; null is invalid rather than silently widening the rule.
+        pathPrefix = container.contains(.pathPrefix) ? try container.decode(String.self, forKey: .pathPrefix) : ""
         isEnabled = try container.decode(Bool.self, forKey: .isEnabled)
         if let destination = try container.decodeIfPresent(Destination.self, forKey: .destination) {
             self.destination = destination
@@ -151,7 +152,8 @@ public enum RulePath {
         return .success(segments.isEmpty ? "" : "/" + segments.joined(separator: "/"))
     }
 
-    private static let segmentCharacters = CharacterSet.urlPathAllowed.subtracting(CharacterSet(charactersIn: "/"))
+    /// `*` stays encoded so a canonical prefix never reads back as a wildcard.
+    private static let segmentCharacters = CharacterSet.urlPathAllowed.subtracting(CharacterSet(charactersIn: "/*"))
 }
 
 public enum RulePathError: Error, Equatable, Sendable {

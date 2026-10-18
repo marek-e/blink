@@ -240,6 +240,7 @@ struct ConfigurationStoreTests {
         #"{"schemaVersion": 1}"#,
         #"{"schemaVersion": 1, "onboardingCompleted": false, "browsers": [], "rules": [{"id": "x"}]}"#,
         #"{"schemaVersion": 0, "onboardingCompleted": false, "browsers": [], "rules": []}"#,
+        #"{"schemaVersion": 3, "onboardingCompleted": false, "browsers": [], "rules": [{"id": "7D3AD686-228B-4A39-B316-E55D476C78E2", "domain": "example.com", "includeSubdomains": false, "pathPrefix": null, "destination": {"bundleID": "a"}, "isEnabled": true}]}"#,
         #"{"schemaVersion": 1, "onboardingCompleted": false, "browsers": [], "rules": [{"id": "7D3AD686-228B-4A39-B316-E55D476C78E2", "domain": "*.example.com", "includeSubdomains": false, "destinationBundleID": "a", "isEnabled": true}]}"#,
     ])
     func invalidFilesEnterReadOnlyRecoveryAndAreNeverOverwritten(text: String) throws {

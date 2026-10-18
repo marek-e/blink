@@ -68,6 +68,7 @@ struct RuleTests {
         ("/hublo", "/Hublo/repo", true),
         ("/Hublo", "/hublo", true),
         ("/caf%C3%A9", "/CAF%C3%89", true),
+        ("/a%2Ab", "/a*b", true),
         ("/hublo", "/", false),
         ("/hublo", "", false),
         ("/hublo", "/other/hublo", false),
@@ -131,6 +132,7 @@ struct RuleTests {
         ("/a%20b", "/a%20b"),
         ("/100%25", "/100%25"),
         ("/a@b:c;d=e", "/a@b:c;d=e"),
+        ("/a%2Ab", "/a%2Ab"),
         ("/Hublo", "/Hublo"),
     ])
     func normalizesPaths(input: String, expected: String) {
