@@ -11,7 +11,7 @@ cask "blink" do
   desc "Browser picker and link router"
   homepage "https://github.com/marek-e/blink"
 
-  depends_on macos: ">= :sonoma"
+  depends_on macos: :sonoma
 
   app "Blink.app"
 
