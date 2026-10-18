@@ -47,7 +47,7 @@ Updated: 2026-10-17. "Proposed" means a working assumption without user approval
 | Question | Current state | Resolve by |
 | --- | --- | --- |
 | Developer ID certificate and notarization credentials | Only the owner can enroll in the Apple Developer Program ($99 a year). Until then, releases are unsigned and need Open Anyway once | Optional; removes the first-launch block |
-| Are browser profiles essential? | Deferred | Before expanding scope |
+| Are browser profiles essential? | Being evaluated; Arc works through spaces, see the [capability matrix](profiles-capability.md) | Before expanding scope |
 
 ## Decision process
 
