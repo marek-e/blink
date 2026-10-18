@@ -112,7 +112,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if settings == nil {
             settings = SettingsWindowController(model: model, actions: .init(
                 openLink: { [weak self] in self?.showOpenLink() },
-                showWelcome: { [weak self] in self?.showOnboarding() }
+                showWelcome: { [weak self] in self?.showOnboarding() },
+                quit: { NSApp.terminate(nil) }
             ))
         }
         settings?.show(tab: tab)

@@ -35,18 +35,31 @@ public struct Configuration: Codable, Equatable, Sendable {
 
     public var schemaVersion: Int
     public var onboardingCompleted: Bool
+    /// Whether Blink shows its icon in the menu bar. Older files may not have this key.
+    public var showsMenuBarIcon: Bool
     public var browsers: [BrowserPreference]
     public var rules: [Rule]
 
     public init(
         onboardingCompleted: Bool = false,
+        showsMenuBarIcon: Bool = true,
         browsers: [BrowserPreference] = [],
         rules: [Rule] = []
     ) {
         schemaVersion = Self.currentSchemaVersion
         self.onboardingCompleted = onboardingCompleted
+        self.showsMenuBarIcon = showsMenuBarIcon
         self.browsers = browsers
         self.rules = rules
+    }
+
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        schemaVersion = try container.decode(Int.self, forKey: .schemaVersion)
+        onboardingCompleted = try container.decode(Bool.self, forKey: .onboardingCompleted)
+        showsMenuBarIcon = try container.decodeIfPresent(Bool.self, forKey: .showsMenuBarIcon) ?? true
+        browsers = try container.decode([BrowserPreference].self, forKey: .browsers)
+        rules = try container.decode([Rule].self, forKey: .rules)
     }
 
     public func validate() throws(ConfigurationError) {

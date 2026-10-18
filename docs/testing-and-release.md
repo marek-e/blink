@@ -55,6 +55,7 @@ Driven through the Accessibility API with synthetic `example.com` URLs, using a 
 | Login item on and off from Settings; the switch follows the status macOS reports (enabled, then not registered) | Passed |
 | Login item removed in System Settings › Login Items; Blink's switch turns off when Blink is next active | Passed |
 | Login item "requires approval" state | Not reachable: Blink registers as an "Open at Login" app, and macOS uses "requires approval" for background items. The note in Settings remains for that case |
+| Hide the menu bar icon in General: the icon leaves the menu bar, stays hidden after relaunch, comes back when turned on; reopening Blink shows Settings; Quit Blink in Settings quits | Passed |
 | VoiceOver labels, roles and announcements, checked through the accessibility tree | Passed |
 | Increase Contrast on (toggled in System Settings, then restored): picker and Settings stay legible, controls gain borders | Passed |
 | Reduce Motion on: picker and dispatch work; animations are gated on the setting | Passed |
@@ -97,7 +98,7 @@ Blink logs "Picker interactive N ms after arrival" in the intake category, so th
 
 ## Release gates
 
-- [x] Every B01 to B17 criterion has evidence (partial default assignment by unit test only; it can't be produced on macOS 26).
+- [x] Every B01 to B18 criterion has evidence (partial default assignment by unit test only; it can't be produced on macOS 26).
 - [x] Minimum OS and architectures checked: macOS 14 in a VM and on GitHub's runner, macOS 15 on GitHub's runner, macOS 26 natively, x86_64 under Rosetta.
 - [x] All six required browsers pass discovery, manual selection, domain routing and HTTP/HTTPS dispatch, running and quit.
 - [x] No known link-loss, duplicate-dispatch, recursion or silent misrouting bugs.
@@ -105,7 +106,7 @@ Blink logs "Picker interactive N ms after arrival" in the intake category, so th
 - [ ] A person uses the picker and Settings with VoiceOver and confirms what it says.
 - [x] Privacy checks: no URLs in logs or on disk.
 - [x] Bundle ID, icon, version 1.0.0 (1) and ownership settled.
-- [x] License (proprietary) and name review recorded in [decisions](decisions.md).
+- [x] License (MIT) and name review recorded in [decisions](decisions.md).
 - [ ] Signed with the owner's Developer ID and notarized. `scripts/release.sh` and the release workflow were dry-run end to end with ad-hoc signing; they need the owner's certificate and notarization credentials.
 - [ ] A downloaded, notarized copy passes Gatekeeper on a clean account (depends on the previous item).
 - [x] Installation, default-browser reversal, limitations and uninstall instructions written (README).

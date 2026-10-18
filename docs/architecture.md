@@ -72,12 +72,13 @@ Enabled rules are evaluated in list order. The result is `noMatch` or `matched(r
 
 One UTF-8 JSON file at `~/Library/Application Support/dev.melmayan.blink/configuration.json`. The folder name is the bundle ID, so it must not change between releases.
 
-Schema version 1:
+Schema version 1. `showsMenuBarIcon` may be missing from files written by early builds; they load with the icon shown.
 
 ```json
 {
   "schemaVersion": 1,
   "onboardingCompleted": false,
+  "showsMenuBarIcon": true,
   "browsers": [
     { "bundleID": "com.apple.Safari", "isVisible": true }
   ],

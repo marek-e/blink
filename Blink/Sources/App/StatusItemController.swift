@@ -23,6 +23,10 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         let menu = NSMenu()
         menu.delegate = self
         item.menu = menu
+        observeContinuously { [weak self] in
+            guard let self else { return }
+            item.isVisible = model.configuration.showsMenuBarIcon
+        }
     }
 
     func menuNeedsUpdate(_ menu: NSMenu) {

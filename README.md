@@ -54,11 +54,11 @@ Links that arrive while the welcome window is open wait and open when you finish
 | ⌘C or Copy Link | Copy the full link and keep it waiting |
 | Full link | Show the complete URL. The preview hides query strings, which often hold tokens |
 
-The menu bar icon has Open Link…, Settings… and Quit. Opening Blink from Finder or Spotlight shows Settings.
+The menu bar icon has Open Link…, Settings… and Quit. You can hide the icon in Settings › General; Blink keeps working, and opening it from Finder or Spotlight shows Settings, which also has Quit.
 
 Settings has three tabs:
 
-- **General.** Default browser status (it tells you when only HTTP or only HTTPS points at Blink), login item, Open Link…, the welcome window, and Reset Settings.
+- **General.** Default browser status (it tells you when only HTTP or only HTTPS points at Blink), login item, the menu bar icon, Open Link…, the welcome window, Reset Settings and Quit.
 - **Browsers.** Picker order, visibility and refresh. Hidden browsers stay usable by rules. Browsers you've uninstalled keep their place until you forget them.
 - **Rules.** Add, edit, enable, disable, reorder and delete rules. Blink warns when an earlier rule makes a later one unreachable or when a rule's browser isn't installed. The "Test a link" field tells you what Blink would do with any URL without opening it.
 
@@ -84,4 +84,4 @@ Blink stores browser order, visibility, your rules and whether you finished the 
 
 [Project context](CONTEXT.md) summarizes decisions. The [product requirements](docs/product.md), [interaction design](docs/interaction-design.md) and [architecture](docs/architecture.md) describe the behavior in detail. [Testing and release](docs/testing-and-release.md) records what has been verified. [Decisions](docs/decisions.md) lists what is settled and what is still open. [CONTRIBUTING](CONTRIBUTING.md) covers building and testing.
 
-Blink is proprietary. Copyright © 2026 Marek Elmayan, all rights reserved. The repository has no license file, so it grants no rights to use, copy or redistribute the code.
+Blink is open source under the [MIT License](LICENSE). Copyright © 2026 Marek Elmayan.

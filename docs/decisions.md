@@ -35,7 +35,7 @@ Updated: 2026-10-17. "Proposed" means a working assumption without user approval
 | Decision | Basis |
 | --- | --- |
 | Bundle ID `dev.melmayan.blink` | The owner's handle, matching the Git identity. Settings live under this name, so changing it later would orphan users' settings |
-| Proprietary, all rights reserved | No license file means no rights are granted. Choosing an open-source license later only adds rights |
+| Open source under the MIT License | Owner's choice on 2026-10-18, replacing the earlier proprietary decision. MIT is short and permissive, and fits a small utility that others may fork or package |
 | Name "Blink" kept | A 2026-10-18 search found no browser picker or link router called Blink. The name is crowded elsewhere (Chromium's engine, Amazon's cameras, several unrelated Mac apps), so App Store search would be noisy. This is not legal clearance |
 | Releases on GitHub Releases for `marek-e/blink`, support through GitHub issues | The repository is already there; `.github/workflows/release.yml` publishes tagged builds |
 | English only for 1.0 | Small UI; localization can follow demand |

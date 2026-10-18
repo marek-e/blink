@@ -51,6 +51,21 @@ struct GeneralSettingsView: View {
                 }
             }
 
+            Section {
+                Toggle("Show Blink in the menu bar", isOn: Binding(
+                    get: { model.configuration.showsMenuBarIcon },
+                    set: { shows in model.preferences.update { $0.showsMenuBarIcon = shows } }
+                ))
+                .accessibilityLabel("Show Blink in the menu bar")
+                .disabled(model.preferences.isReadOnly)
+            } header: {
+                Text("Menu Bar")
+            } footer: {
+                Text("When the icon is hidden, open Blink again from Applications or Spotlight to see these settings.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
             Section("Links") {
                 LabeledContent("Try Blink without changing your default browser") {
                     Button("Open Link…", action: actions.openLink)
@@ -70,6 +85,9 @@ struct GeneralSettingsView: View {
                 }
                 LabeledContent("Start over with default settings") {
                     Button("Reset Settings…") { confirmsReset = true }
+                }
+                LabeledContent("Stop Blink until you open it again") {
+                    Button("Quit Blink", action: actions.quit)
                 }
             } header: {
                 Text("About")

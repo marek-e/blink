@@ -44,6 +44,7 @@ Added during implementation, each because the MVP was worse without it.
 | B15 | Rule from the picker | An unchecked "Always open <host> in the chosen browser" checkbox appears for web links that matched no rule. When checked, choosing a browser opens the link and, once macOS accepts it, saves an exact rule for the host (updating an existing exact rule rather than adding a duplicate). It never appears in recovery or read-only states. |
 | B16 | Local HTML files | A local file delivered by macOS (because Blink is the default browser) shows the picker with the file name and opens in the chosen browser. Rules never apply to files. Typed links can't be files. |
 | B17 | Explain rules | The Rules tab warns about rules made unreachable by earlier ones and about rules whose browser isn't installed. A test field shows which rule, if any, a URL would use, without opening it. |
+| B18 | Hide the menu bar icon | General settings can hide Blink's menu bar icon. Links still reach Blink; opening Blink from Applications or Spotlight shows Settings, which has Quit. |
 
 Discovery also differs from the baseline: an app that registers for web links but not for HTML documents starts hidden in the picker instead of visible, unless that would leave no browser visible. Chat clients and terminals register for links without being browsers.
 

@@ -10,6 +10,7 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
     struct Actions {
         var openLink: () -> Void
         var showWelcome: () -> Void
+        var quit: () -> Void
     }
 
     private let model: AppModel

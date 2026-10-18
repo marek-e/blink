@@ -156,6 +156,7 @@ struct ConfigurationStoreTests {
         let rule = Rule(domain: "example.com", includeSubdomains: true, destinationBundleID: "com.apple.Safari")
         let configuration = Configuration(
             onboardingCompleted: true,
+            showsMenuBarIcon: false,
             browsers: [BrowserPreference(bundleID: "com.apple.Safari", isVisible: false)],
             rules: [rule]
         )
@@ -163,7 +164,8 @@ struct ConfigurationStoreTests {
         #expect(ConfigurationStore(fileURL: fileURL).load() == .loaded(configuration))
 
         let json = try #require(try JSONSerialization.jsonObject(with: Data(contentsOf: fileURL)) as? [String: Any])
-        #expect(Set(json.keys) == ["schemaVersion", "onboardingCompleted", "browsers", "rules"])
+        #expect(Set(json.keys) == ["schemaVersion", "onboardingCompleted", "showsMenuBarIcon", "browsers", "rules"])
+        #expect(json["showsMenuBarIcon"] as? Bool == false)
         let savedRule = try #require((json["rules"] as? [[String: Any]])?.first)
         #expect(Set(savedRule.keys) == ["id", "domain", "includeSubdomains", "destinationBundleID", "isEnabled"])
         #expect(savedRule["id"] as? String == rule.id.uuidString)
@@ -189,6 +191,8 @@ struct ConfigurationStoreTests {
             return
         }
         #expect(configuration.rules.first?.domain == "example.com")
+        // Files written before the menu bar setting existed keep showing the icon.
+        #expect(configuration.showsMenuBarIcon)
     }
 
     @Test(arguments: [
