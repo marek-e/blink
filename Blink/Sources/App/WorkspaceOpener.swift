@@ -182,11 +182,11 @@ enum ProfileScript {
         let process = Process()
         process.executableURL = URL(filePath: "/usr/bin/osascript")
         process.arguments = ["-e", source] + arguments
-        let errors = Pipe()
-        process.standardError = errors
+        process.standardError = Pipe()
         process.standardOutput = FileHandle.nullDevice
         process.terminationHandler = { process in
-            let output = String(decoding: errors.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+            let errors = (process.standardError as? Pipe)?.fileHandleForReading.readDataToEndOfFile() ?? Data()
+            let output = String(decoding: errors, as: UTF8.self)
             let result = Self.result(status: process.terminationStatus, errorOutput: output)
             Task { @MainActor in completion(result) }
         }
@@ -200,7 +200,7 @@ enum ProfileScript {
 
     /// Maps osascript's exit status and AppleScript error number. The message itself can contain
     /// the URL, so only the number is logged.
-    private nonisolated static func result(status: Int32, errorOutput: String) -> DispatchResult {
+    private static func result(status: Int32, errorOutput: String) -> DispatchResult {
         guard status != 0 else { return .accepted }
         let code = errorOutput.firstMatch(of: /\((-?\d+)\)\s*$/).map { String($0.1) } ?? "unknown"
         Log.dispatch.error("Profile script failed: \(code, privacy: .public)")

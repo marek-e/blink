@@ -15,11 +15,13 @@ One Swift macOS application, an agent app (`LSUIElement`) with a menu bar item. 
 | Request coordinator | `BlinkCore/RequestCoordinator.swift` | Queue, routing outcome, picker need, dispatch lifecycle |
 | Configuration store | `BlinkCore/ConfigurationStore.swift`, `Preferences` | Validate, read and atomically write; commit UI changes after saving |
 | Browser catalog | `BrowserCatalog` | Discover web handlers, exclude Blink, resolve bundle IDs, icons |
-| Browser opener | `WorkspaceOpener`, `ActivationHandoff` | Explicit application dispatch and activation handoff |
+| Profiles | `BlinkCore/BrowserProfiles.swift`, `ProfileCatalog` | Where each browser lists its profiles, parsing those lists, reading them off the main thread |
+| Picker rows | `BlinkCore/PickerOutline.swift` | Browser and profile rows, expansion, selection and number keys |
+| Browser opener | `WorkspaceOpener`, `ProfileScript`, `ActivationHandoff` | Explicit application and profile dispatch, activation handoff |
 | System integration | `SystemIntegration` | Default handler status and change, login item |
 | Views | `Picker/`, `Settings/`, `Onboarding/`, `OpenLinkWindowController` | Picker, settings, welcome, Open Link, recovery |
 
-Dependency injection exists only where tests need it: the coordinator takes a `BrowserLocating`, a `LinkOpening` and a rules closure. There is no backend, local server, database, helper process or third-party dependency.
+Dependency injection exists only where tests need it: the coordinator takes a `BrowserLocating`, a `LinkOpening` and a rules closure. There is no backend, local server, database or third-party dependency. The only helper process is `/usr/bin/osascript`, started to open a link in an Arc space or Dia profile.
 
 ## macOS integration
 
@@ -31,7 +33,9 @@ Dispatch uses `NSWorkspace.open(_:withApplicationAt:configuration:)`. `activates
 
 Default-browser changes happen only on a click. `NSWorkspace.setDefaultApplication(at:toOpenURLsWithScheme:)` runs for HTTP, then for HTTPS if it isn't already Blink, and Blink reads both handlers back afterwards. Status is refreshed whenever Blink becomes active or Settings becomes key, so changes made in System Settings show up. Launch at login uses `SMAppService.mainApp`, and Blink displays the service's status, including "requires approval".
 
-Distribution is Developer ID with the hardened runtime and no entitlements; the app is not sandboxed. See the integration report for why.
+Profile dispatch depends on the browser family ([ADR 0003](adr/0003-profile-destinations.md), [capability matrix](profiles-capability.md)). Chromium and Firefox browsers get `--profile-directory=<dir>` or `-P <name>` through `NSWorkspace.openApplication` with `createsNewApplicationInstance`; the new process hands the link to the running browser and exits, or starts the browser. Arc and Dia get a fixed AppleScript run by `osascript`, with the space ID or profile name and the URL as arguments. The script waits for a window, asks a browser without one to reopen, and in Arc looks for the window that holds the space, since Little Arc windows don't. Before any profile dispatch, Blink re-reads the browser's profile list and fails the request if the profile is gone.
+
+Distribution is Developer ID with the hardened runtime and one entitlement, `com.apple.security.automation.apple-events`, with `NSAppleEventsUsageDescription` in `Info.plist`, for Arc and Dia. The app is not sandboxed. See the integration report for why.
 
 ## Request lifecycle
 
@@ -66,33 +70,38 @@ The accepted URL is dispatched unchanged. The comparison host comes from `URLCom
 
 For rule domain `d` and host `h`: an exact rule matches only `h == d`. A rule that includes subdomains also matches when `h` ends with `"." + d`. `docs.example.com` matches `example.com` with subdomains; `notexample.com` and `example.com.evil.test` don't. IP literals and single-label hosts match exactly only. Any host whose last label is all digits counts as an IP address, so a rule for `0.0.1` can never match `10.0.0.1` as a subdomain.
 
-Enabled rules are evaluated in list order. The result is `noMatch` or `matched(ruleID, destinationBundleID)`. An unavailable destination opens the recovery picker and never falls through to a later rule. A rule is shadowed when an earlier enabled rule matches every host it would match; the Rules tab and the rule editor both say so.
+Enabled rules are evaluated in list order. The result is `noMatch` or `matched(ruleID, destination)`, where a destination is a bundle ID and an optional profile. An unavailable destination opens the recovery picker and never falls through to a later rule. A rule is shadowed when an earlier enabled rule matches every host it would match; the Rules tab and the rule editor both say so.
 
 ## Persistent data
 
 One UTF-8 JSON file at `~/Library/Application Support/dev.melmayan.blink/configuration.json`. The folder name is the bundle ID, so it must not change between releases.
 
-Schema version 1. `showsMenuBarIcon` may be missing from files written by early builds; they load with the icon shown.
+Schema version 2. Version 1 files, which stored a rule's browser as `destinationBundleID`, load as version 2 and are rewritten on the next save ([ADR 0003](adr/0003-profile-destinations.md)). `showsMenuBarIcon` may be missing from files written by early builds; they load with the icon shown. `hiddenProfileIDs` may be missing; it defaults to empty.
 
 ```json
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "onboardingCompleted": false,
   "showsMenuBarIcon": true,
   "browsers": [
-    { "bundleID": "com.apple.Safari", "isVisible": true }
+    { "bundleID": "com.google.Chrome", "isVisible": true, "hiddenProfileIDs": ["Profile 3"] }
   ],
   "rules": [
     {
       "id": "7D3AD686-228B-4A39-B316-E55D476C78E2",
       "domain": "example.com",
       "includeSubdomains": false,
-      "destinationBundleID": "com.apple.Safari",
+      "destination": {
+        "bundleID": "com.google.Chrome",
+        "profile": { "id": "Profile 1", "name": "Work" }
+      },
       "isEnabled": true
     }
   ]
 }
 ```
+
+A profile's `id` is what survives renames: an Arc space ID, a Chromium profile directory or a Firefox profile path. `name` is the last name seen, shown when the profile is gone. A destination without `profile` opens the browser normally.
 
 Browser order is picker order and rule order is precedence. Newly discovered browsers are appended in localized name order. Entries for uninstalled browsers stay, so reinstalling keeps their place, until the user forgets them in Settings.
 
@@ -104,7 +113,9 @@ Writes validate first, write a temporary file in the same directory, `fsync` it 
 
 Only preferences and user-created rules persist. Links stay in memory and are dropped when they open, are cancelled or are discarded at quit. Blink makes no network requests and doesn't read the clipboard.
 
-Logs use `os.Logger` with the categories intake, dispatch, configuration and system. They record operations, timings, rejection reasons and error domains with codes. They never contain URLs, hosts, rule domains or localized error descriptions, which can embed URLs. Copy Link is the only way a URL leaves Blink, and the user triggers it.
+To list profiles, Blink reads `Local State` (Chromium and Dia), `StorableSidebar.json` (Arc) and `profiles.ini` (Firefox and Zen) under `~/Library/Application Support`, plus whether each Firefox profile has a `prefs.js`. It keeps profile IDs and names in memory and never reads history, cookies, tabs or other files.
+
+Logs use `os.Logger` with the categories intake, dispatch, configuration, profiles and system. They record operations, timings, rejection reasons, error domains with codes and AppleScript error numbers. They never contain URLs, hosts, rule domains, profile names or localized error descriptions, which can embed URLs. Copy Link is the only way a URL leaves Blink, and the user triggers it.
 
 ## Platform references
 

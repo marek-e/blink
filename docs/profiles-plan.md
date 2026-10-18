@@ -1,6 +1,14 @@
 # Browser profiles: implementation plan
 
-Status: proposed, 2026-10-18. Built on the results in the [capability matrix](profiles-capability.md).
+Status: implemented, 2026-10-18. Built on the results in the [capability matrix](profiles-capability.md); [ADR 0003](adr/0003-profile-destinations.md) records the decision.
+
+## Where the build differs from this plan
+
+- Arc spaces come from `StorableSidebar.json` alone; their profile directories aren't needed to open a link, so `Local State` isn't read for Arc.
+- Settings › Browsers shows a profile count that opens a popover with the checkboxes. A disclosure group doesn't work inside a macOS list row.
+- AppleScript runs through `osascript` (step 4's open question). The scripts ask a browser that has no window to `reopen`, because Dia ignored `make new window` and `reopen` worked.
+- The Arc script looks for the window that holds the space, because Little Arc windows don't, and Arc's sidebar file lists Little Arc's single space before the main window's.
+- The catalog keeps every profile it reads, so a rule to a browser's only profile still opens; the › appears only with two or more.
 
 ## What the user gets
 
@@ -120,6 +128,6 @@ Steps 2–4 can be built in parallel once step 1 is merged. Step 5 needs 2; step
 ## Still open
 
 - Chrome with a second profile while running: the one case not yet tested. Brave, Edge, Vivaldi and Firefox weren't installed.
-- Arc running with no window: the `make new window` fallback is unproven.
+- Arc or Dia running with no window, end to end: the `reopen` fallback was checked by hand on Dia only.
 - Whether `osascript` or `NSAppleScript` is used (step 4).
 - Whether a browser should remember being expanded between links. This plan resets it for every link, like the rest of the picker; that can change after using it.

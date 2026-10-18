@@ -19,7 +19,7 @@ Blink is built: one Swift macOS app using SwiftUI and AppKit, with routing logic
 
 "Intelligent" means deterministic user-defined rules. There is no AI model, remote service or inference from browsing activity.
 
-URLs stay in memory. Browser preferences and rules are stored locally. Blink doesn't fetch URLs, strip query parameters, follow redirects or inspect browser profiles.
+URLs stay in memory. Browser preferences and rules are stored locally. Blink doesn't fetch URLs, strip query parameters or follow redirects. It reads browsers' profile lists for profile IDs and names only.
 
 ## Domain language
 
@@ -27,7 +27,8 @@ URLs stay in memory. Browser preferences and rules are stored locally. Blink doe
 | --- | --- |
 | Open request | One URL delivered to Blink, with an internal request ID |
 | Browser | An installed application eligible to handle web URLs |
-| Destination | A browser identified by bundle ID; profiles are a future extension |
+| Destination | A browser identified by bundle ID, and optionally one of its profiles |
+| Profile | A browser profile, or an Arc space, identified by a key that survives renames (space ID, profile directory or path) |
 | Rule | A domain match and destination, evaluated in list order when enabled |
 | Shadowed rule | A rule that an earlier enabled rule always matches first, so it never applies |
 | Picker | The temporary window used to choose a destination |

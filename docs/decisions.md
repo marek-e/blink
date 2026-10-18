@@ -17,7 +17,7 @@ Updated: 2026-10-17. "Proposed" means a working assumption without user approval
 | --- | --- | --- |
 | Swift, SwiftUI and AppKit in one app, logic in a local package | Built and tested | [ADR 0001](adr/0001-native-local-app.md), accepted |
 | macOS 14 deployment target, universal binary | Ran on macOS 14.8.7 in a VM and as x86_64 under Rosetta | Integration report |
-| Not sandboxed; Developer ID, hardened runtime, no entitlements | No operation needs an entitlement outside the sandbox | Integration report |
+| Not sandboxed; Developer ID, hardened runtime, Apple Events entitlement only | Opening links in Arc spaces and Dia profiles needs Apple Events; nothing else needs an entitlement | Integration report, [ADR 0003](adr/0003-profile-destinations.md) |
 | Manual picker plus ordered host rules, first match wins | Tests and manual routing checks | [ADR 0002](adr/0002-explicit-routing.md), accepted |
 | Host normalization through `URLComponents.encodedHost` plus lowercasing and one trailing dot | Tests for Unicode, punycode, case, dots, IPs | Integration report |
 | Developed with Xcode 27.1 (Swift 6.4); CI builds with the newest Xcode on each runner (Xcode 16.2 and Swift 6.0.3 on `macos-14`, Xcode 26.3 and Swift 6.2.4 on `macos-15`); XcodeGen 2.46.0 pinned | CONTRIBUTING and CI. The code must build with Swift 6.0, the oldest toolchain CI uses | |
@@ -25,7 +25,7 @@ Updated: 2026-10-17. "Proposed" means a working assumption without user approval
 | Picker shortcuts use physical key codes | Required for AZERTY | Product B14 |
 | Local HTML files handed over by macOS are routed through the picker | Default browsers receive them | Product B16 |
 | Yield activation to the browser on dispatch | Without it Blink stayed frontmost | Integration report |
-| Profiles deferred | Unchanged | Product scope |
+| Destinations can name a profile; schema version 2 | Arc, Dia, Chrome and Zen tested running and quit | [ADR 0003](adr/0003-profile-destinations.md), [capability matrix](profiles-capability.md) |
 | No URL history or telemetry | Logs audited | Architecture |
 | Manual updates | No updater shipped | Release plan |
 | Original icon (forked-path mark) | `scripts/IconGenerator` | |
@@ -47,7 +47,6 @@ Updated: 2026-10-17. "Proposed" means a working assumption without user approval
 | Question | Current state | Resolve by |
 | --- | --- | --- |
 | Developer ID certificate and notarization credentials | Only the owner can enroll in the Apple Developer Program ($99 a year). Until then, releases are unsigned and need Open Anyway once | Optional; removes the first-launch block |
-| Are browser profiles essential? | Being evaluated; Arc works through spaces, see the [capability matrix](profiles-capability.md) | Before expanding scope |
 
 ## Decision process
 

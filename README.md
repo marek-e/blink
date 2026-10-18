@@ -10,6 +10,7 @@ Blink is a small native macOS app that sits between your apps and your browsers.
 
 - Shows a compact picker next to the pointer with your browsers, their icons and the link's host. Press 1 to 9, use the arrow keys and Return, or click.
 - Routes by domain. A rule like `example.com` (optionally with its subdomains) sends matching links to one browser without asking. Rules run top to bottom and the first match wins.
+- Knows browser profiles. Browsers with several profiles get a › in the picker that shows them, and rules can send a domain to one profile. This works with Arc (by space), Dia, Chrome, Brave, Edge, Vivaldi, Zen and Firefox. Safari has no way to choose a profile from outside.
 - Lets you create a rule from the picker with "Always open example.com in the chosen browser".
 - Explains problems instead of guessing. If a rule's browser is gone or a browser refuses the link, Blink keeps the link and lets you retry, pick another browser, copy it or cancel. It never falls back silently.
 - Queues links. Several links arriving at once open one after another, and the picker shows how many are waiting.
@@ -60,7 +61,8 @@ Links that arrive while the welcome window is open wait and open when you finish
 | In the picker | Does |
 | --- | --- |
 | 1 to 9 | Open in that browser (works on any keyboard layout, with or without Shift) |
-| Up, Down, Return | Move the selection, open in the selected browser |
+| Up, Down, Return | Move the selection, open in the selected browser or profile |
+| Right, Left, or › | Show or hide the selected browser's profiles |
 | Escape or ⌘W | Cancel this link; the next waiting link appears |
 | ⌘C or Copy Link | Copy the full link and keep it waiting |
 | Full link | Show the complete URL. The preview hides query strings, which often hold tokens |
@@ -70,8 +72,8 @@ The menu bar icon has Open Link…, Settings… and Quit. You can hide the icon 
 Settings has three tabs:
 
 - **General.** Default browser status (it tells you when only HTTP or only HTTPS points at Blink), login item, the menu bar icon, Open Link…, the welcome window, Reset Settings and Quit.
-- **Browsers.** Picker order, visibility and refresh. Hidden browsers stay usable by rules. Browsers you've uninstalled keep their place until you forget them.
-- **Rules.** Add, edit, enable, disable, reorder and delete rules. Blink warns when an earlier rule makes a later one unreachable or when a rule's browser isn't installed. The "Test a link" field tells you what Blink would do with any URL without opening it.
+- **Browsers.** Picker order, visibility and refresh. Hidden browsers stay usable by rules. Browsers you've uninstalled keep their place until you forget them. A browser with profiles shows how many; click it to hide some from the picker.
+- **Rules.** Add, edit, enable, disable, reorder and delete rules, each for a browser or one of its profiles. Blink warns when an earlier rule makes a later one unreachable, when a rule's browser isn't installed, or when its profile is gone. The "Test a link" field tells you what Blink would do with any URL without opening it.
 
 ## Stop using Blink
 
@@ -82,12 +84,15 @@ Settings has three tabs:
 
 ## Privacy
 
-Blink stores browser order, visibility, your rules and whether you finished the welcome window. Links exist only in memory until they open or you cancel them; quitting discards them after asking. Logs record operations, timings and error codes, never URLs or hosts. Blink makes no network requests.
+Blink stores browser order, visibility, your rules and whether you finished the welcome window. Links exist only in memory until they open or you cancel them; quitting discards them after asking. Logs record operations, timings and error codes, never URLs, hosts or profile names. Blink makes no network requests.
+
+To list profiles, Blink reads each supported browser's profile list (`Local State`, Arc's `StorableSidebar.json`, `profiles.ini`) and keeps only profile IDs and names. It never reads history, cookies or tabs. The first time you open a link in an Arc space or Dia profile, macOS asks whether Blink may control that browser; Blink needs this to pick the space or profile.
 
 ## Limitations
 
 - Links opened inside a browser stay in that browser. Some apps open links in their own web views or always use a specific browser; those links never reach Blink.
-- Blink chooses a browser, not a profile, space or container. The browser's own default profile opens the link.
+- Safari profiles and Firefox containers can't be chosen. Choosing a browser without a profile opens the link the way that browser normally does.
+- Settings from Blink 1.2 or later can't be read by Blink 1.1. Going back to 1.1 leaves them untouched but runs without your rules.
 - A link counts as opened when macOS accepts it for the browser. Blink can't know whether the page then loads.
 - Rules match whole hosts only: no paths, wildcards or regular expressions.
 

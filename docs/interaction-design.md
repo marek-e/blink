@@ -32,15 +32,19 @@ Top to bottom:
 - A "N more links" badge when links are queued behind this one.
 - A failure banner when needed (see below).
 - Visible, available browsers in the user's order, with icon, name and shortcut number. The first is selected.
-- "Always open example.com in the chosen browser", a checkbox, off by default. Shown only for web links that matched no rule while settings can be saved. Checking it and choosing a browser saves an exact-domain rule once the browser accepts the link. If that host already has an exact rule, Blink updates and enables it instead of adding another. A failed launch or a cancel saves nothing.
+- A › on browsers with two or more profiles. Clicking it, or pressing →, shows the browser's visible profiles as indented rows under it and turns the › to point down; the selection stays where it was (→ moves it to the first profile). ← on a profile goes back to its browser and hides the profiles. Expansion resets for every link. The panel keeps its top edge and grows downward.
+- "Always open example.com in the chosen browser", a checkbox, off by default. Shown only for web links that matched no rule while settings can be saved. Checking it and choosing a browser or profile saves an exact-domain rule for that destination once the browser accepts the link. If that host already has an exact rule, Blink updates and enables it instead of adding another. A failed launch or a cancel saves nothing.
 - An action bar, each action labeled with its key: Copy (⌘C), Cancel (esc) and Open (↩), which opens the selected browser. Open doesn't name the browser, so the bar keeps its width as the selection moves. On macOS 26 these are glass buttons, with Open as the prominent one. While a link is being sent, Open is replaced by "Opening…".
 
 | Input | Behavior |
 | --- | --- |
-| Up / Down | Move the selection, wrapping around |
-| Return or Enter | Open in the selected browser |
-| 1 to 9 | Open in that browser. Mapped by physical key, so it works on AZERTY and other layouts, and on the keypad |
-| Click a browser | Open in that browser |
+| Up / Down | Move the selection through browsers and shown profiles, wrapping around |
+| Right | Show the selected browser's profiles and select the first; on a shown list, move into it |
+| Left | On a profile, go back to its browser and hide the profiles; on an expanded browser, hide them |
+| Return or Enter | Open in the selected browser or profile |
+| 1 to 9 | Open in that browser. Numbers count browsers only, so they don't change when profiles are shown. Mapped by physical key, so it works on AZERTY and other layouts, and on the keypad |
+| Click a browser or profile | Open there |
+| Click › | Show or hide that browser's profiles |
 | Tab / Shift-Tab | Move between the checkbox and buttons (with Keyboard navigation turned on in System Settings) |
 | Escape, ⌘W | Cancel this link; the next one appears |
 | ⌘C, Copy Link | Copy the full original URL; the link stays pending |
@@ -51,7 +55,7 @@ While more links are waiting, the browser receives each link in the background a
 
 While a link is being sent, the rows and Cancel are disabled and the chosen row says "Opening…". A browser that has to launch can take several seconds, and a newly downloaded browser waits for its Gatekeeper prompt, which appears above the picker. On success the panel closes or shows the next link.
 
-VoiceOver announces "Open example.com. 5 browsers. 1 more link waiting." when the picker appears, the browser name as the selection moves, failures, and "Link copied". Each browser is a button with the hint "Press 1 to open". The window's title is "Choose a Browser".
+VoiceOver announces "Open example.com. 5 browsers. 1 more link waiting." when the picker appears, the browser name as the selection moves, failures, and "Link copied". Each browser is a button with the hint "Press 1 to open"; a browser with profiles also reports "6 profiles, hidden" and has a Show Profiles action. Profile rows read "Perso, Arc profile". The window's title is "Choose a Browser".
 
 ## Settings
 
@@ -59,11 +63,11 @@ A toolbar-style window with three tabs. The window title follows the tab.
 
 **General.** Default browser status and the same setup controls as the welcome window. Launch at login, with an "Open Login Items" button when macOS needs approval. Open Link…, Show Welcome…, version and build, Show settings file in Finder, and Reset Settings… (confirmation required, keeps a backup).
 
-**Browsers.** One row per saved browser: icon, name, "Not installed" when missing, a "Show in picker" checkbox and up/down buttons. Rows can also be dragged. Uninstalled browsers have a Forget button. The last available visible browser can't be hidden, and its checkbox explains why. The header text says hidden browsers still work for rules. Refresh rescans.
+**Browsers.** One row per saved browser: icon, name, "Not installed" when missing, a "Show in picker" checkbox and up/down buttons. Rows can also be dragged. Uninstalled browsers have a Forget button. The last available visible browser can't be hidden, and its checkbox explains why. The header text says hidden browsers and profiles still work for rules. A browser with profiles shows "6 profiles" (or "6 profiles, 1 hidden") under its name; clicking it opens a popover with a checkbox per profile for showing it in the picker. Refresh rescans.
 
-**Rules.** An ordered list with an enable checkbox, domain, "This domain only" or "This domain and its subdomains", and the destination's icon and name. Warnings appear inline: "Never used: the rule for example.com above matches first." and "Brave Browser isn't installed. Matching links will ask you to choose." Add, Delete, Edit…, Move Up and Move Down sit below the list. Double-click edits, Delete removes, and rows can be dragged or used from the context menu. "Test a link" shows what Blink would do with any URL.
+**Rules.** An ordered list with an enable checkbox, domain, "This domain only" or "This domain and its subdomains", and the destination's icon and name. Warnings appear inline: "Never used: the rule for example.com above matches first." "Brave Browser isn't installed. Matching links will ask you to choose." and "Old space isn't in Arc anymore. Matching links will ask you to choose." A rule with a profile shows its destination as "Arc · Perso". Add, Delete, Edit…, Move Up and Move Down sit below the list. Double-click edits, Delete removes, and rows can be dragged or used from the context menu. "Test a link" shows what Blink would do with any URL.
 
-The rule editor is a sheet with Domain, Include subdomains, Open in, and Enabled. It accepts a host only and shows the normalized result as you type ("Matches docs.example.com exactly") or the specific error ("Enter only the domain, without a port."). Include subdomains is disabled for IP addresses and single-label hosts. Open in lists installed browsers, including hidden ones. When editing a rule whose browser is gone, that browser stays selectable as "(not installed)" so the rule can be saved unchanged; new rules need an installed browser. The editor warns when an earlier rule would shadow this one, or when this one would shadow later rules.
+The rule editor is a sheet with Domain, Include subdomains, Open in, and Enabled. It accepts a host only and shows the normalized result as you type ("Matches docs.example.com exactly") or the specific error ("Enter only the domain, without a port."). Include subdomains is disabled for IP addresses and single-label hosts. Open in lists installed browsers, including hidden ones, each followed by its profiles ("Arc · Perso"). When editing a rule whose browser or profile is gone, it stays selectable as "(not installed)" or "(not found)" so the rule can be saved unchanged; new rules need an installed browser and an existing profile. The editor warns when an earlier rule would shadow this one, or when this one would shadow later rules.
 
 ## Open Link
 

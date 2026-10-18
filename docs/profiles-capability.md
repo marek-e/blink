@@ -57,9 +57,15 @@ Targeting the space by `id` keeps working when the space is renamed.
 | Running, window open | Tab opens in the space, and Arc switches to it | 0.3–0.4 s |
 | Quit, without the wait loop | Fails: `Can't get window 1` (-1719). Arc launches, but has no window yet when the command arrives | 7.5 s |
 | Quit, with the wait loop | Tab opens in the space | 3.0 s |
-| Running, no window | Not tested. The `make new window` fallback is unproven | |
+| Running, no window | Not tested end to end. Blink sends `reopen` instead of `make new window` | |
 
 Reading `URL of active tab` right after `make new tab` can return an empty string while the page starts loading.
+
+Found while building the feature:
+
+- Arc doesn't support `exists` on spaces (-1708). The app's script checks `(id of spaces of candidate) contains spaceID` instead.
+- When a link opens in Little Arc, `StorableSidebar.json` gains a `littleBrowser` container with one untitled space, listed before the main window's. The main window's spaces follow the `global` key.
+- A browser that's running with no window gets `reopen`, which opens one. Dia created a window this way; `make new window` returned without error and created nothing.
 
 ### What it costs Blink
 
