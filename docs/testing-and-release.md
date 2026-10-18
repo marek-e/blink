@@ -4,7 +4,7 @@ Status: automated tests pass; manual checks below were run on 2026-10-17 on the 
 
 ## Automated tests
 
-`swift test --package-path Packages/BlinkCore` runs 86 tests in 14 suites (about 0.2 s). The same tests run through the `Blink` scheme with `xcodebuild test`, in CI, and as x86_64 under Rosetta (`xcodebuild test -destination "platform=macOS,arch=x86_64"`).
+`swift test --package-path Packages/BlinkCore` runs 88 tests in 15 suites (about 0.2 s). The same tests run through the `Blink` scheme with `xcodebuild test`, in CI, and as x86_64 under Rosetta (`xcodebuild test -destination "platform=macOS,arch=x86_64"`).
 
 | Area | Cases covered | Requirements |
 | --- | --- | --- |
@@ -17,6 +17,7 @@ Status: automated tests pass; manual checks below were run on 2026-10-17 on the 
 | Default browser state | Both schemes, one scheme each way, neither, unknown identity | B07 |
 | Picker geometry and keys | Pointer centering, menu bar and Dock avoidance, screen edges, second display with negative coordinates, small screens, fallback screen, key mapping for digits, keypad, arrows and modifiers | B03, B10, B14 |
 | Profiles | Equality by ID across renames, rules and requests carrying a profile, failure mapping (profile gone, Automation refused, rejected), retry keeps the profile, version 1 files upgraded and rewritten as version 2, version 2 round trip, profile hiding, Chromium `Local State` order and exclusions, Arc spaces (Little Arc skipped), Firefox `profiles.ini`, picker rows, expansion, arrow keys, number keys counting browsers only | B12, B19 |
+| Duplicate deliveries | The same link within a second dropped, including a run of copies; later repeats and other links kept | B11 |
 
 ## Manual checks run
 

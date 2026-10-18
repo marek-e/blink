@@ -30,7 +30,7 @@ Blink only handles requests delivered to it. Links navigated inside a browser, a
 | B08 | Operate from menu bar | Menu provides Settings, Open Link, and Quit. Login launch is opt-in and reflects actual service status. |
 | B09 | Preserve privacy | No URL history, analytics, accounts, remote rule processing, or background URL requests. Logs exclude hosts and full URLs. |
 | B10 | Remain accessible | Picker and settings support keyboard-only operation, VoiceOver, light/dark appearance, increased contrast, and reduced motion. |
-| B11 | Queue requests | Process multiple delivered URLs in order, one active request at a time. Cancel affects only the current request. Repeated identical URLs remain distinct requests. |
+| B11 | Queue requests | Process multiple delivered URLs in order, one active request at a time. Cancel affects only the current request. Repeated identical URLs remain distinct requests, except that the same URL delivered again within one second is dropped as a duplicate: some apps deliver one click twice. |
 | B12 | Persist safely | Store versioned local configuration atomically. Invalid or newer unsupported data is preserved and reported, never silently overwritten. |
 | B13 | Preserve link meaning | Send the original accepted URL without intentional query, fragment, path, or redirect changes. Reject unsupported schemes and malformed web URLs. |
 

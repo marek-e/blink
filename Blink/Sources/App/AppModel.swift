@@ -23,6 +23,8 @@ final class AppModel {
     /// Destinations chosen with "Always open here", by request. The rule is saved only once the link opens.
     @ObservationIgnored private var ruleIntents: [UUID: Destination] = [:]
 
+    @ObservationIgnored private var duplicates = DuplicateDeliveryFilter()
+
     /// When each pending request arrived, for latency logging. Memory only; entries are removed when requests finish.
     @ObservationIgnored private var arrivalTimes: [UUID: ContinuousClock.Instant] = [:]
 
@@ -95,6 +97,10 @@ final class AppModel {
         for url in urls {
             switch LinkValidator.validate(url) {
             case let .success(link):
+                if duplicates.isDuplicate(link.url) {
+                    Log.intake.info("Ignored a repeated delivery of the same link")
+                    continue
+                }
                 Log.intake.info("Accepted request")
                 let arrival = ContinuousClock.now
                 let request = coordinator.enqueue(link)
