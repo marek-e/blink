@@ -128,8 +128,10 @@ private struct RuleRow: View {
     let rule: Rule
     let shadowedBy: Rule?
 
-    private var destinationName: String { model.catalog.name(for: rule.destinationBundleID) }
-    private var destinationInstalled: Bool { model.catalog.availableIDs.contains(rule.destinationBundleID) }
+    private var destinationName: String { model.displayName(for: rule.destination) }
+    private var browserName: String { model.catalog.name(for: rule.destination.bundleID) }
+    private var destinationInstalled: Bool { model.catalog.availableIDs.contains(rule.destination.bundleID) }
+    private var profileMissing: Bool { destinationInstalled && model.isProfileMissing(rule.destination) }
 
     var body: some View {
         HStack(spacing: 10) {
@@ -159,7 +161,12 @@ private struct RuleRow: View {
                         .foregroundStyle(.orange)
                 }
                 if !destinationInstalled {
-                    Label("\(destinationName) isn't installed. Matching links will ask you to choose.", systemImage: "exclamationmark.triangle")
+                    Label("\(browserName) isn't installed. Matching links will ask you to choose.", systemImage: "exclamationmark.triangle")
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                }
+                if profileMissing, let profile = rule.destination.profile {
+                    Label("\(profile.name) isn't in \(browserName) anymore. Matching links will ask you to choose.", systemImage: "exclamationmark.triangle")
                         .font(.caption)
                         .foregroundStyle(.orange)
                 }
@@ -168,14 +175,15 @@ private struct RuleRow: View {
             Image(systemName: "arrow.right")
                 .foregroundStyle(.tertiary)
                 .accessibilityHidden(true)
-            Image(nsImage: model.catalog.icon(for: rule.destinationBundleID))
+            Image(nsImage: model.catalog.icon(for: rule.destination.bundleID))
                 .resizable()
                 .frame(width: 20, height: 20)
                 .opacity(destinationInstalled ? 1 : 0.4)
                 .accessibilityHidden(true)
             Text(destinationName)
                 .lineLimit(1)
-                .frame(width: 120, alignment: .leading)
+                .truncationMode(.middle)
+                .frame(width: 150, alignment: .leading)
         }
         .padding(.vertical, 3)
         .accessibilityElement(children: .combine)
@@ -193,6 +201,7 @@ private struct RuleRow: View {
         if !rule.isEnabled { text += ", disabled" }
         if shadowedBy != nil { text += ", never used because an earlier rule matches first" }
         if !destinationInstalled { text += ", browser not installed" }
+        if profileMissing { text += ", profile not found" }
         return text
     }
 }
@@ -226,12 +235,14 @@ private struct RuleTester: View {
             switch RuleEvaluator.evaluate(host: link.host, rules: model.configuration.rules) {
             case .noMatch:
                 return "No rule matches \(link.host). Blink will ask which browser to use."
-            case let .matched(ruleID, bundleID):
+            case let .matched(ruleID, destination):
                 let rule = model.configuration.rules.first { $0.id == ruleID }
-                let name = model.catalog.name(for: bundleID)
-                let installed = model.catalog.availableIDs.contains(bundleID)
+                let name = model.displayName(for: destination)
+                let browser = model.catalog.name(for: destination.bundleID)
+                let installed = model.catalog.availableIDs.contains(destination.bundleID)
                 return "Opens in \(name) using the rule for \(rule?.domain ?? link.host)."
-                    + (installed ? "" : " \(name) isn't installed, so Blink will ask instead.")
+                    + (installed ? "" : " \(browser) isn't installed, so Blink will ask instead.")
+                    + (installed && model.isProfileMissing(destination) ? " That profile isn't in \(browser) anymore, so Blink will ask instead." : "")
             }
         }
     }

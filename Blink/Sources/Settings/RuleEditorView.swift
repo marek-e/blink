@@ -4,10 +4,10 @@ import SwiftUI
 struct RuleDraft: Identifiable {
     let id: UUID
     let isNew: Bool
-    let originalDestination: String?
+    let originalDestination: Destination?
     var domainText: String
     var includeSubdomains: Bool
-    var destination: String
+    var destination: Destination
     var isEnabled: Bool
 
     @MainActor
@@ -17,18 +17,18 @@ struct RuleDraft: Identifiable {
         originalDestination = nil
         domainText = ""
         includeSubdomains = false
-        destination = model.configuration.pickerChoices(from: model.catalog.browsers).first?.bundleID
-            ?? model.catalog.browsers.first?.bundleID ?? ""
+        destination = Destination(bundleID: model.configuration.pickerChoices(from: model.catalog.browsers).first?.bundleID
+            ?? model.catalog.browsers.first?.bundleID ?? "")
         isEnabled = true
     }
 
     init(rule: Rule) {
         id = rule.id
         isNew = false
-        originalDestination = rule.destinationBundleID
+        originalDestination = rule.destination
         domainText = rule.domain
         includeSubdomains = rule.includeSubdomains
-        destination = rule.destinationBundleID
+        destination = rule.destination
         isEnabled = rule.isEnabled
     }
 }
@@ -51,30 +51,39 @@ struct RuleEditorView: View {
     private var domain: String? { try? normalized.get() }
     private var supportsSubdomains: Bool { domain.map(HostNormalizer.supportsSubdomains) ?? true }
 
-    /// Installed browsers in picker order, including hidden ones, plus the rule's current
-    /// destination if it's no longer installed.
-    private var destinations: [(id: String, name: String, installed: Bool)] {
+    /// Installed browsers in picker order, including hidden ones, each followed by its profiles
+    /// (hidden ones too), plus the rule's current destination if it's gone.
+    private var destinations: [(destination: Destination, name: String, available: Bool)] {
         let available = model.catalog.availableIDs
         var ids = model.configuration.browsers.map(\.bundleID).filter(available.contains)
         ids += model.catalog.browsers.map(\.bundleID).filter { !ids.contains($0) }
-        var result = ids.map { (id: $0, name: model.catalog.name(for: $0), installed: true) }
-        if let original = draft.originalDestination, !available.contains(original) {
-            result.append((id: original, name: model.catalog.name(for: original), installed: false))
+        var result: [(destination: Destination, name: String, available: Bool)] = []
+        for id in ids {
+            let browser = Destination(bundleID: id)
+            result.append((browser, model.displayName(for: browser), true))
+            for profile in model.profiles.choices(for: id) {
+                let destination = Destination(bundleID: id, profile: profile)
+                result.append((destination, model.displayName(for: destination), true))
+            }
+        }
+        if let original = draft.originalDestination, !result.contains(where: { $0.destination == original }) {
+            result.append((original, model.displayName(for: original), false))
         }
         return result
     }
 
     private var destinationIsValid: Bool {
-        model.catalog.availableIDs.contains(draft.destination) || draft.destination == draft.originalDestination
+        let installed = model.catalog.availableIDs.contains(draft.destination.bundleID)
+        return installed && !model.isProfileMissing(draft.destination) || draft.destination == draft.originalDestination
     }
 
     private var candidate: Rule? {
-        guard let domain, !draft.destination.isEmpty else { return nil }
+        guard let domain, !draft.destination.bundleID.isEmpty else { return nil }
         return Rule(
             id: draft.id,
             domain: domain,
             includeSubdomains: draft.includeSubdomains && HostNormalizer.supportsSubdomains(domain),
-            destinationBundleID: draft.destination,
+            destination: draft.destination,
             isEnabled: draft.isEnabled
         )
     }
@@ -113,9 +122,9 @@ struct RuleEditorView: View {
                         ? "Also match addresses such as docs.\(domain ?? "example.com")"
                         : "Subdomains don't apply to IP addresses or single-word hosts.")
                 Picker("Open in", selection: $draft.destination) {
-                    ForEach(destinations, id: \.id) { destination in
-                        Text(destination.installed ? destination.name : "\(destination.name) (not installed)")
-                            .tag(destination.id)
+                    ForEach(destinations, id: \.destination) { item in
+                        Text(item.available ? item.name : "\(item.name) (\(item.destination.profile == nil ? "not installed" : "not found"))")
+                            .tag(item.destination)
                     }
                 }
                 Toggle("Enabled", isOn: $draft.isEnabled)
@@ -191,7 +200,7 @@ struct RuleEditorView: View {
                 .fixedSize(horizontal: false, vertical: true)
         }
         if !destinationIsValid || destinations.isEmpty {
-            Label("Choose an installed browser.", systemImage: "exclamationmark.triangle")
+            Label(draft.destination.profile == nil ? "Choose an installed browser." : "Choose a browser or profile that exists.", systemImage: "exclamationmark.triangle")
                 .font(.caption)
                 .foregroundStyle(.orange)
         }

@@ -48,6 +48,8 @@ public enum PickerPlacement {
 /// layout (on AZERTY the top row types digits only with Shift).
 public enum PickerKey: Equatable, Sendable {
     case up, down, open
+    /// Show (→) or hide (←) a browser's profiles.
+    case expand, collapse
     case digit(Int)
 
     private static let digitKeyCodes: [UInt16: Int] = [
@@ -62,6 +64,8 @@ public enum PickerKey: Equatable, Sendable {
         switch keyCode {
         case 126: self = .up
         case 125: self = .down
+        case 124: self = .expand
+        case 123: self = .collapse
         case 36, 76: self = .open
         default:
             guard let digit = Self.digitKeyCodes[keyCode] else { return nil }

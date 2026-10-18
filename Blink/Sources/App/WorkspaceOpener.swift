@@ -1,11 +1,65 @@
 import AppKit
 import BlinkCore
 
-/// Opens links in an explicitly chosen application. Never falls back to the system default handler,
-/// which may be Blink itself.
+/// Opens links in an explicitly chosen application, and profile when the destination names one.
+/// Never falls back to the system default handler, which may be Blink itself, or to the browser's
+/// default profile when the chosen one is gone.
 @MainActor
 final class WorkspaceOpener: LinkOpening {
-    func open(_ url: URL, withApplicationAt applicationURL: URL, activates: Bool, completion: @escaping @MainActor (Bool) -> Void) {
+    private let profiles: ProfileCatalog
+
+    init(profiles: ProfileCatalog) {
+        self.profiles = profiles
+    }
+
+    func open(
+        _ url: URL,
+        in destination: Destination,
+        withApplicationAt applicationURL: URL,
+        activates: Bool,
+        completion: @escaping @MainActor (DispatchResult) -> Void
+    ) {
+        guard let profile = destination.profile else {
+            openPlain(url, withApplicationAt: applicationURL, activates: activates, completion: completion)
+            return
+        }
+        guard let support = ProfileSupport.forBundleID(destination.bundleID) else {
+            completion(.profileUnavailable)
+            return
+        }
+        Task {
+            guard let current = await profiles.current(profile, for: destination.bundleID) else {
+                Log.dispatch.notice("Dispatch stopped: profile not found")
+                completion(.profileUnavailable)
+                return
+            }
+            let started = ContinuousClock.now
+            let finish: @MainActor (DispatchResult) -> Void = { result in
+                let elapsed = ContinuousClock.now - started
+                Log.dispatch.info("Profile dispatch finished in \(elapsed.formatted(.units(allowed: [.milliseconds])), privacy: .public): \(String(describing: result), privacy: .public)")
+                if result == .accepted, activates { ActivationHandoff.bringForward(bundleID: destination.bundleID) }
+                completion(result)
+            }
+            if activates { NSApp.yieldActivation(toApplicationWithBundleIdentifier: destination.bundleID) }
+            switch support.family {
+            case .chromium:
+                launch(applicationURL, arguments: ["--profile-directory=\(current.id)", url.absoluteString], activates: activates, completion: finish)
+            case .firefox:
+                launch(applicationURL, arguments: ["-P", current.name, url.absoluteString], activates: activates, completion: finish)
+            case .arc:
+                ProfileScript.arc.run(arguments: [current.id, url.absoluteString, activates ? "1" : "0"], completion: finish)
+            case .dia:
+                ProfileScript.dia.run(arguments: [current.name, url.absoluteString, activates ? "1" : "0"], completion: finish)
+            }
+        }
+    }
+
+    private func openPlain(
+        _ url: URL,
+        withApplicationAt applicationURL: URL,
+        activates: Bool,
+        completion: @escaping @MainActor (DispatchResult) -> Void
+    ) {
         let configuration = NSWorkspace.OpenConfiguration()
         configuration.activates = activates
         // macOS 14+ activation is cooperative: Blink must hand activation over, or the browser
@@ -25,8 +79,153 @@ final class WorkspaceOpener: LinkOpening {
             let accepted = error == nil
             Task { @MainActor in
                 if activates, let application { ActivationHandoff.bringForward(application) }
-                completion(accepted)
+                completion(accepted ? .accepted : .rejected)
             }
+        }
+    }
+
+    /// Starts a new instance of the browser with profile arguments. Chromium and Firefox hand the
+    /// link to an instance already running that profile and exit, or start the browser if it's quit.
+    private func launch(
+        _ applicationURL: URL,
+        arguments: [String],
+        activates: Bool,
+        completion: @escaping @MainActor (DispatchResult) -> Void
+    ) {
+        let configuration = NSWorkspace.OpenConfiguration()
+        configuration.activates = activates
+        configuration.createsNewApplicationInstance = true
+        configuration.arguments = arguments
+        NSWorkspace.shared.openApplication(at: applicationURL, configuration: configuration) { _, error in
+            if let error { Log.dispatch.error("Profile launch rejected: \(error.sanitizedCode, privacy: .public)") }
+            let accepted = error == nil
+            Task { @MainActor in completion(accepted ? .accepted : .rejected) }
+        }
+    }
+}
+
+/// AppleScript that opens a link in an Arc space or Dia profile.
+///
+/// Runs through `osascript` so a cold start, which takes a few seconds, never blocks the main
+/// thread. The script text is fixed; the space or profile and the URL are passed as arguments,
+/// never spliced into the script.
+enum ProfileScript {
+    case arc, dia
+
+    private var bundleID: String {
+        switch self {
+        case .arc: "company.thebrowser.Browser"
+        case .dia: "company.thebrowser.dia"
+        }
+    }
+
+    /// Adds a tab for `theURL` in the space or profile named by `target`, inside a `tell` block.
+    private var openTab: String {
+        switch self {
+        case .arc:
+            """
+                    -- Little Arc windows don't hold the sidebar's spaces. With only those open,
+                    -- reopen a main window before deciding the space is gone.
+                    set targetWindowID to missing value
+                    repeat 26 times
+                        repeat with candidate in windows
+                            try
+                                if (id of spaces of candidate) contains target then
+                                    set targetWindowID to id of candidate
+                                    exit repeat
+                                end if
+                            end try
+                        end repeat
+                        if targetWindowID is not missing value then exit repeat
+                        if (count of windows) > 0 and not reopened then
+                            reopen
+                            set reopened to true
+                        end if
+                        delay 0.2
+                    end repeat
+                    if targetWindowID is missing value then error "No such space" number -1728
+                    tell window id targetWindowID
+                        tell space id target
+                            make new tab with properties {URL:theURL}
+                            focus
+                        end tell
+                    end tell
+            """
+        case .dia:
+            """
+                    tell front window
+                        set targetProfile to profile target
+                        tell targetProfile to make new tab with properties {URL:theURL}
+                        focus targetProfile
+                    end tell
+            """
+        }
+    }
+
+    /// Waits for a window, since a browser that's just starting has none yet. A browser that was
+    /// already running without one, or never shows one, is asked to reopen, which opens a window.
+    private var source: String {
+        """
+        on run {target, theURL, shouldActivate}
+            set wasRunning to application id "\(bundleID)" is running
+            set reopened to false
+            tell application id "\(bundleID)"
+                if wasRunning and (count of windows) = 0 then
+                    reopen
+                    set reopened to true
+                end if
+                repeat 50 times
+                    if (count of windows) > 0 then exit repeat
+                    delay 0.2
+                end repeat
+                if (count of windows) = 0 then
+                    reopen
+                    set reopened to true
+                    repeat 25 times
+                        if (count of windows) > 0 then exit repeat
+                        delay 0.2
+                    end repeat
+                end if
+        \(openTab)
+                if shouldActivate is "1" then activate
+            end tell
+        end run
+        """
+    }
+
+    @MainActor
+    func run(arguments: [String], completion: @escaping @MainActor (DispatchResult) -> Void) {
+        let process = Process()
+        process.executableURL = URL(filePath: "/usr/bin/osascript")
+        process.arguments = ["-e", source] + arguments
+        process.standardError = Pipe()
+        process.standardOutput = FileHandle.nullDevice
+        process.terminationHandler = { process in
+            let errors = (process.standardError as? Pipe)?.fileHandleForReading.readDataToEndOfFile() ?? Data()
+            let output = String(decoding: errors, as: UTF8.self)
+            let result = Self.result(status: process.terminationStatus, errorOutput: output)
+            Task { @MainActor in completion(result) }
+        }
+        do {
+            try process.run()
+        } catch {
+            Log.dispatch.error("Profile script didn't start: \(error.sanitizedCode, privacy: .public)")
+            completion(.rejected)
+        }
+    }
+
+    /// Maps osascript's exit status and AppleScript error number. The message itself can contain
+    /// the URL, so only the number is logged.
+    private static func result(status: Int32, errorOutput: String) -> DispatchResult {
+        guard status != 0 else { return .accepted }
+        let code = errorOutput.firstMatch(of: /\((-?\d+)\)\s*$/).map { String($0.1) } ?? "unknown"
+        Log.dispatch.error("Profile script failed: \(code, privacy: .public)")
+        switch code {
+        // errAEEventNotPermitted, and errAEEventWouldRequireUserConsent.
+        case "-1743", "-1744": return .automationDenied
+        // errAENoSuchObject: the space or profile isn't there.
+        case "-1728": return .profileUnavailable
+        default: return .rejected
         }
     }
 }
@@ -43,6 +242,18 @@ enum ActivationHandoff {
     static func bringForward(_ application: NSRunningApplication) {
         recent = (application, .now)
         activate(application)
+    }
+
+    /// For links handed over by a helper process or Apple Events: brings forward the browser's
+    /// most recently launched instance that's still running, after the helper has had time to exit.
+    static func bringForward(bundleID: String) {
+        Task {
+            try? await Task.sleep(for: .milliseconds(400))
+            let running = NSRunningApplication.runningApplications(withBundleIdentifier: bundleID)
+                .filter { !$0.isTerminated }
+                .max { ($0.launchDate ?? .distantPast) < ($1.launchDate ?? .distantPast) }
+            if let running { bringForward(running) }
+        }
     }
 
     /// Called when Blink becomes active. Returns whether activation was handed back.

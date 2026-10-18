@@ -36,15 +36,18 @@ struct PickerView: View {
     @Environment(\.controlActiveState) private var controlActiveState
 
     private var link: ValidatedLink { active.request.link }
-    private var choices: [DiscoveredBrowser] { model.pickerChoices }
+    private var outline: PickerOutline { model.pickerOutline(expanded: session.expanded, selection: session.selection) }
+    private var rows: [PickerRow] { outline.rows }
     private var waitingCount: Int { model.coordinator.queued.count }
-    /// While a link is being sent, the highlight follows the browser it's going to.
+    /// While a link is being sent, the highlight follows the row it's going to, or its browser
+    /// when that profile isn't shown.
     private var selection: Int {
-        if case let .dispatching(bundleID) = active.phase,
-           let index = choices.firstIndex(where: { $0.bundleID == bundleID }) {
+        if case let .dispatching(destination) = active.phase,
+           let index = rows.firstIndex(where: { $0.destination == destination })
+            ?? rows.firstIndex(where: { $0.destination == Destination(bundleID: destination.bundleID) }) {
             return index
         }
-        return min(session.selection, max(choices.count - 1, 0))
+        return outline.selection
     }
     private var canCreateRule: Bool { model.canCreateRule(for: active) }
 
@@ -64,15 +67,15 @@ struct PickerView: View {
                 failureBanner(failure)
                     .padding(.horizontal, 12)
                     .padding(.bottom, 8)
-            } else if case let .dispatching(bundleID) = active.phase, active.isSlow {
-                slowBanner(name: model.catalog.name(for: bundleID))
+            } else if case let .dispatching(destination) = active.phase, active.isSlow {
+                slowBanner(name: model.catalog.name(for: destination.bundleID))
                     .padding(.horizontal, 12)
                     .padding(.bottom, 8)
             }
 
             Divider()
 
-            if choices.isEmpty {
+            if rows.isEmpty {
                 emptyState
             } else {
                 browserList
@@ -154,6 +157,13 @@ struct PickerView: View {
         case .launchFailed:
             title = "\(name) couldn't open this link"
             detail = "Try again, or choose another browser."
+        case let .profileUnavailable(destination):
+            let profile = destination.profile?.name ?? "This profile"
+            title = "\(profile) isn't in \(name) anymore"
+            detail = "It may have been renamed or deleted. Open the link in \(name) without choosing a profile, or choose another browser."
+        case .automationDenied:
+            title = "Blink isn't allowed to control \(name)"
+            detail = "Opening a link in a \(name) profile needs permission. Allow Blink in System Settings › Privacy & Security › Automation, or open the link in \(name) without choosing a profile."
         }
 
         return HStack(alignment: .top, spacing: 8) {
@@ -165,11 +175,18 @@ struct PickerView: View {
                 Text(detail).font(.caption).foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
                 HStack {
-                    if case .launchFailed = failure {
+                    switch failure {
+                    case .launchFailed:
                         Button("Try Again") { model.retry(active.request.id) }
-                    }
-                    if case .destinationUnavailable = failure, active.matchedRuleID != nil {
-                        Button("Edit Rules") { showSettings(.rules) }
+                    case .automationDenied:
+                        Button("Try Again") { model.retry(active.request.id) }
+                        openWithoutProfileButton(failure)
+                        Button("Privacy Settings") { SystemIntegration.openAutomationSettings() }
+                    case .profileUnavailable:
+                        openWithoutProfileButton(failure)
+                        if active.matchedRuleID != nil { Button("Edit Rules") { showSettings(.rules) } }
+                    case .destinationUnavailable:
+                        if active.matchedRuleID != nil { Button("Edit Rules") { showSettings(.rules) } }
                     }
                 }
                 .controlSize(.small)
@@ -180,6 +197,13 @@ struct PickerView: View {
         .background(Color.orange.opacity(0.12), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
         .accessibilityElement(children: .contain)
         .onAppear { Announcer.announce("\(title). \(detail)") }
+    }
+
+    /// Opens the link in the failed browser the way it normally opens links, as an explicit choice.
+    private func openWithoutProfileButton(_ failure: RequestFailure) -> some View {
+        Button("Open in \(model.catalog.name(for: failure.bundleID))") {
+            model.choose(Destination(bundleID: failure.bundleID), for: active.request.id)
+        }
     }
 
     private func slowBanner(name: String) -> some View {
@@ -207,7 +231,7 @@ struct PickerView: View {
     /// Scrolls only when every row wouldn't fit on the screen.
     @ViewBuilder
     private var browserList: some View {
-        let rowsHeight = CGFloat(choices.count) * BrowserRow.height + 12
+        let rowsHeight = CGFloat(rows.count) * BrowserRow.height + 12
         let maxHeight = max(session.maxListHeight, 3 * BrowserRow.height)
         if rowsHeight > maxHeight {
             ScrollViewReader { proxy in
@@ -216,8 +240,8 @@ struct PickerView: View {
                 }
                 .frame(height: maxHeight)
                 .onChange(of: selection) {
-                    guard choices.indices.contains(selection) else { return }
-                    proxy.scrollTo(choices[selection].bundleID)
+                    guard rows.indices.contains(selection) else { return }
+                    proxy.scrollTo(rows[selection].id)
                 }
             }
         } else {
@@ -227,31 +251,33 @@ struct PickerView: View {
 
     private var browserRows: some View {
         VStack(spacing: 0) {
-            ForEach(Array(choices.enumerated()), id: \.element.bundleID) { index, browser in
+            ForEach(Array(rows.enumerated()), id: \.element.id) { index, row in
                 BrowserRow(
                     model: model,
-                    browser: browser,
-                    shortcut: index < 9 ? index + 1 : nil,
+                    row: row,
                     isSelected: index == selection,
-                    isHovered: hovered == browser.bundleID,
+                    isHovered: hovered == row.id,
                     isActive: controlActiveState == .key,
-                    isOpening: active.phase == .dispatching(bundleID: browser.bundleID)
+                    isOpening: active.phase == .dispatching(row.destination),
+                    toggleProfiles: { toggleProfiles(of: row) }
                 )
                 .contentShape(Rectangle())
                 .onTapGesture { choose(index) }
                 .onHover { inside in
                     if inside {
-                        hovered = browser.bundleID
-                    } else if hovered == browser.bundleID {
+                        hovered = row.id
+                    } else if hovered == row.id {
                         hovered = nil
                     }
                 }
                 .accessibilityElement(children: .ignore)
-                .accessibilityLabel(browser.name)
-                .accessibilityHint(index < 9 ? "Press \(index + 1) to open" : "")
+                .accessibilityLabel(Self.spokenName(of: row, model: model))
+                .accessibilityValue(row.profileCount > 0 ? "\(row.profileCount) profiles, \(row.isExpanded ? "shown" : "hidden")" : "")
+                .accessibilityHint(row.shortcut.map { "Press \($0) to open" } ?? "")
                 .accessibilityAddTraits(index == selection ? [.isButton, .isSelected] : .isButton)
                 .accessibilityAction { choose(index) }
-                .id(browser.bundleID)
+                .modifier(ProfilesAccessibilityAction(row: row, toggle: { toggleProfiles(of: row) }))
+                .id(row.id)
             }
         }
         .padding(6)
@@ -288,7 +314,7 @@ struct PickerView: View {
 
     private var footer: some View {
         VStack(spacing: 0) {
-            if canCreateRule && !choices.isEmpty {
+            if canCreateRule && !rows.isEmpty {
                 Divider()
                 Toggle(isOn: $session.alwaysForHost) {
                     Text("Always open \(link.host) in the chosen browser")
@@ -347,11 +373,14 @@ struct PickerView: View {
             HStack(spacing: 8) {
                 copyButton(emphasis: .primary).fixedSize()
                     .buttonStyle(.glass)
+                    .modifier(GlassHover())
                 Spacer(minLength: 0)
                 cancelButton(emphasis: .primary).fixedSize()
                     .buttonStyle(.glass)
+                    .modifier(GlassHover())
                 openAction(emphasis: .onAccent)
                     .buttonStyle(.glassProminent)
+                    .modifier(GlassHover(isProminent: true))
             }
             .buttonBorderShape(.capsule)
         }
@@ -398,13 +427,45 @@ struct PickerView: View {
             .padding(.horizontal, 8)
             .accessibilityElement(children: .ignore)
             .accessibilityLabel("Opening")
-        } else if choices.indices.contains(selection) {
+        } else if rows.indices.contains(selection) {
+            // Just "Open", so the bar keeps its width as the selection moves.
             Button {
                 choose(selection)
             } label: {
-                ActionLabel(title: "Open in \(choices[selection].name)", key: "↩", emphasis: emphasis)
+                ActionLabel(title: "Open", key: "↩", emphasis: emphasis)
             }
-            .accessibilityLabel("Open in \(choices[selection].name)")
+            .accessibilityLabel("Open in \(model.displayName(for: rows[selection].destination))")
+        }
+    }
+
+    /// The › button: shows or hides a browser's profiles, keeping the selection on the same row.
+    private func toggleProfiles(of row: PickerRow) {
+        var outline = outline
+        outline.toggle(row.destination.bundleID)
+        withAnimation(reduceMotion ? nil : .snappy(duration: 0.2)) {
+            session.expanded = outline.expanded
+            session.selection = outline.selection
+        }
+    }
+
+    /// "Arc", or "Perso, Arc profile".
+    static func spokenName(of row: PickerRow, model: AppModel) -> String {
+        let browser = model.catalog.name(for: row.destination.bundleID)
+        guard let profile = row.destination.profile else { return browser }
+        return "\(profile.name), \(browser) profile"
+    }
+}
+
+/// VoiceOver's way to show or hide a browser's profiles, in place of the › button.
+private struct ProfilesAccessibilityAction: ViewModifier {
+    let row: PickerRow
+    let toggle: () -> Void
+
+    func body(content: Content) -> some View {
+        if row.profileCount > 0 {
+            content.accessibilityAction(named: row.isExpanded ? "Hide Profiles" : "Show Profiles", toggle)
+        } else {
+            content
         }
     }
 }
@@ -529,33 +590,78 @@ private struct ActionBarButtonStyle: ButtonStyle {
     }
 }
 
+/// Glass buttons don't react to the pointer on macOS, so this marks hover itself: a lighter tint
+/// for the prominent button, a shade over the others. `.brightness` and overlays don't reach
+/// prominent glass, which the system draws separately.
+@available(macOS 26, *)
+private struct GlassHover: ViewModifier {
+    var isProminent = false
+
+    @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var isHovered = false
+
+    private var showsHover: Bool { isHovered && isEnabled }
+
+    func body(content: Content) -> some View {
+        Group {
+            if isProminent {
+                content.tint(showsHover ? Color.accentColor.mix(with: .white, by: 0.18) : .accentColor)
+            } else {
+                content.overlay {
+                    Capsule()
+                        .fill(.tertiary)
+                        .opacity(showsHover ? 1 : 0)
+                        .allowsHitTesting(false)
+                }
+            }
+        }
+        .animation(reduceMotion ? nil : .easeOut(duration: 0.12), value: showsHover)
+        .onHover { isHovered = $0 }
+    }
+}
+
 private struct BrowserRow: View {
     static let height: CGFloat = 36
 
     let model: AppModel
-    let browser: DiscoveredBrowser
-    let shortcut: Int?
+    let row: PickerRow
     let isSelected: Bool
     let isHovered: Bool
     let isActive: Bool
     let isOpening: Bool
+    let toggleProfiles: () -> Void
 
     private var isHighlighted: Bool { isSelected && isActive }
 
     var body: some View {
         HStack(spacing: 10) {
-            Image(nsImage: model.catalog.icon(for: browser.bundleID))
-                .resizable()
-                .frame(width: 24, height: 24)
-                .accessibilityHidden(true)
-            Text(browser.name)
-                .lineLimit(1)
-                .truncationMode(.tail)
+            if let profile = row.destination.profile {
+                // Lines the profile name up with the browser name above it.
+                Color.clear.frame(width: 24, height: 1)
+                Text(profile.name)
+                    .font(.callout)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+            } else {
+                Image(nsImage: model.catalog.icon(for: row.destination.bundleID))
+                    .resizable()
+                    .frame(width: 24, height: 24)
+                    .accessibilityHidden(true)
+                Text(model.catalog.name(for: row.destination.bundleID))
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+            }
             Spacer(minLength: 8)
             if isOpening {
                 Text("Opening…").font(.caption).foregroundStyle(.secondary)
-            } else if let shortcut {
-                KeyCap(key: "\(shortcut)", tint: isHighlighted ? .accent : .neutral)
+            } else {
+                if row.profileCount > 0 {
+                    ProfilesButton(isExpanded: row.isExpanded, action: toggleProfiles)
+                }
+                if let shortcut = row.shortcut {
+                    KeyCap(key: "\(shortcut)", tint: isHighlighted ? .accent : .neutral)
+                }
             }
         }
         .padding(.horizontal, 8)
@@ -567,8 +673,31 @@ private struct BrowserRow: View {
             } else if isSelected {
                 shape.fill(.quaternary)
             } else if isHovered {
-                shape.fill(.quinary)
+                shape.fill(.quaternary.opacity(0.8))
             }
         }
+    }
+}
+
+/// The › that shows a browser's profiles. It turns to point down while they're shown.
+private struct ProfilesButton: View {
+    let isExpanded: Bool
+    let action: () -> Void
+
+    @State private var isHovered = false
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: "chevron.right")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(isHovered ? .primary : .secondary)
+                .rotationEffect(.degrees(isExpanded ? 90 : 0))
+                .frame(width: 22, height: 22)
+                .background(isHovered ? AnyShapeStyle(.quaternary) : AnyShapeStyle(.clear), in: Circle())
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .onHover { isHovered = $0 }
+        .help(isExpanded ? "Hide profiles (←)" : "Show profiles (→)")
     }
 }

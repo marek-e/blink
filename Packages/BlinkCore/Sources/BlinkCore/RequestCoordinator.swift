@@ -13,20 +13,28 @@ public struct OpenRequest: Identifiable, Equatable, Sendable {
 
 public enum RequestFailure: Equatable, Sendable {
     /// The chosen or rule-matched browser isn't installed or can't open this kind of link.
-    case destinationUnavailable(bundleID: String)
+    case destinationUnavailable(Destination)
     /// macOS did not accept the request to open the link in this browser.
-    case launchFailed(bundleID: String)
+    case launchFailed(Destination)
+    /// The browser is there, but the chosen profile or space no longer exists.
+    case profileUnavailable(Destination)
+    /// macOS refused Blink permission to control the browser, which choosing a profile needs.
+    case automationDenied(Destination)
 
-    public var bundleID: String {
+    public var destination: Destination {
         switch self {
-        case let .destinationUnavailable(bundleID), let .launchFailed(bundleID): bundleID
+        case let .destinationUnavailable(destination), let .launchFailed(destination),
+             let .profileUnavailable(destination), let .automationDenied(destination):
+            destination
         }
     }
+
+    public var bundleID: String { destination.bundleID }
 }
 
 public enum RequestPhase: Equatable, Sendable {
     case choosing
-    case dispatching(bundleID: String)
+    case dispatching(Destination)
     case failed(RequestFailure)
 }
 
@@ -44,7 +52,7 @@ public struct ActiveRequest: Equatable, Sendable {
 }
 
 public enum RequestOutcome: Equatable, Sendable {
-    case opened(bundleID: String)
+    case opened(Destination)
     case cancelled
     case discarded
 }
@@ -55,12 +63,27 @@ public protocol BrowserLocating: AnyObject {
     func applicationURL(forBundleID bundleID: String, scheme: String) -> URL?
 }
 
+/// How a dispatch ended.
+public enum DispatchResult: Equatable, Sendable {
+    case accepted
+    /// macOS or the browser refused the link.
+    case rejected
+    case profileUnavailable
+    case automationDenied
+}
+
 @MainActor
 public protocol LinkOpening: AnyObject {
-    /// Asks macOS to open `url` in a specific application. `completion` reports whether it was accepted.
+    /// Asks macOS to open `url` in a specific application, and profile if the destination has one.
     /// - Parameter activates: whether the application should come to the front. False while more
     ///   links are waiting, so Blink keeps focus for the next picker.
-    func open(_ url: URL, withApplicationAt applicationURL: URL, activates: Bool, completion: @escaping @MainActor (Bool) -> Void)
+    func open(
+        _ url: URL,
+        in destination: Destination,
+        withApplicationAt applicationURL: URL,
+        activates: Bool,
+        completion: @escaping @MainActor (DispatchResult) -> Void
+    )
 }
 
 /// Owns the in-memory request queue and every request state transition.
@@ -108,9 +131,15 @@ public final class RequestCoordinator {
         return request
     }
 
-    /// Dispatches the active request to `bundleID`. Ignored unless the request is choosing or failed.
+    /// Dispatches the active request to `bundleID`, without a profile.
     @discardableResult
     public func choose(bundleID: String) -> Bool {
+        choose(Destination(bundleID: bundleID))
+    }
+
+    /// Dispatches the active request to `destination`. Ignored unless the request is choosing or failed.
+    @discardableResult
+    public func choose(_ destination: Destination) -> Bool {
         guard var current = active else { return false }
         switch current.phase {
         case .choosing, .failed: break
@@ -118,8 +147,8 @@ public final class RequestCoordinator {
         }
 
         let link = current.request.link
-        guard let applicationURL = locator.applicationURL(forBundleID: bundleID, scheme: link.scheme) else {
-            current.phase = .failed(.destinationUnavailable(bundleID: bundleID))
+        guard let applicationURL = locator.applicationURL(forBundleID: destination.bundleID, scheme: link.scheme) else {
+            current.phase = .failed(.destinationUnavailable(destination))
             current.needsPicker = true
             current.attemptID = nil
             active = current
@@ -128,7 +157,7 @@ public final class RequestCoordinator {
 
         let attemptID = UUID()
         let requestID = current.request.id
-        current.phase = .dispatching(bundleID: bundleID)
+        current.phase = .dispatching(destination)
         current.attemptID = attemptID
         current.isSlow = false
         active = current
@@ -137,17 +166,17 @@ public final class RequestCoordinator {
             try? await Task.sleep(for: delay)
             self?.markSlow(requestID: requestID, attemptID: attemptID)
         }
-        opener.open(link.url, withApplicationAt: applicationURL, activates: queued.isEmpty) { [weak self] accepted in
-            self?.finishDispatch(requestID: requestID, attemptID: attemptID, bundleID: bundleID, accepted: accepted)
+        opener.open(link.url, in: destination, withApplicationAt: applicationURL, activates: queued.isEmpty) { [weak self] result in
+            self?.finishDispatch(requestID: requestID, attemptID: attemptID, destination: destination, result: result)
         }
         return true
     }
 
-    /// Retries the browser that failed. Only valid after a failure.
+    /// Retries the destination that failed. Only valid after a failure.
     @discardableResult
     public func retry() -> Bool {
         guard case let .failed(failure)? = active?.phase else { return false }
-        return choose(bundleID: failure.bundleID)
+        return choose(failure.destination)
     }
 
     /// Cancels the active request and moves to the next. Ignored while a dispatch is in flight,
@@ -175,18 +204,23 @@ public final class RequestCoordinator {
         active = current
     }
 
-    private func finishDispatch(requestID: UUID, attemptID: UUID, bundleID: String, accepted: Bool) {
+    private func finishDispatch(requestID: UUID, attemptID: UUID, destination: Destination, result: DispatchResult) {
         guard var current = active, current.request.id == requestID, current.attemptID == attemptID else {
             return
         }
-        if accepted {
-            finish(current.request, .opened(bundleID: bundleID))
-        } else {
-            current.phase = .failed(.launchFailed(bundleID: bundleID))
-            current.needsPicker = true
-            current.attemptID = nil
-            active = current
+        let failure: RequestFailure
+        switch result {
+        case .accepted:
+            finish(current.request, .opened(destination))
+            return
+        case .rejected: failure = .launchFailed(destination)
+        case .profileUnavailable: failure = .profileUnavailable(destination)
+        case .automationDenied: failure = .automationDenied(destination)
         }
+        current.phase = .failed(failure)
+        current.needsPicker = true
+        current.attemptID = nil
+        active = current
     }
 
     private func finish(_ request: OpenRequest, _ outcome: RequestOutcome) {
@@ -202,9 +236,9 @@ public final class RequestCoordinator {
         switch RuleEvaluator.evaluate(host: request.link.host, rules: rules()) {
         case .noMatch:
             active = ActiveRequest(request: request, phase: .choosing, matchedRuleID: nil, needsPicker: true)
-        case let .matched(ruleID, bundleID):
+        case let .matched(ruleID, destination):
             active = ActiveRequest(request: request, phase: .choosing, matchedRuleID: ruleID, needsPicker: false)
-            choose(bundleID: bundleID)
+            choose(destination)
         }
     }
 }

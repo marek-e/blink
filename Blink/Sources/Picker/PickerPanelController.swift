@@ -9,6 +9,8 @@ import SwiftUI
 final class PickerSession {
     private(set) var requestID: UUID?
     var selection = 0
+    /// Browsers whose profiles are shown. Reset for every link, like the rest of the picker.
+    var expanded: Set<String> = []
     var alwaysForHost = false
     var showsFullLink = false
     /// The tallest the browser list may be before it scrolls, from the screen the picker opens on.
@@ -17,6 +19,7 @@ final class PickerSession {
     func reset(for requestID: UUID) {
         self.requestID = requestID
         selection = 0
+        expanded = []
         alwaysForHost = false
         showsFullLink = false
     }
@@ -28,6 +31,8 @@ final class PickerPanelController: NSObject, NSWindowDelegate {
     private let model: AppModel
     private let panel: PickerPanel
     private let session = PickerSession()
+    /// Where the panel's top edge was placed, so it grows downward when profiles are shown.
+    private var anchoredTop: CGFloat?
 
     init(model: AppModel, showSettings: @escaping (SettingsTab) -> Void) {
         self.model = model
@@ -77,6 +82,7 @@ final class PickerPanelController: NSObject, NSWindowDelegate {
             session.maxListHeight = WindowPlacement.visibleHeight(nearPointer: NSEvent.mouseLocation) - PickerView.reservedHeight
             panel.layoutIfNeeded()
             panel.setFrame(WindowPlacement.frame(for: panel.frame.size, nearPointer: NSEvent.mouseLocation), display: false)
+            anchoredTop = panel.frame.maxY
         }
         NSApp.activate()
         panel.makeKeyAndOrderFront(nil)
@@ -95,20 +101,32 @@ final class PickerPanelController: NSObject, NSWindowDelegate {
         Announcer.announce(parts.joined(separator: ". "))
     }
 
+    private var outline: PickerOutline {
+        model.pickerOutline(expanded: session.expanded, selection: session.selection)
+    }
+
     private func handle(_ key: PickerKey) -> Bool {
         guard presented != nil else { return false }
-        let choices = model.pickerChoices
+        var outline = outline
         switch key {
         case .up, .down:
-            guard !choices.isEmpty else { return true }
-            let offset = key == .up ? -1 : 1
-            session.selection = (min(session.selection, choices.count - 1) + offset + choices.count) % choices.count
-            Announcer.announce(choices[session.selection].name)
+            outline.move(by: key == .up ? -1 : 1)
+        case .expand:
+            outline.expandSelection()
+        case .collapse:
+            outline.collapseSelection()
         case .open:
             choose(at: session.selection)
+            return true
         case let .digit(number):
-            guard number <= min(choices.count, 9) else { return true }
-            choose(at: number - 1)
+            if let index = outline.index(forShortcut: number) { choose(at: index) }
+            return true
+        }
+        let previous = (session.selection, session.expanded)
+        session.expanded = outline.expanded
+        session.selection = outline.selection
+        if previous != (session.selection, session.expanded), let row = outline.selectedRow {
+            Announcer.announce(PickerView.spokenName(of: row, model: model))
         }
         return true
     }
@@ -116,11 +134,11 @@ final class PickerPanelController: NSObject, NSWindowDelegate {
     private func choose(at index: Int) {
         guard let active = presented else { return }
         if case .dispatching = active.phase { return }
-        let choices = model.pickerChoices
-        guard choices.indices.contains(index) else { return }
+        let rows = outline.rows
+        guard rows.indices.contains(index) else { return }
         session.selection = index
         model.choose(
-            choices[index].bundleID,
+            rows[index].destination,
             for: active.request.id,
             alwaysForHost: session.alwaysForHost && model.canCreateRule(for: active)
         )
@@ -137,8 +155,14 @@ final class PickerPanelController: NSObject, NSWindowDelegate {
         Announcer.announce("Link copied")
     }
 
+    func windowDidMove(_ notification: Notification) {
+        anchoredTop = panel.frame.maxY
+    }
+
     func windowDidResize(_ notification: Notification) {
-        let clamped = WindowPlacement.clamp(panel.frame)
+        var frame = panel.frame
+        if let anchoredTop { frame.origin.y = anchoredTop - frame.height }
+        let clamped = WindowPlacement.clamp(frame)
         if clamped != panel.frame { panel.setFrame(clamped, display: true) }
     }
 }

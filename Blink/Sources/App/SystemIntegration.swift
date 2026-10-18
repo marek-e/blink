@@ -98,6 +98,14 @@ final class SystemIntegration {
         SMAppService.openSystemSettingsLoginItems()
     }
 
+    /// Opens Privacy & Security › Automation, where Blink's permission to control browsers lives.
+    static func openAutomationSettings() {
+        let pane = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Automation")!
+        if !NSWorkspace.shared.open(pane) {
+            NSWorkspace.shared.open(URL(filePath: "/System/Applications/System Settings.app"))
+        }
+    }
+
     private static func handler(for scheme: String) -> (bundleID: String?, name: String)? {
         guard let probe = URL(string: "\(scheme)://example.com"),
               let url = NSWorkspace.shared.urlForApplication(toOpen: probe)

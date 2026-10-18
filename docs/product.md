@@ -6,7 +6,7 @@ Status: implemented, 2026-10-17. The identity, broad product direction, and requ
 
 People who use multiple browsers need links from mail, chat, documents, and other apps to open in the right place. A single system default cannot express that choice. Blink should make a manual choice quick and a repeated choice predictable.
 
-The initial audience is macOS users who separate work and personal browsing, developers testing multiple browsers, and people with a few sites that belong in a particular browser. Profile-level separation is a future capability, not an MVP promise.
+The initial audience is macOS users who separate work and personal browsing, developers testing multiple browsers, and people with a few sites that belong in a particular browser. Profile-level separation was not an MVP promise; B19 added it afterwards.
 
 ## Core journeys
 
@@ -30,7 +30,7 @@ Blink only handles requests delivered to it. Links navigated inside a browser, a
 | B08 | Operate from menu bar | Menu provides Settings, Open Link, and Quit. Login launch is opt-in and reflects actual service status. |
 | B09 | Preserve privacy | No URL history, analytics, accounts, remote rule processing, or background URL requests. Logs exclude hosts and full URLs. |
 | B10 | Remain accessible | Picker and settings support keyboard-only operation, VoiceOver, light/dark appearance, increased contrast, and reduced motion. |
-| B11 | Queue requests | Process multiple delivered URLs in order, one active request at a time. Cancel affects only the current request. Repeated identical URLs remain distinct requests. |
+| B11 | Queue requests | Process multiple delivered URLs in order, one active request at a time. Cancel affects only the current request. Repeated identical URLs remain distinct requests, except that the same URL delivered again within one second is dropped as a duplicate: some apps deliver one click twice. |
 | B12 | Persist safely | Store versioned local configuration atomically. Invalid or newer unsupported data is preserved and reported, never silently overwritten. |
 | B13 | Preserve link meaning | Send the original accepted URL without intentional query, fragment, path, or redirect changes. Reject unsupported schemes and malformed web URLs. |
 
@@ -45,6 +45,7 @@ Added during implementation, each because the MVP was worse without it.
 | B16 | Local HTML files | A local file delivered by macOS (because Blink is the default browser) shows the picker with the file name and opens in the chosen browser. Rules never apply to files. Typed links can't be files. |
 | B17 | Explain rules | The Rules tab warns about rules made unreachable by earlier ones and about rules whose browser isn't installed. A test field shows which rule, if any, a URL would use, without opening it. |
 | B18 | Hide the menu bar icon | General settings can hide Blink's menu bar icon. Links still reach Blink; opening Blink from Applications or Spotlight shows Settings, which has Quit. |
+| B19 | Browser profiles | A browser with two or more profiles Blink can read shows a › in the picker; › or → shows its visible profiles under it, ← or › hides them. Choosing a profile opens the link in it; choosing the browser opens it as before. Number keys address browsers only. Rules and "Always open" can store a profile. Profiles can be hidden from the picker in Settings. A missing profile or refused Automation permission fails the request with an explanation and an explicit way to open without the profile, never a silent fallback. Supported: Arc (spaces), Dia, Chrome, Brave, Edge, Vivaldi, Chromium, Zen, Firefox. Not Safari. |
 
 Discovery also differs from the baseline: an app that registers for web links but not for HTML documents starts hidden in the picker instead of visible, unless that would leave no browser visible. Chat clients and terminals register for links without being browsers.
 
@@ -52,13 +53,13 @@ Opening success means macOS accepted the dispatch to the selected app. Blink can
 
 ## Scope boundaries
 
-The MVP has no browser profile selection, private-window launching, source-app rules, path or regex rules, tracking removal, shortened-link expansion, extensions, sync, accounts, AI service, plugin system, global shortcuts, automatic updater, or monetization flow. It does not replace in-browser navigation.
+The MVP had no browser profile selection (added later as B19). It has no private-window launching, source-app rules, path or regex rules, tracking removal, shortened-link expansion, extensions, sync, accounts, AI service, plugin system, global shortcuts, automatic updater, or monetization flow. It does not replace in-browser navigation.
 
 Arc, Dia, Chrome, Zen, Safari, and Brave are required MVP compatibility targets, explicitly selected by the user. Each must support discovery, manual selection, domain-rule routing, and intact HTTP/HTTPS dispatch, both already running and fully quit. All six pass on macOS 26; see [testing and release](testing-and-release.md).
 
 Test Zen as its own application; a Firefox test does not establish Zen compatibility. Likewise, no browser's passing result substitutes for another's. Other registered HTTP/HTTPS handlers, including Firefox, may appear but are not required release targets and should not be marketed as verified until tested.
 
-Launching a browser uses that browser's own default session/profile behavior. Selecting specific profiles, spaces, or containers remains outside the MVP.
+Without a chosen profile, launching a browser uses that browser's own default session or profile. B19 adds profile and Arc space choice; Firefox containers and Safari profiles remain out of scope. Profile support is verified per browser in the [capability matrix](profiles-capability.md).
 
 ## Quality targets
 

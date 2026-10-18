@@ -4,7 +4,7 @@ Status: automated tests pass; manual checks below were run on 2026-10-17 on the 
 
 ## Automated tests
 
-`swift test --package-path Packages/BlinkCore` runs 59 tests in 9 suites (about 0.01 s). The same tests run through the `Blink` scheme with `xcodebuild test`, in CI, and as x86_64 under Rosetta (`xcodebuild test -destination "platform=macOS,arch=x86_64"`).
+`swift test --package-path Packages/BlinkCore` runs 88 tests in 15 suites (about 0.2 s). The same tests run through the `Blink` scheme with `xcodebuild test`, in CI, and as x86_64 under Rosetta (`xcodebuild test -destination "platform=macOS,arch=x86_64"`).
 
 | Area | Cases covered | Requirements |
 | --- | --- | --- |
@@ -15,7 +15,9 @@ Status: automated tests pass; manual checks below were run on 2026-10-17 on the 
 | Browser preferences | New browsers appended in name order, non-browsers hidden, never empty, reinstall keeps preferences, picker choices follow order and visibility, last visible browser can't be hidden, reorder | B02, B04 |
 | Configuration store | Round trip and documented schema keys, documented example loads, six kinds of invalid file, newer schema preserved, reset backs up, stray temp file ignored, write failure keeps the old file and leaves no temp file, invalid configuration refused | B12 |
 | Default browser state | Both schemes, one scheme each way, neither, unknown identity | B07 |
-| Picker geometry and keys | Pointer centering, menu bar and Dock avoidance, screen edges, second display with negative coordinates, small screens, fallback screen, key mapping for digits, keypad and modifiers | B03, B10, B14 |
+| Picker geometry and keys | Pointer centering, menu bar and Dock avoidance, screen edges, second display with negative coordinates, small screens, fallback screen, key mapping for digits, keypad, arrows and modifiers | B03, B10, B14 |
+| Profiles | Equality by ID across renames, rules and requests carrying a profile, failure mapping (profile gone, Automation refused, rejected), retry keeps the profile, version 1 files upgraded and rewritten as version 2, version 2 round trip, profile hiding, Chromium `Local State` order and exclusions, Arc spaces (Little Arc skipped), Firefox `profiles.ini`, picker rows, expansion, arrow keys, number keys counting browsers only | B12, B19 |
+| Duplicate deliveries | The same link within a second dropped, including a run of copies; later repeats and other links kept | B11 |
 
 ## Manual checks run
 
@@ -66,6 +68,28 @@ Driven through the Accessibility API with synthetic `example.com` URLs, using a 
 | A dispatch macOS never answers (Dia stuck behind a quarantine check in the VM): after 10 s the picker shows "Still waiting for Dia" with Cancel | Passed |
 | Intel hardware | Not available; the x86_64 slice was run under Rosetta instead |
 | CI on GitHub's macOS 14 (Xcode 16.2, Swift 6.0.3) and macOS 15 runners: project check, tests, universal Release build | Passed (run 39078681215) |
+
+## Profile checks run
+
+Run on 2026-10-18 with a Debug build and a scratch configuration, on the development machine (macOS 26.6, Arc 1.168.0, Dia 1.53.0, Chrome 155, Zen 1.17.14b). The [capability matrix](profiles-capability.md) has the browser-level results these build on.
+
+| Check | Result |
+| --- | --- |
+| Rule to an Arc space, Arc running: tab opens in that space | Passed, 326 ms (14 s the first time, while macOS asked for Automation permission) |
+| Rule to a Dia profile, Dia running | Passed, 0.3 s (3.2 s with the permission prompt) |
+| Rule to a Zen profile, Zen quit | Passed, 230 ms to accept, Zen started with `-P` |
+| Rule to a Chrome profile, Chrome running | Passed, 140 ms, the helper process exited |
+| Rule to an Arc space that doesn't exist: picker explains it, offers Open in Arc and Edit Rules | Passed |
+| Picker: › on Arc, Dia and Zen only; → shows Arc's spaces and selects the first; ↓ moves through them; ← hides them; Return opens the selected space | Passed |
+| Clicking › shows Dia's profiles without moving the selection | Passed |
+| "Always open" with a Dia profile saves the rule with the profile; the next link routes there without the picker | Passed |
+| A profile hidden in the settings file is left out of the picker | Passed |
+| Settings › Rules shows "Arc · Perso" and warns about a missing space; Settings › Browsers shows profile counts and the visibility popover | Passed |
+| Hiding a profile by clicking its checkbox in the popover | Not run with synthetic clicks; the setting it writes is covered by tests |
+| Arc or Dia running with no window: the script asks it to reopen one | Dia's `reopen` checked by hand; not run end to end |
+| Refused Automation permission shows the explanation and Privacy Settings button | Not run |
+| Chrome with a second profile, Brave, Edge, Vivaldi, Firefox | Not run |
+| Dark mode, VoiceOver | Not run |
 
 ## Browser matrix
 

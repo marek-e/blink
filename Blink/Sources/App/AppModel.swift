@@ -7,6 +7,7 @@ import Observation
 final class AppModel {
     let preferences: Preferences
     let catalog: BrowserCatalog
+    let profiles: ProfileCatalog
     let system: SystemIntegration
     let coordinator: RequestCoordinator
 
@@ -19,29 +20,33 @@ final class AppModel {
     /// Messages waiting to be shown one at a time, oldest first.
     private(set) var notices: [Notice] = []
 
-    /// Browsers chosen with "Always open here", by request. The rule is saved only once the link opens.
-    @ObservationIgnored private var ruleIntents: [UUID: String] = [:]
+    /// Destinations chosen with "Always open here", by request. The rule is saved only once the link opens.
+    @ObservationIgnored private var ruleIntents: [UUID: Destination] = [:]
+
+    @ObservationIgnored private var duplicates = DuplicateDeliveryFilter()
 
     /// When each pending request arrived, for latency logging. Memory only; entries are removed when requests finish.
     @ObservationIgnored private var arrivalTimes: [UUID: ContinuousClock.Instant] = [:]
 
     init(preferences: Preferences) {
         let catalog = BrowserCatalog()
+        let profiles = ProfileCatalog()
         self.preferences = preferences
         self.catalog = catalog
+        self.profiles = profiles
         system = SystemIntegration()
-        coordinator = RequestCoordinator(locator: catalog, opener: WorkspaceOpener()) {
+        coordinator = RequestCoordinator(locator: catalog, opener: WorkspaceOpener(profiles: profiles)) {
             preferences.configuration.rules
         }
         coordinator.isPaused = !preferences.configuration.onboardingCompleted
         coordinator.onFinish = { [weak self] request, outcome in
             guard let self else { return }
             arrivalTimes[request.id] = nil
-            let intendedBrowser = ruleIntents.removeValue(forKey: request.id)
+            let intended = ruleIntents.removeValue(forKey: request.id)
             switch outcome {
-            case let .opened(bundleID):
+            case let .opened(destination):
                 Log.dispatch.info("Request completed")
-                if intendedBrowser == bundleID { saveAlwaysRule(host: request.link.host, bundleID: bundleID) }
+                if intended == destination { saveAlwaysRule(host: request.link.host, destination: destination) }
             case .cancelled: Log.dispatch.info("Request cancelled")
             case .discarded: Log.dispatch.info("Request discarded")
             }
@@ -56,9 +61,34 @@ final class AppModel {
         configuration.pickerChoices(from: catalog.browsers)
     }
 
+    /// The picker's rows: visible browsers, with the visible profiles of those in `expanded`.
+    func pickerOutline(expanded: Set<String>, selection: Int) -> PickerOutline {
+        let browsers = pickerChoices.map(\.bundleID)
+        var offered: [String: [ProfileReference]] = [:]
+        for bundleID in browsers {
+            offered[bundleID] = profiles.choices(for: bundleID).filter { !configuration.isProfileHidden($0.id, for: bundleID) }
+        }
+        return PickerOutline(browsers: browsers, profiles: offered, expanded: expanded, selection: selection)
+    }
+
+    /// "Arc", or "Arc · Perso" for a profile.
+    func displayName(for destination: Destination) -> String {
+        let browser = catalog.name(for: destination.bundleID)
+        guard let profile = destination.profile else { return browser }
+        return "\(browser) · \(profile.name)"
+    }
+
+    /// Whether a destination's profile is known to be gone. False when there's no profile, or no
+    /// list to check against.
+    func isProfileMissing(_ destination: Destination) -> Bool {
+        guard let profile = destination.profile else { return false }
+        return profiles.contains(profile, for: destination.bundleID) == false
+    }
+
     func refreshBrowsers() {
         catalog.refresh()
         preferences.mergeDiscovered(catalog.browsers)
+        profiles.refreshInBackground(catalog.browsers.map(\.bundleID))
     }
 
     // MARK: Requests
@@ -67,6 +97,10 @@ final class AppModel {
         for url in urls {
             switch LinkValidator.validate(url) {
             case let .success(link):
+                if duplicates.isDuplicate(link.url) {
+                    Log.intake.info("Ignored a repeated delivery of the same link")
+                    continue
+                }
                 Log.intake.info("Accepted request")
                 let arrival = ContinuousClock.now
                 let request = coordinator.enqueue(link)
@@ -101,22 +135,22 @@ final class AppModel {
 
     /// Dispatches the request with `requestID`, if it's still the active one. With `alwaysForHost`,
     /// a rule for the link's host is saved after the browser accepts the link.
-    func choose(_ bundleID: String, for requestID: UUID, alwaysForHost: Bool = false) {
+    func choose(_ destination: Destination, for requestID: UUID, alwaysForHost: Bool = false) {
         guard let active = coordinator.active, active.request.id == requestID else { return }
-        ruleIntents[requestID] = alwaysForHost && canCreateRule(for: active) ? bundleID : nil
-        coordinator.choose(bundleID: bundleID)
+        ruleIntents[requestID] = alwaysForHost && canCreateRule(for: active) ? destination : nil
+        coordinator.choose(destination)
     }
 
-    /// Points the host's exact rule at `bundleID`, creating it at the end of the list if needed,
+    /// Points the host's exact rule at `destination`, creating it at the end of the list if needed,
     /// so repeated choices never stack up shadowed duplicates.
-    private func saveAlwaysRule(host: String, bundleID: String) {
+    private func saveAlwaysRule(host: String, destination: Destination) {
         guard case let .success(domain) = HostNormalizer.normalizeRuleDomain(host) else { return }
         let saved = preferences.update { configuration in
             if let index = configuration.rules.firstIndex(where: { $0.domain == domain && !$0.includeSubdomains }) {
-                configuration.rules[index].destinationBundleID = bundleID
+                configuration.rules[index].destination = destination
                 configuration.rules[index].isEnabled = true
             } else {
-                configuration.rules.append(Rule(domain: domain, destinationBundleID: bundleID))
+                configuration.rules.append(Rule(domain: domain, destination: destination))
             }
         }
         if !saved {
