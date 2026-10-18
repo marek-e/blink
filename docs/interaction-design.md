@@ -33,7 +33,7 @@ Top to bottom:
 - A failure banner when needed (see below).
 - Visible, available browsers in the user's order, with icon, name and shortcut number. The first is selected.
 - "Always open example.com in the chosen browser", a checkbox, off by default. Shown only for web links that matched no rule while settings can be saved. Checking it and choosing a browser saves an exact-domain rule once the browser accepts the link. If that host already has an exact rule, Blink updates and enables it instead of adding another. A failed launch or a cancel saves nothing.
-- An action bar, each action labeled with its key: Copy (⌘C), Cancel (esc) and "Open in <selected browser>" (↩). On macOS 26 these are glass buttons, with Open as the prominent one. While a link is being sent, Open is replaced by "Opening…".
+- An action bar, each action labeled with its key: Copy (⌘C), Cancel (esc) and Open (↩), which opens the selected browser. Open doesn't name the browser, so the bar keeps its width as the selection moves. On macOS 26 these are glass buttons, with Open as the prominent one. While a link is being sent, Open is replaced by "Opening…".
 
 | Input | Behavior |
 | --- | --- |
@@ -45,7 +45,7 @@ Top to bottom:
 | Escape, ⌘W | Cancel this link; the next one appears |
 | ⌘C, Copy Link | Copy the full original URL; the link stays pending |
 
-Hovering highlights a row without moving the selection, because the panel opens under the pointer. Remembering the last choice is deliberately not offered; only the explicit checkbox creates a rule.
+Hovering highlights a row without moving the selection, because the panel opens under the pointer. The action bar's buttons also highlight on hover; macOS 26 glass buttons don't do this on their own, so Blink adds it. Remembering the last choice is deliberately not offered; only the explicit checkbox creates a rule.
 
 While more links are waiting, the browser receives each link in the background and Blink keeps focus, so the next picker takes keys right away. The last link brings its browser to the front.
 
