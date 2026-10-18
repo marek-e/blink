@@ -1,0 +1,19 @@
+Blink/Sources/Picker/PickerView.swift
+  s_6cbcacad058d72::t_cf22eee47c5aa5 445-446,460-461,469
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "3d4a77b18f76a79baa9bbb1917c611d703929a42",
+  "prompts": {},
+  "sessions": {
+    "s_6cbcacad058d72": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "924ef46a-bb80-465a-946e-d5086a5f003a",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Marek Elmayan <melmayan.dev@gmail.com>"
+    }
+  }
+}
