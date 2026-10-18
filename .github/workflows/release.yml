@@ -1,6 +1,9 @@
 name: Release
 
-# Push a tag like v1.0.0 to build, sign, notarize and publish Blink to GitHub Releases.
+# Push a tag like v1.0.0 to build and publish Blink to GitHub Releases.
+#
+# With the secrets below, the release is signed with a Developer ID and notarized. Without them it is
+# signed ad-hoc and the release notes tell people how to open it the first time.
 #
 # Repository secrets:
 #   DEVELOPER_ID_P12_BASE64   Developer ID Application certificate and key, exported as .p12, base64-encoded
@@ -21,6 +24,8 @@ jobs:
   release:
     runs-on: macos-15
     timeout-minutes: 60
+    env:
+      SIGNED: ${{ secrets.DEVELOPER_ID_P12_BASE64 != '' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -34,7 +39,13 @@ jobs:
           version=$(sed -n 's/^ *MARKETING_VERSION: "\(.*\)"/\1/p' project.yml)
           test "v$version" = "$GITHUB_REF_NAME" || { echo "Tag $GITHUB_REF_NAME doesn't match MARKETING_VERSION $version"; exit 1; }
 
+      - name: Check the Homebrew cask matches the version
+        run: |
+          version=${GITHUB_REF_NAME#v}
+          grep -q "version \"$version\"" Casks/blink.rb || { echo "Casks/blink.rb doesn't declare version $version"; exit 1; }
+
       - name: Import signing certificate
+        if: env.SIGNED == 'true'
         env:
           P12_BASE64: ${{ secrets.DEVELOPER_ID_P12_BASE64 }}
           P12_PASSWORD: ${{ secrets.DEVELOPER_ID_P12_PASSWORD }}
@@ -51,6 +62,7 @@ jobs:
           rm "$RUNNER_TEMP/certificate.p12"
 
       - name: Store notarization credentials
+        if: env.SIGNED == 'true'
         env:
           NOTARY_APPLE_ID: ${{ secrets.NOTARY_APPLE_ID }}
           NOTARY_PASSWORD: ${{ secrets.NOTARY_PASSWORD }}
@@ -61,6 +73,7 @@ jobs:
             --keychain "$RUNNER_TEMP/signing.keychain-db"
 
       - name: Build, sign, notarize and package
+        if: env.SIGNED == 'true'
         env:
           DEVELOPER_ID_APPLICATION: ${{ secrets.DEVELOPER_ID_APPLICATION }}
           NOTARY_PROFILE: blink-notary
@@ -68,15 +81,27 @@ jobs:
           CODESIGN_KEYCHAIN: ${{ runner.temp }}/signing.keychain-db
         run: scripts/release.sh
 
+      - name: Build and package without a Developer ID
+        if: env.SIGNED != 'true'
+        env:
+          DEVELOPER_ID_APPLICATION: "-"
+          SKIP_NOTARIZATION: "1"
+        run: scripts/release.sh
+
       - name: Publish
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           version=${GITHUB_REF_NAME#v}
+          notes="$RUNNER_TEMP/notes.md"
+          cp "docs/releases/$version.md" "$notes"
+          if [ "$SIGNED" != true ]; then
+            printf '\n%s\n' "$(cat docs/releases/unsigned-note.md)" >> "$notes"
+          fi
           gh release create "$GITHUB_REF_NAME" \
             "dist/Blink-$version.dmg" "dist/Blink-$version.zip" dist/SHA256SUMS.txt \
-            --title "Blink $version" --notes-file "docs/releases/$version.md"
+            --title "Blink $version" --notes-file "$notes"
 
       - name: Remove signing keychain
-        if: always()
+        if: always() && env.SIGNED == 'true'
         run: security delete-keychain "$RUNNER_TEMP/signing.keychain-db" || true

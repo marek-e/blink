@@ -50,3 +50,18 @@ jobs:
           for arch in arm64 x86_64; do
             case " $archs " in *" $arch "*) ;; *) echo "Missing $arch slice"; exit 1 ;; esac
           done
+
+      - name: Package like a release (ad-hoc signed, not notarized)
+        if: matrix.runner == 'macos-15'
+        env:
+          DEVELOPER_ID_APPLICATION: "-"
+          SKIP_NOTARIZATION: "1"
+        run: scripts/release.sh
+
+      - name: Upload the packaged build
+        if: matrix.runner == 'macos-15'
+        uses: actions/upload-artifact@v4
+        with:
+          name: blink-dmg
+          path: dist/
+          retention-days: 14
