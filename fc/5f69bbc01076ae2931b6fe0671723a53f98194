@@ -1,0 +1,42 @@
+Blink/Sources/App/AppModel.swift
+  s_8b010254822365::t_e435ca5174802e 62-78
+Packages/BlinkCore/Sources/BlinkCore/PickerGeometry.swift
+  s_8b010254822365::t_70831d0cd666ce 51-52,67-68
+Packages/BlinkCore/Sources/BlinkCore/BrowserProfiles.swift
+  s_8b010254822365::t_12d1c0d9234b88 79-80,82,100-106
+Packages/BlinkCore/Tests/BlinkCoreTests/PickerGeometryTests.swift
+  s_8b010254822365::t_70831d0cd666ce 61-63
+Blink/Sources/Picker/PickerView.swift
+  s_8b010254822365::t_a774519132e5d9 39-40,42-43,46-47,50,78,234,243-244,254,257,259,261-262,268-269,274-276,279-280,317,430,437-468,628,633,639-654,658-664,681-703
+Blink/Sources/Picker/PickerPanelController.swift
+  s_8b010254822365::t_143ba5a3f11bcc 34-35,85,163-165
+  s_8b010254822365::t_affbb80ebb856b 158-161
+  s_8b010254822365::t_e435ca5174802e 12-13,22,104-107,110,113-117,120,122-129,137-138,141
+Packages/BlinkCore/Sources/BlinkCore/PickerOutline.swift
+  s_8b010254822365::t_9fa49586b0bbda 1-33,35,38-114
+  s_8b010254822365::t_bd98f2db16a3ef 34,36-37
+Blink/Sources/App/WorkspaceOpener.swift
+  s_8b010254822365::t_67c70bd0b40692 115-123,130,137,146,154-178
+  s_8b010254822365::t_9c48f69cf193e9 127-129,131-133,135-136
+  s_8b010254822365::t_4e5e89862a4c2f 179
+Packages/BlinkCore/Tests/BlinkCoreTests/PickerOutlineTests.swift
+  s_8b010254822365::t_70831d0cd666ce 1-92
+Packages/BlinkCore/Tests/BlinkCoreTests/ProfileListTests.swift
+  s_8b010254822365::t_12d1c0d9234b88 68-83
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "fc5f69bbc01076ae2931b6fe0671723a53f98194",
+  "prompts": {},
+  "sessions": {
+    "s_8b010254822365": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9b740933-4bbd-482e-847e-8f3d92b77a21",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Marek Elmayan <melmayan.dev@gmail.com>"
+    }
+  }
+}
