@@ -1,0 +1,35 @@
+Blink/Sources/App/ProfileCatalog.swift
+  s_8b010254822365::t_8d8c5f4bedea29 43-45
+  s_8b010254822365::t_5c5610410e99bd 12,17-21,46-47,59
+Blink/Resources/Info.plist
+  s_8b010254822365::t_43cf1909b41f58 29-30
+Blink/Sources/Picker/PickerView.swift
+  s_8b010254822365::t_c437f5f935703b 180-183,185-186,199-203
+  s_8b010254822365::t_7caa1884a141c5 175-176,178-179,184
+  s_8b010254822365::t_cac12848cfde7e 204-205
+Blink/Sources/App/SystemIntegration.swift
+  s_8b010254822365::t_dab179701259d0 101-108
+Blink/Sources/App/AppModel.swift
+  s_8b010254822365::t_b62835a44fad3d 10,31,34,36
+Blink/Sources/App/WorkspaceOpener.swift
+  s_8b010254822365::t_b62835a44fad3d 4-6,9-14,22-26,30-62,86-190,207-217
+  s_8b010254822365::t_f980203187f142 218
+Blink/Resources/Blink.entitlements
+  s_8b010254822365::t_6d4d99022fd600 4-7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f2be8a7238d30262c4e51dc5559ee72355f035de",
+  "prompts": {},
+  "sessions": {
+    "s_8b010254822365": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9b740933-4bbd-482e-847e-8f3d92b77a21",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Marek Elmayan <melmayan.dev@gmail.com>"
+    }
+  }
+}
