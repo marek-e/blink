@@ -1,0 +1,25 @@
+Casks/blink.rb
+  s_a273f7ff9f8cfd::t_7a0fc8ca675de0 1-26
+docs/releases/unsigned-note.md
+  s_a273f7ff9f8cfd::t_7a0fc8ca675de0 1-3
+.github/workflows/release.yml
+  s_a273f7ff9f8cfd::t_a8d60dea66d917 3-6,27-28,42-46,48,65,76,84-90,96-100,103,106
+.github/workflows/ci.yml
+  s_a273f7ff9f8cfd::t_7a0fc8ca675de0 53-67
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "739b0233ee0f8286e6e8c6dbdab308cef7a08a40",
+  "prompts": {},
+  "sessions": {
+    "s_a273f7ff9f8cfd": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "23c07ae5-030b-4f18-b222-f0aef33b5d81",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Marek Elmayan <melmayan.dev@gmail.com>"
+    }
+  }
+}
