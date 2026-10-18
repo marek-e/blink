@@ -41,6 +41,12 @@ final class PickerPanelController: NSObject, NSWindowDelegate {
             showSettings: showSettings
         ))
         host.sizingOptions = [.preferredContentSize]
+        // Glass draws its backdrop across the whole view. Clipping keeps the window's shadow on the
+        // rounded panel instead of its bounding rectangle.
+        host.view.wantsLayer = true
+        host.view.layer?.cornerRadius = PickerView.cornerRadius
+        host.view.layer?.cornerCurve = .continuous
+        host.view.layer?.masksToBounds = true
         panel.contentViewController = host
         panel.delegate = self
         panel.onCancel = { [weak self] in self?.cancelPresented() }
@@ -146,7 +152,7 @@ final class PickerPanel: NSPanel {
 
     init() {
         super.init(
-            contentRect: NSRect(x: 0, y: 0, width: 340, height: 300),
+            contentRect: NSRect(x: 0, y: 0, width: PickerView.width, height: 300),
             // Non-activating: the panel takes keyboard focus even when macOS's cooperative activation
             // keeps another app active (for example a browser that just launched itself).
             styleMask: [.borderless, .nonactivatingPanel],

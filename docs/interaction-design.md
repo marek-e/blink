@@ -22,7 +22,7 @@ Links delivered or typed while the window is open wait. The footer counts them o
 
 ## Picker
 
-A borderless rounded panel, 340 points wide, on the screen with the pointer. It's centered horizontally on the pointer with its top just above it, and it is moved so it never covers the menu bar or Dock or leaves the screen. It floats above other windows and stays open when Blink loses focus. It is a non-activating panel: it takes keyboard input and clicks even when macOS keeps another app active, for example a browser that just launched itself, so the first click on a row opens the link instead of only focusing the panel.
+A borderless rounded panel, 360 points wide, on the screen with the pointer. On macOS 26 and later it uses Liquid Glass; earlier systems get a material background. It's centered horizontally on the pointer with its top just above it, and it is moved so it never covers the menu bar or Dock or leaves the screen. It floats above other windows and stays open when Blink loses focus. It is a non-activating panel: it takes keyboard input and clicks even when macOS keeps another app active, for example a browser that just launched itself, so the first click on a row opens the link instead of only focusing the panel.
 
 Top to bottom:
 
@@ -33,7 +33,7 @@ Top to bottom:
 - A failure banner when needed (see below).
 - Visible, available browsers in the user's order, with icon, name and shortcut number. The first is selected.
 - "Always open example.com in the chosen browser", a checkbox, off by default. Shown only for web links that matched no rule while settings can be saved. Checking it and choosing a browser saves an exact-domain rule once the browser accepts the link. If that host already has an exact rule, Blink updates and enables it instead of adding another. A failed launch or a cancel saves nothing.
-- Copy Link and Cancel.
+- An action bar, each action labeled with its key: Copy (⌘C), Cancel (esc) and "Open in <selected browser>" (↩). On macOS 26 these are glass buttons, with Open as the prominent one. While a link is being sent, Open is replaced by "Opening…".
 
 | Input | Behavior |
 | --- | --- |
