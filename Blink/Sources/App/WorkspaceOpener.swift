@@ -124,16 +124,27 @@ enum ProfileScript {
         switch self {
         case .arc:
             """
-                    -- Little Arc windows don't hold the sidebar's spaces, so find one that does.
-                    set targetWindow to missing value
-                    repeat with candidate in windows
-                        if (id of spaces of candidate) contains target then
-                            set targetWindow to candidate
-                            exit repeat
+                    -- Little Arc windows don't hold the sidebar's spaces. With only those open,
+                    -- reopen a main window before deciding the space is gone.
+                    set targetWindowID to missing value
+                    repeat 26 times
+                        repeat with candidate in windows
+                            try
+                                if (id of spaces of candidate) contains target then
+                                    set targetWindowID to id of candidate
+                                    exit repeat
+                                end if
+                            end try
+                        end repeat
+                        if targetWindowID is not missing value then exit repeat
+                        if (count of windows) > 0 and not reopened then
+                            reopen
+                            set reopened to true
                         end if
+                        delay 0.2
                     end repeat
-                    if targetWindow is missing value then error "No such space" number -1728
-                    tell targetWindow
+                    if targetWindowID is missing value then error "No such space" number -1728
+                    tell window id targetWindowID
                         tell space id target
                             make new tab with properties {URL:theURL}
                             focus
@@ -157,14 +168,19 @@ enum ProfileScript {
         """
         on run {target, theURL, shouldActivate}
             set wasRunning to application id "\(bundleID)" is running
+            set reopened to false
             tell application id "\(bundleID)"
-                if wasRunning and (count of windows) = 0 then reopen
+                if wasRunning and (count of windows) = 0 then
+                    reopen
+                    set reopened to true
+                end if
                 repeat 50 times
                     if (count of windows) > 0 then exit repeat
                     delay 0.2
                 end repeat
                 if (count of windows) = 0 then
                     reopen
+                    set reopened to true
                     repeat 25 times
                         if (count of windows) > 0 then exit repeat
                         delay 0.2

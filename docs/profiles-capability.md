@@ -65,6 +65,7 @@ Found while building the feature:
 
 - Arc doesn't support `exists` on spaces (-1708). The app's script checks `(id of spaces of candidate) contains spaceID` instead.
 - When a link opens in Little Arc, `StorableSidebar.json` gains a `littleBrowser` container with one untitled space, listed before the main window's. The main window's spaces follow the `global` key.
+- With only a Little Arc window open, no window holds the sidebar's spaces. The script then sends `reopen` and looks again before reporting the space missing. With a main window already open, `reopen` adds no window. (Found in review; the Little-Arc-only case wasn't run.)
 - A browser that's running with no window gets `reopen`, which opens one. Dia created a window this way; `make new window` returned without error and created nothing.
 
 ### What it costs Blink

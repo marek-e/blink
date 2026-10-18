@@ -36,7 +36,9 @@ final class ProfileCatalog {
     func refresh(_ bundleIDs: some Sequence<String>) async {
         for bundleID in bundleIDs {
             guard let support = ProfileSupport.forBundleID(bundleID) else { continue }
-            let known = modificationDates[bundleID]
+            // Firefox profiles count only once they have a prefs.js, which appears without
+            // profiles.ini changing, so that small file is always read again.
+            let known = support.family == .firefox ? nil : modificationDates[bundleID]
             let read = await Task.detached(priority: .userInitiated) {
                 Self.read(support, unlessModifiedAt: known)
             }.value
